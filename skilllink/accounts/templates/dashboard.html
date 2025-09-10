@@ -1,0 +1,114 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - SkillLink{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+
+    <h1 class="text-center mb-5 fw-bold text-dark">Welcome, {{ user.first_name }}!</h1>
+
+    <!-- Top Stats Cards -->
+    <div class="row g-4 mb-5">
+        <div class="col-md-4">
+            <div class="card shadow-sm text-center" style="background-color: #FFF8DC; border: 2px solid #F0E68C;">
+                <div class="card-body">
+                    <h5 class="card-title fw-semibold">Token Balance</h5>
+                    <p class="display-6 fw-bold">{{ profile.token_balance }}</p>
+                    <a href="{% url 'token_balance' %}" class="btn btn-warning text-dark fw-bold shadow-sm">Manage Tokens</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card shadow-sm text-center" style="background-color: #FFF8DC; border: 2px solid #F0E68C;">
+                <div class="card-body">
+                    <h5 class="card-title fw-semibold">My Skills</h5>
+                    {% if user_skills %}
+                        <ul class="list-group list-group-flush mb-3">
+                            {% for skill in user_skills %}
+                                <li class="list-group-item" style="background-color: #FFFACD;">
+                                    {{ skill.skill.name }} ({{ skill.experience_level }})
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p class="text-dark">No skills added.</p>
+                    {% endif %}
+                    <a href="{% url 'add_skill' %}" class="btn btn-warning text-dark fw-bold shadow-sm">Add / Edit Skills</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card shadow-sm text-center" style="background-color: #FFF8DC; border: 2px solid #F0E68C;">
+                <div class="card-body">
+                    <h5 class="card-title fw-semibold">Incoming Bookings</h5>
+                    <p class="display-6 fw-bold">{{ incoming_requests.count }}</p>
+                    <a href="#incoming-bookings" class="btn btn-warning text-dark fw-bold shadow-sm">Manage Bookings</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Incoming Booking Requests -->
+    <div class="mb-5">
+        <h3 class="mb-3 fw-bold text-dark" id="incoming-bookings">Incoming Booking Requests</h3>
+        {% if incoming_requests %}
+            {% for booking in incoming_requests %}
+            <div class="card mb-3 shadow-sm" style="background-color: #FFFACD; border: 1px solid #F0E68C;">
+                <div class="card-body">
+                    <p><strong>Requester:</strong> {{ booking.requester.user.get_full_name|default:booking.requester.user.username }}</p>
+                    <p><strong>Skill:</strong> {{ booking.skill.name }}</p>
+                    <p><strong>Status:</strong> {{ booking.status|capfirst }}</p>
+
+                    {% if booking.status == 'pending' %}
+                        <a href="{% url 'schedule_meeting' booking.id %}" class="btn btn-primary btn-sm me-1">Schedule Meeting</a>
+                        <a href="{% url 'booking_update_status' booking.id 'reject' %}" class="btn btn-danger btn-sm">Reject</a>
+                    {% elif booking.status == 'scheduled' %}
+                        <a href="{% url 'start_meeting' booking.id %}" class="btn btn-success btn-sm me-1">Start Zoom</a>
+                        {% if booking.meeting_started %}
+                            <a href="{{ booking.meeting_link }}" target="_blank" class="btn btn-info btn-sm">Join Zoom</a>
+                        {% endif %}
+                    {% elif booking.status == 'rejected' %}
+                        <span class="badge bg-danger">Rejected</span>
+                    {% elif booking.status == 'cancelled' %}
+                        <span class="badge bg-warning">Cancelled</span>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <p class="text-dark">No incoming requests.</p>
+        {% endif %}
+    </div>
+
+    <!-- My Bookings (Requester) -->
+    <div class="mb-5">
+        <h3 class="mb-3 fw-bold text-dark">My Bookings (Requester)</h3>
+        {% if bookings_made %}
+            {% for booking in bookings_made %}
+            <div class="card mb-3 shadow-sm" style="background-color: #FFFACD; border: 1px solid #F0E68C;">
+                <div class="card-body">
+                    <p><strong>Provider:</strong> {{ booking.provider.user.get_full_name|default:booking.provider.user.username }}</p>
+                    <p><strong>Skill:</strong> {{ booking.skill.name }}</p>
+                    <p><strong>Status:</strong> {{ booking.status|capfirst }}</p>
+
+                    {% if booking.status == 'pending' %}
+                        <a href="{% url 'booking_update_status' booking.id 'cancel' %}" class="btn btn-warning btn-sm">Cancel</a>
+                    {% elif booking.status == 'scheduled' %}
+                        {% if booking.meeting_started %}
+                            <a href="{{ booking.meeting_link }}" target="_blank" class="btn btn-info btn-sm">Join Zoom</a>
+                        {% endif %}
+                    {% elif booking.status == 'rejected' %}
+                        <span class="badge bg-danger">Rejected</span>
+                    {% elif booking.status == 'cancelled' %}
+                        <span class="badge bg-warning">Cancelled</span>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <p class="text-dark">No bookings made yet.</p>
+        {% endif %}
+    </div>
+
+</div>
+{% endblock %}

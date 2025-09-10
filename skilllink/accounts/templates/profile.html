@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ user.first_name }}'s Profile - SkillLink{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-center mt-5">
+    <!-- Large College ID Card -->
+    <div class="card w-100" style="background-color: #FFF8DC; border: 2px solid #F0E68C; max-width: 900px;">
+        <div class="row g-0 align-items-center p-4">
+            
+            <!-- Profile Image -->
+            <div class="col-auto">
+                {% if user.profile.profile_pic %}
+                    <img src="{{ user.profile.profile_pic.url }}" 
+                         class="rounded-circle border border-warning" 
+                         alt="Profile Picture" 
+                         style="width: 80px; height: 80px; object-fit: cover;">
+                {% else %}
+                    <div class="rounded-circle border border-warning bg-warning d-flex align-items-center justify-content-center" 
+                         style="width: 80px; height: 80px;">
+                        <span class="text-white fw-bold fs-4">{{ user.first_name|slice:":1" }}</span>
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- Info Section -->
+            <div class="col ms-4">
+                <!-- Name & Email -->
+                <h3 class="card-title mb-1 text-dark">{{ user.first_name }} {{ user.last_name }}</h3>
+                <p class="mb-1 text-dark" style="font-size: 0.95rem;">{{ user.email }}</p>
+                {% if user.profile.location %}
+                    <p class="mb-2 text-dark" style="font-size: 0.9rem;"><i class="fas fa-map-marker-alt me-1"></i>{{ user.profile.location }}</p>
+                {% endif %}
+
+                <!-- Bio -->
+                {% if user.profile.bio %}
+                    <p class="mb-2 text-dark" style="font-size: 0.9rem;"><strong>Bio:</strong> {{ user.profile.bio }}</p>
+                {% endif %}
+
+                <!-- Skills -->
+                {% if user.profile.profileskill_set.exists %}
+                    <p class="mb-2 text-dark" style="font-size: 0.9rem;"><strong>Skills:</strong>
+                        {% for ps in user.profile.profileskill_set.all %}
+                            {{ ps.skill.name }}{% if ps.get_experience_level_display %} ({{ ps.get_experience_level_display }}){% endif %}{% if not forloop.last %}, {% endif %}
+                        {% endfor %}
+                    </p>
+                {% else %}
+                    <p class="mb-2 text-dark" style="font-size: 0.9rem;"><strong>Skills:</strong> None</p>
+                {% endif %}
+
+                <!-- Edit Button -->
+                <div class="mt-3">
+                    <a href="{% url 'profile_edit' %}" 
+                       class="btn btn-warning text-dark fw-bold px-4 py-2 shadow-sm">
+                       Edit Profile
+                    </a>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endblock %}

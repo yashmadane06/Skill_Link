@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+
+{% block title %}Edit Skill - SkillLink{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-center mt-5">
+    <div class="card shadow-sm" style="max-width: 600px; width: 100%; background-color: #FFF8DC; border: 2px solid #F0E68C;">
+        <div class="card-body">
+            <!-- Header -->
+            <h2 class="card-title text-center mb-4 text-dark">Edit Skill</h2>
+
+            <!-- Form -->
+            <form method="post">
+                {% csrf_token %}
+                {% for field in form %}
+                    <div class="mb-3">
+                        {{ field.label_tag }} 
+                        {{ field }}
+                        {% if field.help_text %}
+                            <small class="form-text text-muted">{{ field.help_text }}</small>
+                        {% endif %}
+                        {% for error in field.errors %}
+                            <div class="text-danger" style="font-size: 0.85rem;">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                {% endfor %}
+
+                <div class="text-center">
+                    <button type="submit" class="btn btn-warning text-dark fw-bold px-4 py-2 shadow-sm">
+                        Update Skill
+                    </button>
+                </div>
+            </form>
+
+            <!-- Back Link -->
+            <div class="text-center mt-3">
+                <a href="{% url 'profile_edit' %}" class="text-decoration-none text-dark fw-semibold">
+                    &larr; Back to Profile
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

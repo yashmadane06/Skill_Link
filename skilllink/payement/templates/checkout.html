@@ -1,0 +1,24 @@
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+var options = {
+    "key": "{{ key_id }}",
+    "amount": "{{ order.amount }}",
+    "currency": "INR",
+    "name": "SkillLink",
+    "description": "Add Tokens",
+    "order_id": "{{ order.id }}",
+    "prefill": {
+        "name": "{{ request.user.get_full_name }}",
+        "email": "{{ request.user.email }}"
+    },
+    "theme": {
+        "color": "#007bff"
+    },
+    "handler": function (response){
+        // redirect manually to Django success URL
+        window.location.href = "{% url 'payment_success' %}";
+    }
+};
+var rzp1 = new Razorpay(options);
+rzp1.open();
+</script>
