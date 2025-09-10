@@ -1,0 +1,13 @@
+{% extends 'base/base.html' %}
+
+{% block content %}
+    {% if booking.status == 'pending' %}
+    {% if booking.provider.user == user %}
+        <a href="{% url 'booking_update_status' booking.id 'accept' %}">Accept</a>
+        <a href="{% url 'booking_update_status' booking.id 'reject' %}">Reject</a>
+    {% elif booking.requester.user == user %}
+        <a href="{% url 'booking_update_status' booking.id 'cancel' %}">Cancel</a>
+    {% endif %}
+{% endif %}
+
+{% endblock %}

@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+
+{% block title %}My Bookings - SkillLink{% endblock %}
+
+{% block content %}
+<div class="container mt-5 max-w-4xl">
+
+  <h1 class="text-3xl fw-bold mb-5 text-dark">My Bookings</h1>
+
+  {# --- Bookings Received (As Provider) --- #}
+  <h2 class="text-2xl fw-semibold mb-3 text-dark">Incoming Booking Requests</h2>
+  {% for booking in bookings_received %}
+    <div class="card shadow mb-4" style="border: 2px solid #F0E68C; background-color: #FFF8DC;">
+      <div class="card-body">
+        <p class="text-dark mb-2">
+          <strong>Skill:</strong> {{ booking.skill.name }}<br>
+          <strong>Status:</strong> <span class="text-capitalize">{{ booking.status }}</span><br>
+          <strong>Requester:</strong> {{ booking.requester.user.get_full_name|default:booking.requester.user.username }}
+        </p>
+
+        <div class="d-flex flex-wrap gap-2">
+          {% if booking.status == 'pending' %}
+            {% if booking.provider.user == user %}
+              <a href="{% url 'schedule_meeting' booking.id %}" class="btn btn-success fw-bold">Accept & Schedule</a>
+              <a href="{% url 'booking_update_status' booking.id 'reject' %}" class="btn btn-danger fw-bold">Reject</a>
+            {% endif %}
+          {% elif booking.status == 'scheduled' %}
+            {% if booking.provider.user == user %}
+              <a href="{% url 'start_meeting' booking.id %}" target="_blank" class="btn btn-primary fw-bold">Start Zoom</a>
+            {% elif booking.requester.user == user %}
+              {% if booking.meeting_started %}
+                <a href="{{ booking.meeting_link }}" target="_blank" class="btn btn-success fw-bold">Join Zoom</a>
+              {% else %}
+                <p class="text-dark fw-semibold">Waiting for host to start the meeting...</p>
+              {% endif %}
+            {% endif %}
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  {% empty %}
+    <p class="text-dark mb-4">No incoming bookings.</p>
+  {% endfor %}
+
+  {# --- Bookings Made (As Requester) --- #}
+  <h2 class="text-2xl fw-semibold mb-3 text-dark mt-5">My Bookings (Requested)</h2>
+  {% for booking in bookings_made %}
+    <div class="card shadow mb-4" style="border: 2px solid #F0E68C; background-color: #FFF8DC;">
+      <div class="card-body">
+        <p class="text-dark mb-2">
+          <strong>Skill:</strong> {{ booking.skill.name }}<br>
+          <strong>Status:</strong> <span class="text-capitalize">{{ booking.status }}</span><br>
+          <strong>Provider:</strong> {{ booking.provider.user.get_full_name|default:booking.provider.user.username }}
+        </p>
+
+        <div class="d-flex flex-wrap gap-2">
+          {% if booking.status == 'pending' %}
+            {% if booking.requester.user == user %}
+              <a href="{% url 'booking_update_status' booking.id 'cancel' %}" class="btn btn-warning fw-bold">Cancel</a>
+            {% endif %}
+          {% elif booking.status == 'scheduled' %}
+            {% if booking.requester.user == user %}
+              {% if booking.meeting_started %}
+                <a href="{{ booking.meeting_link }}" target="_blank" class="btn btn-success fw-bold">Join Zoom</a>
+              {% else %}
+                <p class="text-dark fw-semibold">Waiting for host to start the meeting...</p>
+              {% endif %}
+            {% endif %}
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  {% empty %}
+    <p class="text-dark">No bookings made yet.</p>
+  {% endfor %}
+
+</div>
+{% endblock %}
