@@ -14,22 +14,27 @@ class ProfileForm(forms.ModelForm):
             'profile_pic': forms.FileInput(attrs={'class': 'form-control'}),
         }
 
-
-
 class ProfileSkillForm(forms.ModelForm):
-    # treat skill as a plain CharField, not ForeignKey
-    skill_name = forms.CharField(
-        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter skill name'})
-    )
+    new_skill_name = forms.CharField(max_length=100, required=False, label="Add New Skill")
 
     class Meta:
         model = ProfileSkill
-        fields = ['experience_level', 'personal_description']  # 🚨 skill removed here
-        widgets = {
-            'experience_level': forms.Select(attrs={'class': 'form-select'}),
-            'personal_description': forms.Textarea(attrs={
-                'class': 'form-control',
-                'rows': 3,
-                'placeholder': 'Add description'
-            }),
-        }
+        fields = [
+            'skill',
+            'experience_level',
+            'learning_status',
+            'personal_description',
+            'available_for_teaching',
+            'token_cost',
+        ]
+
+    def save(self, commit=True):
+        skill_instance = self.cleaned_data.get('skill')
+        new_skill_name = self.cleaned_data.get('new_skill_name')
+
+        if new_skill_name:
+            # Create new Skill if not exists
+            skill_instance, created = Skill.objects.get_or_create(name=new_skill_name)
+
+        self.instance.skill = skill_instance
+        return super().save(commit=commit)

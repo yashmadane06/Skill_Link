@@ -1,35 +1,55 @@
 from django.db import models
 from accounts.models import Profile
 
-# ---------------- SKILL ----------------
+# --- Skill Master Table ---
 class Skill(models.Model):
-    name = models.CharField(max_length=30, unique=True)
-    category = models.CharField(max_length=30, blank=True, default='')
-
-    experience_choices = [
-        (0, 'Just started'),
-        (1, 'Beginner'),
-        (2, 'Intermediate'),
-        (3, 'Proficient'),
-        (4, 'Advanced'),
-        (5, 'Expert / Mastery'),
-    ]
-
-    description = models.CharField(max_length=200, blank=True, default='')
+    name = models.CharField(max_length=100)
+    category = models.CharField(max_length=50, blank=True, null=True)
+    skill_icon = models.ImageField(upload_to='skill_icons/', blank=True, null=True)
 
     def __str__(self):
         return self.name
 
 
-# ---------------- PROFILE SKILL ----------------
+# --- Profile-Specific Skill Info ---
 class ProfileSkill(models.Model):
-    profile = models.ForeignKey(Profile, on_delete=models.CASCADE)
+    # --- Relations ---
+    profile = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name="skills")
     skill = models.ForeignKey(Skill, on_delete=models.CASCADE)
-    personal_description = models.TextField(blank=True)
-    experience_level = models.IntegerField(choices=Skill.experience_choices, default=0)
 
-    class Meta:
-        unique_together = ('profile', 'skill')
+    # --- Experience & Proficiency ---
+    EXPERIENCE_CHOICES = [
+        ("beginner", "Beginner"),
+        ("intermediate", "Intermediate"),
+        ("advanced", "Advanced"),
+        ("expert", "Expert"),
+    ]
+    experience_level = models.CharField(max_length=20, choices=EXPERIENCE_CHOICES, default="beginner")
+    LEARNING_STATUS_CHOICES = [
+        ("learning", "Learning"),
+        ("practicing", "Practicing"),
+        ("mastered", "Mastered"),
+        ("teaching", "Teaching"),
+    ]
+    learning_status = models.CharField(max_length=20, choices=LEARNING_STATUS_CHOICES, default="learning")
+    years_of_experience = models.PositiveIntegerField(default=0)
+    personal_description = models.TextField(blank=True, null=True)
+
+    # --- Availability / Exchange ---
+    available_for_teaching = models.BooleanField(default=False)
+    token_cost = models.PositiveIntegerField(default=0)
+
+    # --- Interaction / Social ---
+    times_taught = models.PositiveIntegerField(default=0)
+    average_rating = models.FloatField(default=0.0)
+    verified = models.BooleanField(default=False)
+
+    # --- Optional Notes ---
+    notes = models.TextField(blank=True, null=True)
+    certificate_url = models.URLField(blank=True, null=True)
+
+    # --- Timestamp ---
+    added_on = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return f"{self.profile.user.username} - {self.skill.name}"

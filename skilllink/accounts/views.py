@@ -90,8 +90,7 @@ def profile_edit(request):
     else:
         profile_form = ProfileForm(instance=profile)
 
-    skills = profile.profileskill_set.all()  # fetch all skills
-
+    skills = profile.skills.all()
     return render(request, "profile_edit.html", {
         "profile_form": profile_form,
         "skills": skills,
@@ -99,29 +98,73 @@ def profile_edit(request):
 
 @login_required
 def add_skill(request):
+    profile = request.user.profile
+
     if request.method == "POST":
-        form = ProfileSkillForm(request.POST)
-        if form.is_valid():
-            skill_name = form.cleaned_data['skill_name'].strip()
+        skill_name = request.POST.get("skill_name").strip()
+        experience_level = request.POST.get("experience_level")
+        personal_description = request.POST.get("personal_description", "")
 
-            # get or create the Skill
-            skill, created = Skill.objects.get_or_create(name=skill_name)
-
-            # now create the ProfileSkill
+        if skill_name:
+            skill_obj, created = Skill.objects.get_or_create(name=skill_name)
+            # Link to user's profile
             ProfileSkill.objects.create(
-                profile=request.user.profile,
-                skill=skill,
-                experience_level=form.cleaned_data['experience_level'],
-                personal_description=form.cleaned_data['personal_description']
+                profile=profile,
+                skill=skill_obj,
+                experience_level=experience_level,
+                personal_description=personal_description
             )
+            messages.success(request, f"Skill '{skill_name}' added successfully.")
+        else:
+            messages.error(request, "Please enter a skill name.")
 
-            messages.success(request, "Skill added successfully.")
-            return redirect("profile_edit")
+        return redirect("profile_edit")
+
+    return redirect("@login_required
+def add_skill(request):
+    profile = request.user.profile
+
+    if request.method == "POST":
+        skill_name = request.POST.get("skill_name").strip()
+        experience_level = request.POST.get("experience_level")
+        personal_description = request.POST.get("personal_description", "")
+
+        if skill_name:
+            skill_obj, created = Skill.objects.get_or_create(name=skill_name)
+            # Link to user's profile
+            ProfileSkill.objects.create(
+                profile=profile,
+                skill=skill_obj,
+                experience_level=experience_level,
+                personal_description=personal_description
+            )
+            messages.success(request, f"Skill '{skill_name}' added successfully.")
+        else:
+            messages.error(request, "Please enter a skill name.")
+
+        return redirect("profile_edit")
+    messages.success(request, "skill aded succesfully")
+    return redirect("profile_edit")")
+
+@login_required
+def edit_profile(request):
+    profile = request.user.profile
+    skills = ProfileSkill.objects.filter(profile=profile)
+
+    if request.method == "POST":
+        profile_form = ProfileForm(request.POST, request.FILES, instance=profile)
+        if profile_form.is_valid():
+            profile_form.save()
+            messages.success(request, "Profile updated successfully!")
+            return redirect("edit_profile")
     else:
-        form = ProfileSkillForm()
+        profile_form = ProfileForm(instance=profile)
 
-    return render(request, "skill_add.html", {"form": form})
-
+    context = {
+        "profile_form": profile_form,
+        "skills": skills,
+    }
+    return render(request, "accounts/edit_profile.html", context)
 
 
 @login_required
@@ -134,7 +177,7 @@ def edit_skill(request, pk):
         if form.is_valid():
             form.save()
             messages.success(request, f"Skill '{skill_instance.skill.name}' updated successfully.")
-            return redirect("profile_edit")
+            return redirect("edit_profile")
     else:
         form = ProfileSkillForm(instance=skill_instance)
 
@@ -142,6 +185,7 @@ def edit_skill(request, pk):
         "form": form,
         "skill_instance": skill_instance,
     })
+
 
 
 @login_required
