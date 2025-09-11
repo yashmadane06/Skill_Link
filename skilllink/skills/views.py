@@ -2,9 +2,28 @@ from django.shortcuts import render, get_object_or_404
 from .models import Skill, ProfileSkill
 from accounts.models import Profile
 
+from django.shortcuts import render
+
+from django.db.models import Prefetch
+
+
+
 def skill_list(request):
-    skills = Skill.objects.all()
-    return render(request, "skills/skill_list.html", {"skills": skills})
+    # Prefetch ProfileSkill objects for each skill with related profile and user
+    skills = Skill.objects.prefetch_related(
+        Prefetch(
+            'profileskill_set',  # reverse relation from Skill to ProfileSkill
+            queryset=ProfileSkill.objects.select_related('profile', 'profile__user')
+        )
+    ).all()
+    
+    context = {
+        'skills': skills
+    }
+    
+    return render(request, "skills_available.html", context)
+
+
 
 def skill_detail(request, skill_id):
     skill = get_object_or_404(Skill, id=skill_id)
@@ -20,3 +39,16 @@ def skill_detail(request, skill_id):
         })
 
     return render(request, "skills/skill_detail.html", {"skill": skill, "providers": providers_list})
+
+
+
+def skills_available(request):
+    # Example: show all skills
+    skills = ProfileSkill.objects.filter(available_for_teaching=True)
+    return render(request, 'skills_available.html', {'skills': skills})
+
+def share_skill(request):
+    # Example: show top tutors or skill sharers
+    top_tutors = ProfileSkill.objects.filter(available_for_teaching=True)[:10]
+    return render(request, 'share_skill.html', {'top_tutors': top_tutors})
+

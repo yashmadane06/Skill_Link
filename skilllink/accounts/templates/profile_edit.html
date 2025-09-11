@@ -1,16 +1,14 @@
 {% extends "base.html" %}
 {% load static %}
 
+{% block title %}Edit Profile - SkillLink{% endblock %}
+
 {% block content %}
 <div class="container mt-5">
-    <!-- Page Header -->
     <h2 class="mb-4 text-center fw-bold text-dark">Edit Profile</h2>
 
-    <!-- Profile Info Card -->
-    <div class="card shadow-sm mb-4" style="border: 2px solid #F0E68C; background-color: #FFF8DC;">
-        <div class="card-header bg-primary text-white">
-            <h5 class="mb-0">Profile Information</h5>
-        </div>
+    <!-- Profile Info -->
+    <div class="card shadow-sm mb-4" style="border:2px solid #F0E68C; background-color:#FFF8DC;">
         <div class="card-body">
             <form method="post" enctype="multipart/form-data">
                 {% csrf_token %}
@@ -18,11 +16,8 @@
                     <div class="mb-3">
                         {{ field.label_tag }}
                         {{ field }}
-                        {% if field.help_text %}
-                            <small class="form-text text-muted">{{ field.help_text }}</small>
-                        {% endif %}
                         {% for error in field.errors %}
-                            <div class="text-danger" style="font-size: 0.85rem;">{{ error }}</div>
+                            <div class="text-danger">{{ error }}</div>
                         {% endfor %}
                     </div>
                 {% endfor %}
@@ -34,7 +29,7 @@
     </div>
 
     <!-- Skills Section -->
-    <div class="card shadow-sm" style="border: 2px solid #F0E68C; background-color: #FFF8DC;">
+    <div class="card shadow-sm" style="border:2px solid #F0E68C; background-color:#FFF8DC;">
         <div class="card-header bg-secondary text-white d-flex justify-content-between align-items-center">
             <h5 class="mb-0">My Skills</h5>
             <a href="{% url 'add_skill' %}" class="btn btn-light btn-sm fw-bold">+ Add Skill</a>
@@ -45,23 +40,22 @@
                     {% for skill in skills %}
                         <li class="list-group-item d-flex justify-content-between align-items-center">
                             <div>
+                                {% if skill.skill.skill_icon %}
+                                    <img src="{{ skill.skill.skill_icon.url }}" alt="{{ skill.skill.name }}" class="rounded me-2" style="width:32px; height:32px;">
+                                {% endif %}
                                 <strong>{{ skill.skill.name }}</strong>
                                 <span class="badge bg-info text-dark ms-2">{{ skill.get_experience_level_display }}</span>
                                 <p class="text-muted mb-0">{{ skill.personal_description|default:"No description" }}</p>
                             </div>
-                            <div class="btn-group btn-group-sm" role="group">
+                            <div class="btn-group btn-group-sm">
                                 <a href="{% url 'edit_skill' skill.id %}" class="btn btn-outline-primary">Edit</a>
-                                <a href="{% url 'delete_skill' skill.id %}" 
-                                   class="btn btn-outline-danger"
-                                   onclick="return confirm('Are you sure you want to remove this skill?');">
-                                   Delete
-                                </a>
+                                <a href="{% url 'delete_skill' skill.id %}" class="btn btn-outline-danger" onclick="return confirm('Are you sure?');">Delete</a>
                             </div>
                         </li>
                     {% endfor %}
                 </ul>
             {% else %}
-                <p class="text-muted mb-0">No skills added yet. Start by clicking "Add Skill".</p>
+                <p class="text-muted">No skills added yet. Click "Add Skill" to get started.</p>
             {% endif %}
         </div>
     </div>

@@ -1,85 +1,80 @@
 {% extends 'base.html' %}
 
-{% block title %}Edit Add - SkillLink{% endblock %}
+{% block title %}Add Skill - SkillLink{% endblock %}
 
 {% block content %}
 <div class="d-flex justify-content-center mt-5">
-    <div class="card shadow-sm" style="max-width: 600px; width: 100%; background-color: #FFF8DC; border: 2px solid #F0E68C;">
+    <div class="card shadow-sm" style="max-width:600px; width:100%; background-color:#FFF8DC; border:2px solid #F0E68C;">
         <div class="card-body">
-            <!-- Header -->
-            <h2 class="card-title text-center mb-4 text-dark">Edit Skill</h2>
+            <h2 class="card-title text-center mb-4 text-dark">Add New Skill</h2>
 
-            <!-- Form -->
-            <form method="post">
+            <form method="post" enctype="multipart/form-data">
                 {% csrf_token %}
-
-                <!-- Skill Name (new or existing) -->
+                <!-- Skill Name -->
                 <div class="mb-3">
                     <label for="skill_name" class="form-label">Skill Name</label>
-                    <input type="text" class="form-control" id="skill_name" name="skill_name" 
-                           value="{{ skill_instance.skill.name }}" placeholder="Enter skill name">
+                    <input type="text" class="form-control" id="skill_name" name="skill_name" placeholder="Enter skill name" required>
+                </div>
+
+                <!-- Skill Icon -->
+                <div class="mb-3">
+                    <label for="skill_icon" class="form-label">Skill Icon (optional)</label>
+                    <input type="file" class="form-control" id="skill_icon" name="skill_icon">
                 </div>
 
                 <!-- Experience Level -->
                 <div class="mb-3">
                     <label for="experience_level" class="form-label">Experience Level</label>
                     <select class="form-select" id="experience_level" name="experience_level">
-                        <option value="beginner" {% if skill_instance.experience_level == 'beginner' %}selected{% endif %}>Beginner</option>
-                        <option value="intermediate" {% if skill_instance.experience_level == 'intermediate' %}selected{% endif %}>Intermediate</option>
-                        <option value="advanced" {% if skill_instance.experience_level == 'advanced' %}selected{% endif %}>Advanced</option>
+                        <option value="beginner">Beginner</option>
+                        <option value="intermediate">Intermediate</option>
+                        <option value="advanced">Advanced</option>
+                        <option value="expert">Expert</option>
                     </select>
-                </div>
-
-                <!-- Personal Description -->
-                <div class="mb-3">
-                    <label for="personal_description" class="form-label">Personal Description</label>
-                    <textarea class="form-control" id="personal_description" name="personal_description" rows="3">{{ skill_instance.personal_description }}</textarea>
-                </div>
-
-                <!-- Available for Teaching -->
-                <div class="mb-3 form-check">
-                    <input type="checkbox" class="form-check-input" id="available_for_teaching" name="available_for_teaching" 
-                        {% if skill_instance.available_for_teaching %}checked{% endif %}>
-                    <label class="form-check-label" for="available_for_teaching">Available for Teaching</label>
                 </div>
 
                 <!-- Learning Status -->
                 <div class="mb-3">
                     <label for="learning_status" class="form-label">Learning Status</label>
                     <select class="form-select" id="learning_status" name="learning_status">
-                        <option value="learning" {% if skill_instance.learning_status == 'learning' %}selected{% endif %}>Learning</option>
-                        <option value="mastered" {% if skill_instance.learning_status == 'mastered' %}selected{% endif %}>Mastered</option>
-                        <option value="teaching" {% if skill_instance.learning_status == 'teaching' %}selected{% endif %}>Teaching</option>
+                        <option value="learning">Learning</option>
+                        <option value="practicing">Practicing</option>
+                        <option value="mastered">Mastered</option>
+                        <option value="teaching">Teaching</option>
                     </select>
                 </div>
 
                 <!-- Token Cost -->
                 <div class="mb-3">
                     <label for="token_cost" class="form-label">Token Cost</label>
-                    <input type="number" class="form-control" id="token_cost" name="token_cost" value="{{ skill_instance.token_cost }}">
+                    <input type="number" class="form-control" id="token_cost" name="token_cost" min="0" value="0">
                 </div>
 
-                <!-- Times Taught & Average Rating (Read-only) -->
+                <!-- Personal Description -->
                 <div class="mb-3">
-                    <label class="form-label">Times Taught</label>
-                    <input type="number" class="form-control" value="{{ skill_instance.times_taught }}" readonly>
+                    <label for="personal_description" class="form-label">Personal Description</label>
+                    <textarea class="form-control" id="personal_description" name="personal_description" rows="3"></textarea>
                 </div>
 
+                <!-- Available for Teaching -->
+                <div class="mb-3 form-check">
+                    <input type="checkbox" class="form-check-input" id="available_for_teaching" name="available_for_teaching">
+                    <label class="form-check-label" for="available_for_teaching">Available for Teaching</label>
+                </div>
+
+                <!-- Certificate URL -->
                 <div class="mb-3">
-                    <label class="form-label">Average Rating</label>
-                    <input type="number" class="form-control" value="{{ skill_instance.average_rating }}" readonly>
+                    <label for="certificate_url" class="form-label">Certificate URL (optional)</label>
+                    <input type="url" class="form-control" id="certificate_url" name="certificate_url">
                 </div>
 
                 <div class="text-center">
-                    <button type="submit" class="btn btn-warning text-dark fw-bold px-4 py-2 shadow-sm">Update Skill</button>
+                    <button type="submit" class="btn btn-warning text-dark fw-bold px-4 py-2 shadow-sm">Add Skill</button>
                 </div>
             </form>
 
-            <!-- Back Link -->
             <div class="text-center mt-3">
-                <a href="{% url 'profile_edit' %}" class="text-decoration-none text-dark fw-semibold">
-                    &larr; Back to Profile
-                </a>
+                <a href="{% url 'profile_edit' %}" class="text-decoration-none text-dark fw-semibold">&larr; Back to Profile</a>
             </div>
         </div>
     </div>

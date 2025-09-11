@@ -13,6 +13,9 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 from pathlib import Path
 import os
 
+import cloudinary
+import cloudinary.uploader
+import cloudinary.api
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -25,10 +28,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-&7f1um-rj65ryxq666sl&8r-6z-1sckm$kjbvwm#$711dnyxbr'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
-ALLOWED_HOSTS = ["*"]
-
+ALLOWED_HOSTS = []
 
 
 # Application definition
@@ -47,6 +49,8 @@ INSTALLED_APPS = [
     'skills',
     "channels",
     'django_crontab',
+    'cloudinary',
+    'cloudinary_storage',
 ]
 
 MIDDLEWARE = [
@@ -154,3 +158,14 @@ ZOOM_CLIENT_ID = "EB94b09XTC2kfphJJB8cMQ"
 ZOOM_CLIENT_SECRET = "a2nC2OCAVtj7QJzr6aGUeUoWI3DPSRya"
 ZOOM_ACCOUNT_ID = "J7yp2HtAQLe0aWvhlVSeRg"
 ZOOM_EMAIL = "yashmadane06@gmail.com" 
+
+
+
+
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': 'dsomxn2lq',      # ✅ your real cloud name (NO '@')
+    'API_KEY': 'your_api_key',
+    'API_SECRET': 'your_api_secret',
+}
+
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
