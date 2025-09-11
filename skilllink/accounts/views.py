@@ -101,50 +101,43 @@ def add_skill(request):
     profile = request.user.profile
 
     if request.method == "POST":
-        skill_name = request.POST.get("skill_name").strip()
+        # Get data from form
+        skill_name = request.POST.get("skill_name", "").strip()
         experience_level = request.POST.get("experience_level")
+        learning_status = request.POST.get("learning_status")
         personal_description = request.POST.get("personal_description", "")
+        token_cost = request.POST.get("token_cost", 0)
+        available_for_teaching = request.POST.get("available_for_teaching") == "on"
+        certificate_url = request.POST.get("certificate_url", "")
+        skill_icon = request.FILES.get("skill_icon")
 
         if skill_name:
+            # Create skill if not exists
             skill_obj, created = Skill.objects.get_or_create(name=skill_name)
-            # Link to user's profile
+            
+            # Update skill icon if uploaded
+            if skill_icon:
+                skill_obj.skill_icon = skill_icon
+                skill_obj.save()
+
+            # Link skill to profile
             ProfileSkill.objects.create(
                 profile=profile,
                 skill=skill_obj,
                 experience_level=experience_level,
-                personal_description=personal_description
+                learning_status=learning_status,
+                personal_description=personal_description,
+                token_cost=token_cost,
+                available_for_teaching=available_for_teaching,
+                certificate_url=certificate_url,
             )
             messages.success(request, f"Skill '{skill_name}' added successfully.")
+            return redirect("profile_edit")
         else:
             messages.error(request, "Please enter a skill name.")
 
-        return redirect("profile_edit")
-
-    return redirect("@login_required")
-def add_skill(request):
-    profile = request.user.profile
-
-    if request.method == "POST":
-        skill_name = request.POST.get("skill_name").strip()
-        experience_level = request.POST.get("experience_level")
-        personal_description = request.POST.get("personal_description", "")
-
-        if skill_name:
-            skill_obj, created = Skill.objects.get_or_create(name=skill_name)
-            # Link to user's profile
-            ProfileSkill.objects.create(
-                profile=profile,
-                skill=skill_obj,
-                experience_level=experience_level,
-                personal_description=personal_description
-            )
-            messages.success(request, f"Skill '{skill_name}' added successfully.")
-        else:
-            messages.error(request, "Please enter a skill name.")
-
-        return redirect("profile_edit")
-    messages.success(request, "skill aded succesfully")
-    return redirect("profile_edit")
+    # On GET, show the form
+    return render(request, "skill_add.html")
 
 @login_required
 def edit_profile(request):
@@ -191,9 +184,13 @@ def edit_skill(request, pk):
 @login_required
 def delete_skill(request, pk):
     skill = get_object_or_404(ProfileSkill, pk=pk, profile=request.user.profile)
+    skill_name = skill.skill.name  # save name before deleting
     skill.delete()
-    messages.success(request, f"Skill '{skill.skill_name}' deleted.")
+    messages.success(request, f"Skill '{skill_name}' deleted.")
+
+    # Redirect: since skill is deleted, redirect to profile_edit
     return redirect("profile_edit")
+
 
 
 # ---------------- TOKENS ----------------

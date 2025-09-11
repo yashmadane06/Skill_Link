@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}All Skills - SkillLink{% endblock %}
+
+{% block content %}
+<section class="container my-5">
+    <h2 class="mb-4 text-center">All Available Skills</h2>
+
+    <div class="skills-grid">
+        {% for skill in skills %}
+
+
+            {% for profile_skill in skill.profileskill_set.all %}
+            <div class="skill-card shadow-sm">
+                <img src="{% if skill.skill_icon %}{{ skill.skill_icon.url }}{% else %}https://via.placeholder.com/250x150.png?text={{ skill.name|urlencode }}{% endif %}" 
+                     class="card-img-top" style="width:100%; object-fit:cover;">
+                <div class="card-body text-center p-3">
+                    <h6 class="fw-bold mb-1">{{ profile_skill.profile.user.username }}</h6>
+                    <p class="text-muted mb-1">{{ skill.name }}</p>
+                    {% if profile_skill.personal_description %}
+                        <p class="text-muted mb-2" style="font-size:0.9rem;">{{ profile_skill.personal_description }}</p>
+                    {% endif %}
+                    <a href="{% url 'create_booking' skill.id profile_skill.profile.id %}" class="btn btn-success btn-sm w-100">Send Request</a>
+                </div>
+            </div>
+            {% endfor %}
+        {% endfor %}
+    </div>
+</section>
+
+<style>
+.skills-grid {
+    column-count: 3;
+    column-gap: 1rem;
+}
+
+.skill-card {
+    display: inline-block;
+    width: 100%;
+    margin-bottom: 1rem;
+    border-radius: 12px;
+    break-inside: avoid;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.skill-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 30px rgba(0,0,0,0.2);
+}
+
+/* Responsive */
+@media (max-width: 992px) {
+    .skills-grid { column-count: 2; }
+}
+@media (max-width: 576px) {
+    .skills-grid { column-count: 1; }
+}
+</style>
+{% endblock %}

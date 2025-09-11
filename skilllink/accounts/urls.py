@@ -15,7 +15,8 @@ urlpatterns = [
     path('profile/edit/', profile_edit, name='profile_edit'),
     path("edit-skill/<int:pk>/", edit_skill, name="edit_skill"),
     path("delete-skill/<int:pk>/", delete_skill, name="delete_skill"),
-    path("add-skill", add_skill, name="add_skill"),
+    path("add-skill/", add_skill, name="add_skill"),
+
 
 
 
