@@ -120,7 +120,7 @@ def add_skill(request):
 
         return redirect("profile_edit")
 
-    return redirect("@login_required
+    return redirect("@login_required")
 def add_skill(request):
     profile = request.user.profile
 
@@ -144,7 +144,7 @@ def add_skill(request):
 
         return redirect("profile_edit")
     messages.success(request, "skill aded succesfully")
-    return redirect("profile_edit")")
+    return redirect("profile_edit")
 
 @login_required
 def edit_profile(request):
