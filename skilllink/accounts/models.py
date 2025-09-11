@@ -4,11 +4,24 @@ from django.contrib.auth.models import User
 # ---------------- PROFILE ----------------
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    bio = models.TextField(blank=True, null=True)
-    skills = models.ManyToManyField('skills.Skill', blank=True, related_name="profiles_offered")
+    bio = models.CharField(max_length=100 ,blank=True, null=True)
+    profile_pic = models.ImageField(upload_to="profile_pics/", default="default.png")
     location = models.CharField(max_length=100, blank=True, null=True)
-    profile_pic = models.ImageField(upload_to='profile_pics/', blank=True, null=True)
-
+    languages_spoken = models.CharField(max_length=200, blank=True, null=True)
+    experience_level = models.CharField(
+        max_length=20,
+        choices=[
+            ("beginner", "Beginner"),
+            ("intermediate", "Intermediate"),
+            ("expert", "Expert"),
+        ],
+        default="beginner"
+    )
+    tokens_balance = models.PositiveIntegerField(default=0)
+    rating = models.FloatField(default=0.0)
+    joined_on = models.DateTimeField(auto_now_add=True)
+    verified = models.BooleanField(default=False)
+    
     def __str__(self):
         return self.user.username
 

@@ -1,57 +1,91 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
 
-{% block title %}Available Skills - SkillLink{% endblock %}
+{% block title %}Home - SkillLink{% endblock %}
 
 {% block content %}
-<div class="container mt-5">
-    <h1 class="text-center mb-4 fw-bold text-dark">Available Skills</h1>
-
-    <!-- Masonry Grid -->
-    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-4">
-        {% for item in skills %}
-            <div class="col">
-                <div class="card shadow-sm h-100" style="border: 2px solid #F0E68C; background-color: #FFF8DC;">
-                    <div class="card-body">
-                        <h3 class="card-title mb-3 text-dark">{{ item.skill.name }}</h3>
-
-                        {% if item.providers.exists %}
-                            <div class="d-flex flex-column gap-2">
-                                {% for profile_skill in item.providers %}
-                                    {% if profile_skill.profile != request.user.profile %}
-                                        <div class="card p-2 shadow-sm" style="border: 1px solid #F0E68C; background-color: #FFFACD;">
-                                            <h5 class="card-subtitle mb-1 text-dark">{{ profile_skill.profile.user.username }}</h5>
-                                            
-                                            <p class="mb-1 text-dark" style="font-size: 0.85rem;">
-                                                <strong>Experience:</strong> {{ profile_skill.get_experience_level_display }}
-                                            </p>
-                                            
-                                            {% if profile_skill.personal_description %}
-                                                <p class="text-dark mb-1" style="font-size: 0.8rem;">{{ profile_skill.personal_description }}</p>
-                                            {% endif %}
-
-                                            <a href="{% url 'create_booking' item.skill.id profile_skill.profile.id %}" 
-                                               class="btn btn-success btn-sm w-100 fw-bold mt-1">
-                                                Send Request
-                                            </a>
-                                        </div>
-                                    {% endif %}
-                                {% endfor %}
-                            </div>
-                        {% else %}
-                            <p class="text-dark mb-0">No providers for this skill yet.</p>
-                        {% endif %}
-                    </div>
-                </div>
-            </div>
-        {% endfor %}
+  <!-- HERO (dummy image — replace later) -->
+  <section id="hero" class="py-5">
+    <div class="container position-relative text-center">
+      <img
+        src="https://static.vecteezy.com/system/resources/thumbnails/018/944/327/small/hi-tech-digital-circuit-board-ai-pad-and-electrical-lines-connected-on-blue-lighting-background-futuristic-technology-design-element-concept-vector.jpg?text=Hero+Image+(Dummy)"
+        alt="Hero image"
+        class="img-fluid rounded-4 shadow-lg w-100"
+        style="max-height:500px; object-fit:cover;">
+      <div class="hero-overlay position-absolute top-50 start-50 translate-middle text-white" style="z-index: 10;">
+        <h1 class="display-4 fw-bold">Learn. Teach. Exchange.</h1>
+        <p class="lead">Peer-to-peer skill sharing platform.</p>
+        <a href="#content-block" class="btn btn-warning btn-lg fw-bold rounded-pill">Explore SkillLink</a>
+      </div>
     </div>
-</div>
+  </section>
 
-<style>
-/* Optional: Add hover effect for Pinterest feel */
-.card:hover {
-    transform: translateY(-5px);
-    transition: all 0.3s ease;
-}
-</style>
+  <!-- Available Skills -->
+  <section class="container mt-5" id="content-block">
+    <h2 class="mb-4 text-center">Available Skills</h2>
+
+    <!-- Pinterest-like responsive grid: one card per provider -->
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-4">
+      {% for item in skills %}
+        {% for profile_skill in item.providers %}
+          <div class="col">
+            <div class="card h-100 shadow-sm skill-card">
+              <!-- Dummy skill image for each card (replace later) -->
+              <img
+                src="https://via.placeholder.com/400x250.png?text={{ item.skill.name|urlencode }}"
+                class="card-img-top"
+                alt="{{ item.skill.name }}">
+
+              <div class="card-body d-flex flex-column">
+                <h5 class="card-title text-dark fw-bold mb-1">{{ profile_skill.profile.user.username }}</h5>
+                <p class="card-subtitle mb-2 text-muted">Skill: {{ item.skill.name }}</p>
+
+                {% if profile_skill.personal_description %}
+                  <p class="card-text text-dark mb-3" style="font-size:0.95rem;">
+                    {{ profile_skill.personal_description }}
+                  </p>
+                {% else %}
+                  <p class="card-text text-muted mb-3" style="font-size:0.95rem;">
+                    No description provided.
+                  </p>
+                {% endif %}
+
+                <div class="mt-auto">
+                  <a href="{% url 'create_booking' item.skill.id profile_skill.profile.id %}"
+                     class="btn btn-success w-100 fw-bold">
+                    Send Request
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      {% endfor %}
+    </div>
+  </section>
+
+  <style>
+    /* Hero overlay styling */
+    #hero { position: relative; }
+    #hero .hero-overlay { text-shadow: 0 6px 18px rgba(0,0,0,0.6); }
+
+    /* Pinterest-like card style */
+    .skill-card {
+      border-radius: 12px;
+      overflow: hidden;
+      transition: transform 0.28s ease, box-shadow 0.28s ease;
+    }
+    .skill-card:hover {
+      transform: translateY(-10px) rotate(-0.5deg);
+      box-shadow: 0 14px 40px rgba(22, 27, 36, 0.18);
+    }
+    .skill-card img {
+      object-fit: cover;
+      height: 200px;
+      width: 100%;
+      display: block;
+    }
+
+    /* make provider button stick to bottom of card */
+    .skill-card .card-body { display: flex; flex-direction: column; min-height: 240px; }
+  </style>
 {% endblock %}
