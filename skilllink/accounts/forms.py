@@ -4,6 +4,7 @@ from .models import Profile
 from skills.models import ProfileSkill, Skill
 
 
+
 class ProfileForm(forms.ModelForm):
     class Meta:
         model = Profile

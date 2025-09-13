@@ -5,44 +5,47 @@
 {% block content %}
 <div class="container mt-5">
 
-    <h1 class="text-center mb-5 fw-bold text-dark">Welcome, {{ user.first_name }}!</h1>
+    <h1 class="text-center mb-5 fw-bold text-dark animate__animated animate__fadeInDown">Welcome, {{ user.first_name }}!</h1>
 
     <!-- Top Stats Cards -->
     <div class="row g-4 mb-5">
         <div class="col-md-4">
-            <div class="card shadow-sm text-center" style="background-color: #FFF8DC; border: 2px solid #F0E68C;">
+            <div class="card shadow-sm text-center dashboard-card animate__animated animate__fadeInUp" 
+                 style="background: linear-gradient(145deg, #ffefba, #ffffff); border-radius:15px; border: 2px solid #f0d67b; transition: transform 0.3s ease;">
                 <div class="card-body">
                     <h5 class="card-title fw-semibold">Token Balance</h5>
                     <p class="display-6 fw-bold">{{ profile.token_balance }}</p>
-                    <a href="{% url 'token_balance' %}" class="btn btn-warning text-dark fw-bold shadow-sm">Manage Tokens</a>
+                    <a href="{% url 'token_balance' %}" class="btn btn-warning text-dark fw-bold shadow-sm dashboard-btn">Manage Tokens</a>
                 </div>
             </div>
         </div>
         <div class="col-md-4">
-            <div class="card shadow-sm text-center" style="background-color: #FFF8DC; border: 2px solid #F0E68C;">
+            <div class="card shadow-sm text-center dashboard-card animate__animated animate__fadeInUp animate__delay-1s" 
+                 style="background: linear-gradient(145deg, #ffefba, #ffffff); border-radius:15px; border: 2px solid #f0d67b; transition: transform 0.3s ease;">
                 <div class="card-body">
                     <h5 class="card-title fw-semibold">My Skills</h5>
                     {% if user_skills %}
-                        <ul class="list-group list-group-flush mb-3">
+                        <div class="d-flex flex-wrap justify-content-center mb-3">
                             {% for skill in user_skills %}
-                                <li class="list-group-item" style="background-color: #FFFACD;">
+                                <span class="badge bg-warning text-dark fw-semibold me-2 mb-2 p-2 shadow-sm">
                                     {{ skill.skill.name }} ({{ skill.experience_level }})
-                                </li>
+                                </span>
                             {% endfor %}
-                        </ul>
+                        </div>
                     {% else %}
                         <p class="text-dark">No skills added.</p>
                     {% endif %}
-                    <a href="{% url 'add_skill' %}" class="btn btn-warning text-dark fw-bold shadow-sm">Add / Edit Skills</a>
+                    <a href="{% url 'add_skill' %}" class="btn btn-warning text-dark fw-bold shadow-sm dashboard-btn">Add / Edit Skills</a>
                 </div>
             </div>
         </div>
         <div class="col-md-4">
-            <div class="card shadow-sm text-center" style="background-color: #FFF8DC; border: 2px solid #F0E68C;">
+            <div class="card shadow-sm text-center dashboard-card animate__animated animate__fadeInUp animate__delay-2s" 
+                 style="background: linear-gradient(145deg, #ffefba, #ffffff); border-radius:15px; border: 2px solid #f0d67b; transition: transform 0.3s ease;">
                 <div class="card-body">
                     <h5 class="card-title fw-semibold">Incoming Bookings</h5>
                     <p class="display-6 fw-bold">{{ incoming_requests.count }}</p>
-                    <a href="#incoming-bookings" class="btn btn-warning text-dark fw-bold shadow-sm">Manage Bookings</a>
+                    <a href="{% url 'booking_list' %}" class="btn btn-warning text-dark fw-bold shadow-sm dashboard-btn">Manage Bookings</a>
                 </div>
             </div>
         </div>
@@ -50,22 +53,23 @@
 
     <!-- Incoming Booking Requests -->
     <div class="mb-5">
-        <h3 class="mb-3 fw-bold text-dark" id="incoming-bookings">Incoming Booking Requests</h3>
+        <h3 class="mb-3 fw-bold text-dark animate__animated animate__fadeInLeft" id="incoming-bookings">Incoming Booking Requests</h3>
         {% if incoming_requests %}
             {% for booking in incoming_requests %}
-            <div class="card mb-3 shadow-sm" style="background-color: #FFFACD; border: 1px solid #F0E68C;">
+            <div class="card mb-3 shadow-sm booking-card animate__animated animate__fadeInUp" 
+                 style="background: #fffacd; border: 1px solid #f0d67b; border-radius:12px; transition: transform 0.3s ease;">
                 <div class="card-body">
                     <p><strong>Requester:</strong> {{ booking.requester.user.get_full_name|default:booking.requester.user.username }}</p>
                     <p><strong>Skill:</strong> {{ booking.skill.name }}</p>
-                    <p><strong>Status:</strong> {{ booking.status|capfirst }}</p>
+                    <p><strong>Status:</strong> <span class="badge bg-info text-dark">{{ booking.status|capfirst }}</span></p>
 
                     {% if booking.status == 'pending' %}
-                        <a href="{% url 'schedule_meeting' booking.id %}" class="btn btn-primary btn-sm me-1">Schedule Meeting</a>
-                        <a href="{% url 'booking_update_status' booking.id 'reject' %}" class="btn btn-danger btn-sm">Reject</a>
+                        <a href="{% url 'schedule_meeting' booking.id %}" class="btn btn-primary btn-sm me-1 booking-btn">Schedule Meeting</a>
+                        <a href="{% url 'booking_update_status' booking.id 'reject' %}" class="btn btn-danger btn-sm booking-btn">Reject</a>
                     {% elif booking.status == 'scheduled' %}
-                        <a href="{% url 'start_meeting' booking.id %}" class="btn btn-success btn-sm me-1">Start Zoom</a>
+                        <a href="{% url 'start_meeting' booking.id %}" class="btn btn-success btn-sm me-1 booking-btn">Start Zoom</a>
                         {% if booking.meeting_started %}
-                            <a href="{{ booking.meeting_link }}" target="_blank" class="btn btn-info btn-sm">Join Zoom</a>
+                            <a href="{{ booking.meeting_link }}" target="_blank" class="btn btn-info btn-sm booking-btn">Join Zoom</a>
                         {% endif %}
                     {% elif booking.status == 'rejected' %}
                         <span class="badge bg-danger">Rejected</span>
@@ -82,20 +86,21 @@
 
     <!-- My Bookings (Requester) -->
     <div class="mb-5">
-        <h3 class="mb-3 fw-bold text-dark">My Bookings (Requester)</h3>
+        <h3 class="mb-3 fw-bold text-dark animate__animated animate__fadeInLeft">My Bookings (Requester)</h3>
         {% if bookings_made %}
             {% for booking in bookings_made %}
-            <div class="card mb-3 shadow-sm" style="background-color: #FFFACD; border: 1px solid #F0E68C;">
+            <div class="card mb-3 shadow-sm booking-card animate__animated animate__fadeInUp" 
+                 style="background: #fffacd; border: 1px solid #f0d67b; border-radius:12px; transition: transform 0.3s ease;">
                 <div class="card-body">
                     <p><strong>Provider:</strong> {{ booking.provider.user.get_full_name|default:booking.provider.user.username }}</p>
                     <p><strong>Skill:</strong> {{ booking.skill.name }}</p>
-                    <p><strong>Status:</strong> {{ booking.status|capfirst }}</p>
+                    <p><strong>Status:</strong> <span class="badge bg-info text-dark">{{ booking.status|capfirst }}</span></p>
 
                     {% if booking.status == 'pending' %}
-                        <a href="{% url 'booking_update_status' booking.id 'cancel' %}" class="btn btn-warning btn-sm">Cancel</a>
+                        <a href="{% url 'booking_update_status' booking.id 'cancel' %}" class="btn btn-warning btn-sm booking-btn">Cancel</a>
                     {% elif booking.status == 'scheduled' %}
                         {% if booking.meeting_started %}
-                            <a href="{{ booking.meeting_link }}" target="_blank" class="btn btn-info btn-sm">Join Zoom</a>
+                            <a href="{{ booking.meeting_link }}" target="_blank" class="btn btn-info btn-sm booking-btn">Join Zoom</a>
                         {% endif %}
                     {% elif booking.status == 'rejected' %}
                         <span class="badge bg-danger">Rejected</span>
@@ -111,4 +116,41 @@
     </div>
 
 </div>
+
+<style>
+/* Card hover animation */
+.dashboard-card:hover, .booking-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+}
+
+/* Buttons hover */
+.dashboard-btn, .booking-btn {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.dashboard-btn:hover, .booking-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+}
+
+/* Badges */
+.badge {
+    font-size: 0.9rem;
+    border-radius: 12px;
+    padding: 0.35em 0.7em;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.badge:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+/* Animate entrance */
+.animate__animated {
+    --animate-duration: 0.8s;
+}
+</style>
+
+<!-- Animate.css CDN -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
 {% endblock %}

@@ -8,41 +8,80 @@
 <!-- HERO -->
 <section id="hero" class="py-5">
   <div class="container position-relative text-center">
-    <img src="https://static.vecteezy.com/system/resources/thumbnails/018/944/327/small/hi-tech-digital-circuit-board-ai-pad-and-electrical-lines-connected-on-blue-lighting-background-futuristic-technology-design-element-concept-vector.jpg?text=Hero+Image+(Dummy)"
+    <img src="https://static.vecteezy.com/system/resources/thumbnails/018/944/327/small/hi-tech-digital-circuit-board-ai-pad-and-electrical-lines-connected-on-blue-lighting-background-futuristic-technology-design-element-concept-vector.jpg"
          alt="Hero image" class="img-fluid rounded-4 shadow-lg w-100"
          style="max-height:500px; object-fit:cover;">
     <div class="hero-overlay position-absolute top-50 start-50 translate-middle text-white" style="z-index: 10;">
       <h1 class="display-4 fw-bold">Learn. Teach. Exchange.</h1>
       <p class="lead">Peer-to-peer skill sharing platform.</p>
-      <a href="#content-block" class="btn btn-warning btn-lg fw-bold rounded-pill">Explore SkillLink</a>
+      <a href="#trending-skills" class="btn btn-warning btn-lg fw-bold rounded-pill">Explore SkillLink</a>
+      <a href="#about-team" class="btn btn-outline-light btn-lg px-4 rounded-pill">Learn More</a>
     </div>
   </div>
 </section>
 
-<!-- Trending Skills -->
-<section class="container my-5">
-  <h2 class="mb-4">Trending Skills</h2>
 
-  <div class="trending-grid">
-    {% for item in skills %}
-      {% for profile_skill in item.providers %}
-      <div class="skill-card shadow-sm">
-        <img src="{% if item.skill.skill_icon %}{{ item.skill.skill_icon.url }}{% else %}https://via.placeholder.com/250x150.png?text={{ item.skill.name|urlencode }}{% endif %}" 
-             class="card-img-top" style="width:100%; object-fit:cover;">
-        <div class="card-body text-center p-2">
-          <h6 class="fw-bold mb-1">{{ profile_skill.profile.user.username }}</h6>
-          <p class="text-muted mb-1">{{ item.skill.name }}</p>
-          <a href="{% url 'create_booking' item.skill.id profile_skill.profile.id %}" class="btn btn-success btn-sm w-100">Send Request</a>
-        </div>
-      </div>
+<section class="skills-section py-5">
+  <div class="container">
+    <h2 class="text-center mb-4">Trending Skills</h2>
+
+    <div class="row g-3 justify-content-center">
+      {% for item in skills|slice:":7" %}
+        {% for profile_skill in item.providers %}
+          <div class="col-12 col-md-6 col-lg-4">
+            <div class="skill-card shadow-sm h-100">
+
+              <!-- Skill Image -->
+                  <div class="d-flex align-items-center justify-content-center bg-light" style="height:120px;">
+                    <img src="{% if item.skill.skill_icon %}{{ item.skill.skill_icon.url }}{% else %}https://via.placeholder.com/120.png?text={{ item.skill.name|urlencode }}{% endif %}"  alt="{{ item.skill.name }}" style="max-height:100%; max-width:100%; object-fit:contain; padding:5px;">
+                  </div>
+
+
+              <div class="card-body text-center p-2">
+                <!-- Tutor photo + username -->
+                <div class="d-flex align-items-center justify-content-center mb-1">
+                  {% if profile_skill.profile.profile_pic %}
+                    <img src="{{ profile_skill.profile.profile_pic.url }}" 
+                         class="rounded-circle me-2" 
+                         alt="Tutor Pic" 
+                         style="width:25px; height:25px; object-fit:cover;">
+                  {% else %}
+                    <div class="rounded-circle bg-warning text-white fw-bold d-flex align-items-center justify-content-center me-2" 
+                         style="width:25px; height:25px; font-size:0.7rem;">
+                        {{ profile_skill.profile.user.first_name|slice:":1" }}
+                    </div>
+                  {% endif %}
+                  <h6 class="fw-bold mb-0" style="font-size:0.85rem;">
+                    {{ profile_skill.profile.user.username }}
+                  </h6>
+                </div>
+
+                <!-- Skill name -->
+                <p class="text-muted mb-1" style="font-size:0.75rem;">
+                  {{ item.skill.name }}
+                </p>
+
+                <!-- Booking button -->
+                <a href="{% url 'create_booking' item.skill.id profile_skill.profile.id %}" 
+                   class="btn btn-success btn-sm w-100" 
+                   style="font-size:0.7rem; padding:0.25rem;">
+                   Send Request
+                </a>
+              </div>
+            </div>
+          </div>
+        {% endfor %}
       {% endfor %}
-    {% endfor %}
 
-    <!-- Explore more card -->
-    <div class="skill-card explore-card shadow-sm">
-      <div class="card-body d-flex flex-column justify-content-center align-items-center" style="height:200px;">
-        <h5 class="fw-bold text-white">Explore More</h5>
-        <a href="{% url 'skill_list' %}" class="btn btn-warning btn-sm mt-2">Go</a>
+      <!-- Explore More Card -->
+      <div class="col-12 col-md-6 col-lg-4">
+        <div class="skill-card card shadow-sm text-center p-4 bg-dark text-white h-100 d-flex justify-content-center align-items-center">
+          <h6 class="fw-bold mb-0">
+            <a href="{% url 'skill_list' %}" class="text-white text-decoration-none">
+              + Explore More
+            </a>
+          </h6>
+        </div>
       </div>
     </div>
   </div>
@@ -54,137 +93,159 @@
 <section class="container my-5">
   <h2 class="mb-4 text-center">What Our Users Say</h2>
   <div class="row justify-content-center">
-    <!-- Review Card 1 -->
+    <!-- Review Cards -->
     <div class="col-12 col-md-4 mb-4">
       <div class="card shadow-sm p-3 h-100">
         <div class="d-flex align-items-center mb-3">
-          <img src="https://wallpapers-clan.com/wp-content/uploads/2023/06/cool-pfp-02.jpg" class="rounded-circle me-3" alt="User 1" style="width:60px; height:60px; object-fit:cover;">
-          <div>
-            <h6 class="fw-bold mb-0">Amit Sharma</h6>
-            <small class="text-muted">Learner</small>
-          </div>
+          <img src="https://wallpapers-clan.com/wp-content/uploads/2023/06/cool-pfp-02.jpg" class="rounded-circle me-3" style="width:60px; height:60px; object-fit:cover;">
+          <div><h6 class="fw-bold mb-0">Amit Sharma</h6><small class="text-muted">Learner</small></div>
         </div>
-        <p class="mb-0">"SkillLink made it so easy to find mentors for my programming skills. The platform is super user-friendly!"</p>
+        <p>"SkillLink made it so easy to find mentors for my programming skills. The platform is super user-friendly!"</p>
       </div>
     </div>
-    <!-- Review Card 2 -->
     <div class="col-12 col-md-4 mb-4">
       <div class="card shadow-sm p-3 h-100">
         <div class="d-flex align-items-center mb-3">
-          <img src="https://wallpapers-clan.com/wp-content/uploads/2023/06/cool-pfp-02.jpg" class="rounded-circle me-3" alt="User 2" style="width:60px; height:60px; object-fit:cover;">
-          <div>
-            <h6 class="fw-bold mb-0">Neha Patil</h6>
-            <small class="text-muted">Mentor</small>
-          </div>
+          <img src="https://wallpapers-clan.com/wp-content/uploads/2023/06/cool-pfp-02.jpg" class="rounded-circle me-3" style="width:60px; height:60px; object-fit:cover;">
+          <div><h6 class="fw-bold mb-0">Neha Patil</h6><small class="text-muted">Mentor</small></div>
         </div>
-        <p class="mb-0">"I love sharing my skills and helping others learn. The token system is a great incentive!"</p>
+        <p>"I love sharing my skills and helping others learn. The token system is a great incentive!"</p>
       </div>
     </div>
-    <!-- Review Card 3 -->
     <div class="col-12 col-md-4 mb-4">
       <div class="card shadow-sm p-3 h-100">
         <div class="d-flex align-items-center mb-3">
-          <img src="https://wallpapers-clan.com/wp-content/uploads/2023/06/cool-pfp-02.jpg" class="rounded-circle me-3" alt="User 3" style="width:60px; height:60px; object-fit:cover;">
-          <div>
-            <h6 class="fw-bold mb-0">Rohit Verma</h6>
-            <small class="text-muted">Learner</small>
-          </div>
+          <img src="https://wallpapers-clan.com/wp-content/uploads/2023/06/cool-pfp-02.jpg" class="rounded-circle me-3" style="width:60px; height:60px; object-fit:cover;">
+          <div><h6 class="fw-bold mb-0">Rohit Verma</h6><small class="text-muted">Learner</small></div>
         </div>
-        <p class="mb-0">"The variety of skills and the peer-to-peer learning system is amazing. Highly recommend SkillLink!"</p>
+        <p>"The variety of skills and the peer-to-peer learning system is amazing. Highly recommend SkillLink!"</p>
       </div>
     </div>
   </div>
 </section>
 
 
+<!-- Team Section -->
+<section id="about-team" class="team-section py-5">
+  <div class="container text-center">
 
-
-
-
-
-<!-- About / Team Section -->
-<section id="about-team" style="position: relative;">
-  <!-- Group Photo with overlay info -->
-  <div style="position: relative; width: 100%; height: 60vh; overflow: hidden;">
-    <img src="https://wallpapers.com/images/hd/group-boys-arms-on-shoulders-black-and-white-xvpz7dvm26drukqx.jpg" 
-         style="width:100%; height:100%; object-fit:cover; display:block;">
-    <div style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
-                color:white; text-align:center; padding:20px; background: rgba(0,0,0,0.5); border-radius:15px;">
-      <h2 class="fw-bold">Meet the SkillLink Team</h2>
-<p class="mb-0">A passionate group of developers, designers, and innovators dedicated to creating a platform where skills are shared, knowledge is exchanged, and learning never stops.</p>
-
-    </div>
-  </div>
-
-  <!-- Team members stacked below group photo -->
-  <div class="container my-5">
-    <h3 class="text-center mb-4">Meet Our Team</h3>
-    <div class="row justify-content-center">
-      {% for member in team %}
-      <div class="col-12 col-md-4 mb-4 member-card">
-        <div class="card shadow-sm text-center p-3">
-          <img src="{{ member.image }}" class="rounded mb-3" style="width:150px; height:150px; object-fit:cover;">
-          <h5 class="fw-bold">{{ member.name }}</h5>
-          <p class="text-muted mb-1">{{ member.role }}</p>
-          {% if member.contact %}<p>{{ member.contact }}</p>{% endif %}
-          {% if member.links %}
-              {% for link in member.links %}
-                  <a href="{{ link.url }}" target="_blank">{{ link.title }}</a><br>
-              {% endfor %}
-          {% endif %}
-        </div>
+    <!-- Group Photo -->
+    <div id="group-photo" class="group-photo mb-5">
+      <img src="https://wallpapers.com/images/hd/group-boys-arms-on-shoulders-black-and-white-xvpz7dvm26drukqx.jpg" 
+           alt="Group Photo" class="img-fluid rounded shadow w-100"
+           style="height:60vh; object-fit:cover;">
+      <div class="overlay position-absolute top-50 start-50 translate-middle text-white p-4 rounded"
+           style="background: rgba(0,0,0,0.5);">
+        <h2 class="fw-bold">Meet the SkillLink Team</h2>
+        <p>A passionate group of developers, designers, and innovators dedicated to creating a platform where skills are shared, knowledge is exchanged, and learning never stops.</p>
       </div>
-      {% endfor %}
     </div>
+
+    <!-- Team Members Grid -->
+<div class="container my-5">
+  <h3 class="text-center mb-4">Meet Our Team</h3>
+  <div class="row justify-content-center g-4">
+
+    {% for member in team %}
+      {% if forloop.counter <= 3 %}
+        <!-- First row: 3 members -->
+        <div class="col-md-4 col-sm-6">
+      {% else %}
+        <!-- Second row: 2 members -->
+        <div class="col-md-6 col-sm-6">
+      {% endif %}
+          <div class="team-card">
+            <div class="inner">
+
+              <!-- Front -->
+              <div class="front d-flex flex-column align-items-center justify-content-center p-3">
+                <img src="{{ member.image }}" class="rounded-circle mb-2"
+                     style="width:80px; height:80px; object-fit:cover;">
+                <h5 class="fw-bold mb-1">{{ member.name }}</h5>
+                <p class="text-muted mb-0">{{ member.role }}</p>
+              </div>
+
+              <!-- Back -->
+              <div class="back d-flex flex-column align-items-center justify-content-center p-3">
+                <p class="mb-1">📞 Contact Info</p>
+                <a href="{{ member.social.instagram }}" class="text-white me-2">Instagram</a>
+                <a href="{{ member.social.linkedin }}" class="text-white me-2">LinkedIn</a>
+                <a href="{{ member.social.github }}" class="text-white">GitHub</a>
+              </div>
+
+            </div>
+          </div>
+        </div>
+    {% endfor %}
+
   </div>
-</section>
+</div>
 
 
+
+<!-- STYLES -->
 <style>
-/* Masonry grid for trending skills */
+/* === Skills Grid === */
 .trending-grid {
-  column-count: 3;       /* number of columns */
-  column-gap: 1rem;      /* gap between columns */
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 1rem;
 }
-
 .skill-card {
-  display: inline-block;
-  width: 100%;
-  margin-bottom: 1rem;
-  border-radius: 12px;
+  border-radius: 10px;
+  overflow: hidden;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
-  break-inside: avoid;
+  font-size: 0.85rem;
+  background: #fff;
 }
+.skill-card img { width:100%; height:120px; object-fit:cover; }
+.skill-card:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0,0,0,0.15); }
+.explore-card { background:#111; color:#fff; }
 
-.skill-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 12px 30px rgba(0,0,0,0.2);
-}
 
-/* Explore More card different color */
-.explore-card {
-  background-color: #f0ad4e;
-  color: white;
-  text-align: center;
-}
+/* === Group Photo === */
+.group-photo { position: relative; transition: opacity 0.8s ease, transform 0.8s ease; }
+.group-photo.hidden { opacity:0; transform: translateY(-50px); pointer-events:none; }
+.group-photo .overlay { max-width:600px; }
 
-.explore-card h5, .explore-card a {
-  color: white;
+
+/* === Team Flip Cards === */
+.team-card { perspective: 1000px; cursor: pointer; }
+.team-card .inner {
+  position: relative;
+  width: 100%; height: 220px;
+  transition: transform 0.6s;
+  transform-style: preserve-3d;
 }
+.team-card:hover .inner { transform: rotateY(180deg); }
+.team-card .front, .team-card .back {
+  position: absolute; width: 100%; height: 100%;
+  backface-visibility: hidden;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+.team-card .front { background: #fff; }
+.team-card .back { background: #111; color: #fff; transform: rotateY(180deg); }
 </style>
 
 
+<!-- SCRIPT -->
 <script>
-// Animate team members when visible
-const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-        if(entry.isIntersecting){
-            entry.target.classList.add('visible');
-        }
-    });
-}, { threshold: 0.2 });
+const groupPhoto = document.getElementById('group-photo');
+const teamSection = document.getElementById('about-team');
 
-document.querySelectorAll('.member-card').forEach(card => observer.observe(card));
+// Hide group photo once team cards are visible
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if(entry.isIntersecting) {
+      groupPhoto.classList.add('hidden');
+    } else {
+      groupPhoto.classList.remove('hidden');
+    }
+  });
+}, { threshold: 0.3 });
+
+observer.observe(teamSection);
 </script>
 
 {% endblock %}
