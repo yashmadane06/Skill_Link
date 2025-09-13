@@ -18,7 +18,6 @@ from .models import Booking
 import uuid
 from skilllink.zoom_utils import create_zoom_meeting
 
-
 @login_required
 def create_booking(request, skill_id, provider_id):
     requester = request.user.profile
@@ -29,31 +28,32 @@ def create_booking(request, skill_id, provider_id):
         messages.error(request, "You cannot book your own skill.")
         return redirect('index')
 
-    tokens_to_deduct = 10  # total tokens for this booking
+    # ✅ Get token cost from ProfileSkill
+    profile_skill = get_object_or_404(ProfileSkill, profile=provider, skill=skill)
+    tokens_to_deduct = profile_skill.token_cost
 
     if not requester.deduct_tokens(tokens_to_deduct):
-        messages.error(request, "Insufficient tokens to book this skill.")
+        messages.error(request, f"You need {tokens_to_deduct} tokens to book this skill.")
         return redirect('index')
 
-
-    # Create booking with deduction flag
+    # Create booking
     booking = Booking.objects.create(
         requester=requester,
         provider=provider,
         skill=skill,
         tokens_spent=tokens_to_deduct,
-        tokens_deducted=True  # mark that tokens have been taken from requester
+        tokens_deducted=True
     )
 
+    # Log transaction
     Transaction.objects.create(
-    user=request.user.profile,  # NOT request.user
-    amount=10,
-    transaction_type='spent',
-    description="Booking deduction" 
+        user=requester,
+        amount=tokens_to_deduct,
+        transaction_type='spent',
+        description=f"Booking for {skill.name}"
     )
 
-
-    messages.success(request, "Booking request sent. 10 tokens deducted from your account.")
+    messages.success(request, f"Booking request sent. {tokens_to_deduct} tokens deducted.")
     return redirect('booking_success')
 
 
@@ -86,16 +86,18 @@ def booking_update_status(request, booking_id, action):
     elif action == "reject":
         booking.status = "rejected"
         booking.save()
-        # Refund tokens to requester
+
+    # Refund exactly what was deducted
         booking.requester.add_tokens(booking.tokens_spent)
+
         Transaction.objects.create(
             user=booking.requester,
             amount=booking.tokens_spent,
-            transaction_type='earned',
+            transaction_type="refund",
             description=f"Refund for rejected booking {booking.skill.name}"
         )
-        messages.info(request, "Booking rejected. Tokens refunded to requester.")
 
+        messages.info(request, f"Booking rejected. {booking.tokens_spent} tokens refunded.")
     return redirect('booking_list')
 
 
@@ -107,43 +109,28 @@ def schedule_meeting(request, booking_id):
     booking = get_object_or_404(Booking, id=booking_id, provider=request.user.profile)
 
     if request.method == "POST":
-        if not booking.tokens_scheduled_given:
-            booking.proposed_time = request.POST.get("proposed_time")
-            booking.status = "scheduled"
-            booking.tokens_scheduled_given = True
+        if booking.status != "pending":
+            messages.info(request, "This booking is already scheduled.")
+            return redirect("booking_list")
 
-            # 🔹 Create Zoom meeting
-            from skilllink.zoom_utils import create_zoom_meeting
-            zoom_response = create_zoom_meeting(
-                topic=f"{booking.skill.name} with {booking.provider.user.username}"
-            )
-            join_url = zoom_response.get("join_url")
-            start_url = zoom_response.get("start_url")
+        booking.proposed_time = request.POST.get("proposed_time")
+        booking.status = "scheduled"
 
-            if join_url:
-                booking.meeting_link = join_url
-            else:
-                messages.error(request, "Failed to create Zoom meeting. Try again.")
-                return redirect("booking_list")
-
-            booking.save()
-
-            # 🔹 Give 3 tokens to provider (old logic stays same)
-            booking.provider.add_tokens(3)
-            Transaction.objects.create(
-                user=booking.provider,
-                amount=3,
-                transaction_type='earned',
-                description=f"3 tokens for scheduling/attending meeting {booking.skill.name}"
-            )
-
-            messages.success(request, "Meeting scheduled & Zoom link created. Provider received 3 tokens.")
+        # Create Zoom
+        zoom_response = create_zoom_meeting(
+            topic=f"{booking.skill.name} with {booking.provider.user.username}"
+        )
+        join_url = zoom_response.get("join_url")
+        if join_url:
+            booking.meeting_link = join_url
         else:
-            messages.info(request, "Tokens already given for scheduling this meeting.")
+            messages.error(request, "Failed to create Zoom meeting.")
+            return redirect("booking_list")
 
-        return redirect('booking_list')  # always return an HttpResponse
+        booking.save()
+        messages.success(request, "Meeting scheduled & Zoom link created.")
+        return redirect("booking_list")
 
-    # If GET or any other method, render the form
     return render(request, "schedule_meeting.html", {"booking": booking})
 
 
@@ -174,30 +161,41 @@ def complete_meeting(request, booking_id):
 
     if booking.status != "scheduled":
         messages.error(request, "Cannot complete meeting that is not scheduled.")
-        return redirect('dashboard')
+        return redirect("dashboard")
+
+    # ✅ Ensure meeting started time exists
+    if not booking.meeting_started_at:
+        messages.error(request, "Meeting has not started yet.")
+        return redirect("dashboard")
+
+    # ✅ Check if 30 minutes passed since meeting started
+    if timezone.now() < booking.meeting_started_at + timedelta(minutes=30):
+        remaining_time = (booking.meeting_started_at + timedelta(minutes=30)) - timezone.now()
+        minutes_left = remaining_time.seconds // 60
+        messages.warning(request, f"Meeting must run at least 30 minutes. Wait {minutes_left} more minutes.")
+        return redirect("dashboard")
 
     if not booking.tokens_released:
         commission = int(booking.tokens_spent * 0.3)
         provider_total = booking.tokens_spent - commission
-        remaining_tokens = provider_total - (provider_total // 2)  # remaining half
 
-        booking.provider.add_tokens(remaining_tokens)
+        booking.provider.add_tokens(provider_total)
         Transaction.objects.create(
             user=booking.provider,
-            amount=remaining_tokens,
-            transaction_type='earned',
-            description=f"Remaining tokens (after 30% commission) for booking {booking.skill.name}"
+            amount=provider_total,
+            transaction_type="earned",
+            description=f"Payment for booking {booking.skill.name} (after commission)"
         )
 
         booking.tokens_released = True
         booking.status = "completed"
         booking.save()
-        messages.success(request, f"Meeting completed. Provider received remaining {remaining_tokens} tokens.")
 
+        messages.success(request, f"Meeting completed. Provider received {provider_total} tokens after commission.")
     else:
-        messages.info(request, "Tokens already fully released for this meeting.")
+        messages.info(request, "Tokens already released.")
 
-    return redirect('dashboard')
+    return redirect("dashboard")
 
 
 @login_required

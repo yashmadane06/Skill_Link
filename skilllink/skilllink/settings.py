@@ -16,6 +16,7 @@ import os
 
 
 
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -29,7 +30,8 @@ SECRET_KEY = 'django-insecure-&7f1um-rj65ryxq666sl&8r-6z-1sckm$kjbvwm#$711dnyxbr
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = []
+
+ALLOWED_HOSTS = ['skilllink-1-zeqc.onrender.com',]
 
 
 # Application definition
@@ -48,8 +50,6 @@ INSTALLED_APPS = [
     'skills',
     "channels",
     'django_crontab',
-    'cloudinary',
-    'cloudinary_storage',
 ]
 
 MIDDLEWARE = [
@@ -132,6 +132,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
 
+
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 MIDDLEWARE.insert(1, "whitenoise.middleware.WhiteNoiseMiddleware")
@@ -161,10 +162,16 @@ ZOOM_EMAIL = "yashmadane06@gmail.com"
 
 
 
-CLOUDINARY_STORAGE = {
-    'CLOUD_NAME': 'dsomxn2lq',      # ✅ your real cloud name (NO '@')
-    'API_KEY': 'your_api_key',
-    'API_SECRET': 'your_api_secret',
-}
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_USE_TLS = True
+EMAIL_PORT = 587
+EMAIL_HOST_USER = 'skilllinproj@gmail.com'  # Replace with your email
+EMAIL_HOST_PASSWORD = 'bckqhhyppwpyzagb'
 
-DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+CSRF_TRUSTED_ORIGINS = ["https://skilllink-1-zeqc.onrender.com/"]
+
+SECURE_HSTS_SECONDS = 31536000
+SECURE_SSL_REDIRECT = True
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True

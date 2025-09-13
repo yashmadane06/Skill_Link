@@ -12,12 +12,42 @@ from .forms import ProfileForm, ProfileSkillForm
 from skills.models import Skill, ProfileSkill
 import razorpay
 
-
-from django.shortcuts import render
-from django.contrib.auth.decorators import login_required
 from mettings.models import Booking
 
+from django.shortcuts import render, redirect
+
+from django.contrib import messages
+from django.core.mail import send_mail
+from .models import EmailOTP
+import random
 # ---------------- AUTH ----------------
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+
+
+@csrf_exempt
+def resend_otp(request):
+    if request.method == 'POST':
+        user_id = request.session.get('register_user_id')
+        if not user_id:
+            return JsonResponse({'success': False})
+
+        user = User.objects.get(id=user_id)
+        otp_obj = EmailOTP.objects.get(user=user)
+        otp = otp_obj.generate_otp()  # regenerate OTP
+
+        send_mail(
+            'SkillLink Registration OTP - Resend',
+            f'Your new OTP is: {otp}',
+            'your_email@gmail.com',
+            [user.email],
+            fail_silently=False
+        )
+
+        return JsonResponse({'success': True})
+    return JsonResponse({'success': False})
+
+
 @csrf_protect
 def login_page(request):
     if request.method == 'POST':
@@ -35,28 +65,84 @@ def login_page(request):
     return render(request, 'login.html')
 
 
-@csrf_protect
+# Registration Page
+
+
 def register_page(request):
-    if request.method == 'POST':
-        first_name = request.POST.get('first_name')
-        last_name = request.POST.get('last_name')
-        email = request.POST.get('email')
-        password = request.POST.get('password')
+    if request.method == "POST":
+        first_name = request.POST.get("first_name")
+        last_name = request.POST.get("last_name")
+        email = request.POST.get("email")
+        password = request.POST.get("password")
 
-        if User.objects.filter(username=email).exists():
-            messages.warning(request, 'Email is already taken.')
-            return HttpResponseRedirect(request.path_info)
+        # check if email already exists
+        if User.objects.filter(email=email).exists():
+            messages.error(request, "Email already registered ❌")
+            return redirect("register")
 
-        user_obj = User.objects.create_user(
-            first_name=first_name,
-            last_name=last_name,
-            email=email,
+        # create user (inactive/verified=False initially)
+        user = User.objects.create_user(
             username=email,
-            password=password
+            email=email,
+            password=password,
+            first_name=first_name,
+            last_name=last_name
         )
-        messages.success(request, 'Registration successful')
-        return redirect('dashboard')
-    return render(request, 'register.html')
+
+        # create profile
+        Profile.objects.create(user=user, verified=False)
+
+        # generate otp
+        otp_obj, _ = EmailOTP.objects.get_or_create(user=user)
+        otp = otp_obj.generate_otp()
+
+        # send mail
+        send_mail(
+            subject="SkillLink Registration OTP",
+            message=f"Your OTP for SkillLink registration is: {otp}",
+            from_email=settings.EMAIL_HOST_USER,
+            recipient_list=[email],
+            fail_silently=False,
+        )
+
+        # save user id in session for verification later
+        request.session["pending_user_id"] = user.id
+        messages.info(request, "We sent an OTP to your email 📧")
+        return redirect("verify_otp")
+
+    return render(request, "register.html")
+
+
+
+def verify_otp(request):
+    if request.method == "POST":
+        entered_otp = request.POST.get("otp")
+        user_id = request.session.get("pending_user_id")
+
+        if not user_id:
+            messages.error(request, "Session expired, please register again ❌")
+            return redirect("register")
+
+        user = User.objects.get(id=user_id)
+        otp_obj = EmailOTP.objects.get(user=user)
+
+        if otp_obj.otp == entered_otp:
+            # mark profile as verified
+            profile = Profile.objects.get(user=user)
+            profile.verified = True
+            profile.save()
+
+            messages.success(request, "Registration successful 🎉 You can now login")
+            return redirect("login")
+        else:
+            messages.error(request, "Invalid OTP ❌")
+
+    return render(request, "verify_otp.html")
+
+
+
+
+
 
 @csrf_exempt
 def logout_view(request):

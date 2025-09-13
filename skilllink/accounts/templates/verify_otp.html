@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+{% block title %}Verify OTP - SkillLink{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-center mt-5">
+    <div class="card shadow-lg p-4 position-relative" style="max-width:400px; width:100%; background: linear-gradient(135deg, #FFF8DC, #FFE4B5); border-radius: 15px; border:2px solid #F0E68C;">
+        <h3 class="text-center mb-3 fw-bold text-dark">OTP Verification</h3>
+        <p class="text-center mb-3 text-dark">Enter the OTP sent to <strong>{{ email }}</strong></p>
+
+        <form method="POST" id="otpForm">
+            {% csrf_token %}
+            <div class="mb-3">
+                <input type="text" name="otp" class="form-control text-center fw-bold fs-5" placeholder="Enter OTP" required style="letter-spacing: 0.3rem;">
+            </div>
+            <div class="d-grid mb-2">
+                <button type="submit" class="btn btn-warning text-dark fw-bold shadow-sm">Verify OTP</button>
+            </div>
+        </form>
+
+        <p class="text-center text-dark">Didn't receive OTP? <span id="resendOtp" class="fw-bold text-primary" style="cursor:pointer;">Resend</span></p>
+        <p class="text-center text-muted small">OTP expires in <span id="timer">02:00</span> minutes</p>
+    </div>
+</div>
+
+<script>
+    // Countdown Timer
+    let time = 120; // 2 minutes in seconds
+    const timerEl = document.getElementById('timer');
+
+    const countdown = setInterval(() => {
+        const minutes = String(Math.floor(time / 60)).padStart(2,'0');
+        const seconds = String(time % 60).padStart(2,'0');
+        timerEl.textContent = `${minutes}:${seconds}`;
+        time--;
+
+        if(time < 0) {
+            clearInterval(countdown);
+            timerEl.textContent = "Expired!";
+            document.getElementById('otpForm').querySelector('button').disabled = true;
+        }
+    }, 1000);
+
+    // Resend OTP
+    document.getElementById('resendOtp').addEventListener('click', function(){
+        fetch("{% url 'resend_otp' %}", {method: 'POST', headers: {'X-CSRFToken': '{{ csrf_token }}'}})
+            .then(response => response.json())
+            .then(data => {
+                if(data.success){
+                    alert('OTP resent! Check your email.');
+                    time = 120; // reset timer
+                    document.getElementById('otpForm').querySelector('button').disabled = false;
+                } else {
+                    alert('Error resending OTP.');
+                }
+            });
+    });
+</script>
+{% endblock %}
