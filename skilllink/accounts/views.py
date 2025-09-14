@@ -86,7 +86,7 @@ def register_page(request):
 # -------- VERIFY OTP --------
 
 
-ef verify_otp(request):
+def verify_otp(request):
     # Get temp_user info from session
     temp_user = request.session.get("temp_user")
     if not temp_user:
