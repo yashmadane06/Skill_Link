@@ -87,31 +87,42 @@ def register_page(request):
 
 
 def verify_otp(request):
-    email = request.session.get('register_email')  # email stored after registration
-    if not email:
-        messages.error(request, "No email found. Please register first.")
+    temp_user = request.session.get("temp_user")
+    if not temp_user:
+        messages.error(request, "No registration info found. Please register first.")
         return redirect('register')
+
+    email = temp_user.get('email')
 
     if request.method == "POST":
         otp_input = request.POST.get('otp')
-        try:
-            otp_obj = EmailOTP.objects.get(email=email, otp=otp_input, is_used=False)
-            if otp_obj.expiry_time < timezone.now():
-                messages.error(request, "OTP has expired. Please request a new one.")
-            else:
-                otp_obj.is_used = True
-                otp_obj.save()
 
-                # Get user through Profile
-                profile = Profile.objects.get(user__email=email)
-                login(request, profile.user)
+        if otp_input == temp_user.get('otp'):
+            # OTP verified
+            # Create actual user now
+            user = User.objects.create_user(
+                username=temp_user['username'],
+                email=temp_user['email'],
+                password=temp_user['password']
+            )
+            user.save()
 
-                messages.success(request, "✅ OTP verified successfully! Welcome.")
-                return redirect('dashboard')
-        except EmailOTP.DoesNotExist:
+            # Create profile
+            Profile.objects.get_or_create(user=user)
+
+            # Log in user
+            login(request, user)
+
+            # Clear temp session
+            del request.session['temp_user']
+
+            messages.success(request, "✅ OTP verified successfully! Welcome.")
+            return redirect('dashboard')
+        else:
             messages.error(request, "❌ Invalid OTP. Please try again.")
 
     return render(request, 'accounts/verify_otp.html', {'email': email})
+
 
 
 @require_POST
