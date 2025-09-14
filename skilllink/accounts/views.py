@@ -110,7 +110,7 @@ def verify_otp(request):
             messages.error(request, "❌ Invalid OTP. Please try again.")
 
     return render(request, 'accounts/verify_otp.html', {'email': email})
-v
+
 
 @require_POST
 def resend_otp(request):
