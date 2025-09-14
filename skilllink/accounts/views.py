@@ -10,7 +10,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.utils import timezone
 # App models & forms
-from .models import Profile, Transaction, EmailOTP
+from .models import Profile, Transaction,EmailOTP
 from .forms import ProfileForm, ProfileSkillForm
 from skills.models import Skill, ProfileSkill
 from mettings.models import Booking
