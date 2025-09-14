@@ -123,7 +123,7 @@ def verify_otp(request):
         else:
             messages.error(request, "❌ Invalid OTP. Please try again.")
 
-    return render(request, 'accounts/verify_otp.html', {'email': email})
+    return render(request, 'verify_otp.html', {'email': email})
 
 
 
