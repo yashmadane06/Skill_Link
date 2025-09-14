@@ -8,6 +8,7 @@ from django.views.decorators.csrf import csrf_protect,csrf_exempt
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
+from django.utils import timezone
 
 # App models & forms
 from .models import Profile, Transaction, EmailOTP
@@ -83,36 +84,31 @@ def register_page(request):
 
 # -------- VERIFY OTP --------
 def verify_otp(request):
-    temp_user = request.session.get("temp_user")
-
-    if not temp_user:
-        messages.error(request, "Session expired! Please register again.")
-        return redirect("register")
+    email = request.session.get('register_email')  # email stored after registration
+    if not email:
+        messages.error(request, "No email found. Please register first.")
+        return redirect('register')
 
     if request.method == "POST":
-        entered_otp = request.POST.get("otp")
+        otp_input = request.POST.get('otp')
+        try:
+            otp_obj = EmailOtp.objects.get(email=email, otp=otp_input, is_used=False)
+            if otp_obj.expiry_time < timezone.now():
+                messages.error(request, "OTP has expired. Please request a new one.")
+            else:
+                otp_obj.is_used = True
+                otp_obj.save()
 
-        if entered_otp == temp_user["otp"]:
-            # Create user
-            user = User.objects.create_user(
-                username=temp_user["username"],
-                email=temp_user["email"],
-                password=temp_user["password"]
-            )
-            user.save()
+                # Get user through Profile
+                profile = Profile.objects.get(user__email=email)
+                login(request, profile.user)
 
-            login(request, user)
-            del request.session["temp_user"]  # cleanup
+                messages.success(request, "✅ OTP verified successfully! Welcome.")
+                return redirect('dashboard')
+        except EmailOtp.DoesNotExist:
+            messages.error(request, "❌ Invalid OTP. Please try again.")
 
-            messages.success(request, "Registration successful!")
-            return redirect('index')
-        else:
-            messages.error(request, "Invalid OTP. Please try again.")
-
-    return render(request, "verify_otp.html", {"email": temp_user["email"]})
-
-
-from django.views.decorators.http import require_POST
+    return render(request, 'accounts/verify_otp.html', {'email': email})
 
 @require_POST
 def resend_otp(request):
