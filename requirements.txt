@@ -65,4 +65,6 @@ virtualenv==20.27.0
 Werkzeug==3.0.5
 
 whitenoise==6.10.0
-python-decouple==4.8.0
+python-decouple==3.5
+
+
