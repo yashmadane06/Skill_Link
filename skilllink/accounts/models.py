@@ -1,7 +1,28 @@
 from django.db import models
 from django.contrib.auth.models import User
-
 import random
+from datetime import datetime, timedelta
+from cloudinary.models import CloudinaryField
+
+class EmailOTP(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    otp = models.CharField(max_length=6, blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def generate_otp(self):
+        self.otp = str(random.randint(100000, 999999))
+        self.created_at = datetime.now()  # reset timestamp
+        self.save()
+        return self.otp
+
+    def is_valid(self):
+        """Check if OTP is still valid (2 minutes)"""
+        if not self.otp:
+            return False
+        return datetime.now() <= self.created_at + timedelta(minutes=2)
+
+    def __str__(self):
+        return f"{self.user.username} OTP"
 
 class EmailOTP(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
@@ -17,10 +38,11 @@ class EmailOTP(models.Model):
         return f"{self.user.username} OTP"
 
 # ---------------- PROFILE ----------------
+
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     bio = models.CharField(max_length=100 ,blank=True, null=True)
-    profile_pic = models.ImageField(upload_to="profile_pics/", default="default.png")
+    profile_pic = CloudinaryField('image', default='default.png')
     location = models.CharField(max_length=100, blank=True, null=True)
     languages_spoken = models.CharField(max_length=200, blank=True, null=True)
     experience_level = models.CharField(

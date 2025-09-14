@@ -1,51 +1,26 @@
+# Django core imports
 from django.shortcuts import render, redirect, get_object_or_404
+from django.http import JsonResponse, HttpResponseRedirect
+from django.contrib import messages
+from django.conf import settings
+from django.core.mail import send_mail
+from django.views.decorators.csrf import csrf_protect,csrf_exempt
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
-from django.views.decorators.csrf import csrf_protect, csrf_exempt
-from django.contrib import messages
-from django.http import HttpResponseRedirect
-from django.conf import settings
-
 from django.contrib.auth.models import User
-from .models import Profile, Transaction
+
+# App models & forms
+from .models import Profile, Transaction, EmailOTP
 from .forms import ProfileForm, ProfileSkillForm
 from skills.models import Skill, ProfileSkill
-import razorpay
-
 from mettings.models import Booking
 
-from django.shortcuts import render, redirect
-
-from django.contrib import messages
-from django.core.mail import send_mail
-from .models import EmailOTP
+# External libs
+import razorpay
 import random
-# ---------------- AUTH ----------------
-from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
 
-
-@csrf_exempt
-def resend_otp(request):
-    if request.method == 'POST':
-        user_id = request.session.get('register_user_id')
-        if not user_id:
-            return JsonResponse({'success': False})
-
-        user = User.objects.get(id=user_id)
-        otp_obj = EmailOTP.objects.get(user=user)
-        otp = otp_obj.generate_otp()  # regenerate OTP
-
-        send_mail(
-            'SkillLink Registration OTP - Resend',
-            f'Your new OTP is: {otp}',
-            'your_email@gmail.com',
-            [user.email],
-            fail_silently=False
-        )
-
-        return JsonResponse({'success': True})
-    return JsonResponse({'success': False})
+# Custom utils
+from Base.EmailOTP import send_otp
 
 
 @csrf_protect
@@ -65,82 +40,100 @@ def login_page(request):
     return render(request, 'login.html')
 
 
-# Registration Page
+
+# -------- REGISTER USER --------
 
 
 def register_page(request):
     if request.method == "POST":
-        first_name = request.POST.get("first_name")
-        last_name = request.POST.get("last_name")
+        username = request.POST.get("username")
         email = request.POST.get("email")
-        password = request.POST.get("password")
+        password1 = request.POST.get("password1")
+        password2 = request.POST.get("password2")
 
-        # check if email already exists
-        if User.objects.filter(email=email).exists():
-            messages.error(request, "Email already registered ❌")
+        if password1 != password2:
+            messages.error(request, "Passwords do not match")
             return redirect("register")
 
-        # create user (inactive/verified=False initially)
-        user = User.objects.create_user(
-            username=email,
-            email=email,
-            password=password,
-            first_name=first_name,
-            last_name=last_name
-        )
+        otp = random.randint(100000, 999999)
 
-        # create profile
-        Profile.objects.create(user=user, verified=False)
+        # Save details in session
+        request.session["temp_user"] = {
+            "username": username,
+            "email": email,
+            "password": password1,
+            "otp": str(otp),
+        }
 
-        # generate otp
-        otp_obj, _ = EmailOTP.objects.get_or_create(user=user)
-        otp = otp_obj.generate_otp()
-
-        # send mail
+        # Send OTP email
         send_mail(
-            subject="SkillLink Registration OTP",
-            message=f"Your OTP for SkillLink registration is: {otp}",
-            from_email=settings.EMAIL_HOST_USER,
-            recipient_list=[email],
+            "Your OTP for SkillLink",
+            f"Your OTP is {otp}. It will expire in 2 minutes.",
+            "no-reply@skilllink.com",
+            [email],
             fail_silently=False,
         )
 
-        # save user id in session for verification later
-        request.session["pending_user_id"] = user.id
-        messages.info(request, "We sent an OTP to your email 📧")
         return redirect("verify_otp")
 
     return render(request, "register.html")
 
 
 
+
+# -------- VERIFY OTP --------
 def verify_otp(request):
+    temp_user = request.session.get("temp_user")
+
+    if not temp_user:
+        messages.error(request, "Session expired! Please register again.")
+        return redirect("register")
+
     if request.method == "POST":
         entered_otp = request.POST.get("otp")
-        user_id = request.session.get("pending_user_id")
 
-        if not user_id:
-            messages.error(request, "Session expired, please register again ❌")
-            return redirect("register")
+        if entered_otp == temp_user["otp"]:
+            # Create user
+            user = User.objects.create_user(
+                username=temp_user["username"],
+                email=temp_user["email"],
+                password=temp_user["password"]
+            )
+            user.save()
 
-        user = User.objects.get(id=user_id)
-        otp_obj = EmailOTP.objects.get(user=user)
+            login(request, user)
+            del request.session["temp_user"]  # cleanup
 
-        if otp_obj.otp == entered_otp:
-            # mark profile as verified
-            profile = Profile.objects.get(user=user)
-            profile.verified = True
-            profile.save()
-
-            messages.success(request, "Registration successful 🎉 You can now login")
-            return redirect("login")
+            messages.success(request, "Registration successful!")
+            return redirect("home")
         else:
-            messages.error(request, "Invalid OTP ❌")
+            messages.error(request, "Invalid OTP. Please try again.")
 
-    return render(request, "verify_otp.html")
+    return render(request, "verify_otp.html", {"email": temp_user["email"]})
 
 
+from django.views.decorators.http import require_POST
 
+@require_POST
+def resend_otp(request):
+    temp_user = request.session.get("temp_user")
+
+    if not temp_user:
+        return JsonResponse({"success": False, "message": "No user session found"})
+
+    otp = random.randint(100000, 999999)
+    temp_user["otp"] = str(otp)
+    request.session["temp_user"] = temp_user  # update session
+
+    send_mail(
+        "Your OTP for SkillLink",
+        f"Your new OTP is {otp}. It will expire in 2 minutes.",
+        "no-reply@skilllink.com",
+        [temp_user["email"]],
+        fail_silently=False,
+    )
+
+    return JsonResponse({"success": True})
 
 
 

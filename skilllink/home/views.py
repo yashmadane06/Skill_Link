@@ -13,9 +13,9 @@ def index(request):
 
     # Reviews: dummy for now
     reviews = [
-        {"name": "Alice", "text": "SkillLink helped me learn Python fast!"},
-        {"name": "Bob", "text": "Amazing platform for peer-to-peer skill sharing."},
-        {"name": "Charlie", "text": "Loved connecting with tutors here."},
+        {"name": "Alice", "text": "SkillLink helped me learn Python fast!","profile_pic":"https://res.cloudinary.com/dctwxqpeo/image/upload/v1757868228/default_ehmhxs.png"},
+        {"name": "Bob", "text": "Amazing platform for peer-to-peer skill sharing.","profile_pic":"https://res.cloudinary.com/dctwxqpeo/image/upload/v1757868228/default_ehmhxs.png"},
+        {"name": "Charlie", "text": "Loved connecting with tutors here.","profile_pic":"https://res.cloudinary.com/dctwxqpeo/image/upload/v1757868228/default_ehmhxs.png"},
     ]
 
     # Manual team info

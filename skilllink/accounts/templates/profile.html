@@ -5,21 +5,20 @@
 
 {% block content %}
 <div class="container my-5">
-    <div class="card profile-card shadow-lg p-4" 
-         style="background: linear-gradient(135deg, #fff8dc, #fdf5e6); border-radius: 20px; overflow: hidden; transition: transform 0.3s ease, box-shadow 0.3s ease;">
-        
+    <div class="card profile-card shadow-lg p-4 animate__animated animate__fadeInUp"
+         style="background: linear-gradient(135deg, #fff8dc, #fdf5e6); border-radius: 20px; overflow: hidden;">
+
         <div class="row g-4 align-items-center">
 
             <!-- Profile Pic -->
             <div class="col-md-3 text-center">
                 {% if user.profile.profile_pic %}
                     <img src="{{ user.profile.profile_pic.url }}" 
-                         class="rounded-circle border border-warning profile-pic shadow-sm" 
-                         alt="Profile Picture" 
-                         style="width:120px; height:120px; object-fit:cover; transition: transform 0.3s ease;">
+                         class="rounded-circle border border-warning profile-pic shadow-sm"
+                         alt="Profile Picture">
                 {% else %}
                     <div class="rounded-circle border border-warning bg-warning d-flex align-items-center justify-content-center profile-pic shadow-sm"
-                         style="width:120px; height:120px; font-size:2rem; transition: transform 0.3s ease;">
+                         style="font-size:2rem;">
                         {{ user.first_name|slice:":1" }}
                     </div>
                 {% endif %}
@@ -27,24 +26,25 @@
 
             <!-- Info Section -->
             <div class="col-md-9">
-                <h2 class="fw-bold mb-1 animate__animated animate__fadeInDown">{{ user.first_name }} {{ user.last_name }}</h2>
-                <p class="mb-2 text-muted animate__animated animate__fadeInDown animate__delay-1s">{{ user.email }}</p>
+                <h2 class="fw-bold mb-1 text-dark">{{ user.first_name }} {{ user.last_name }}</h2>
+                <p class="mb-2 text-muted">{{ user.email }}</p>
                 
                 {% if user.profile.location %}
-                    <p class="mb-2 text-muted animate__animated animate__fadeInDown animate__delay-2s">
-                        <i class="fas fa-map-marker-alt me-1"></i>{{ user.profile.location }}
+                    <p class="mb-2 text-muted">
+                        <i class="fas fa-map-marker-alt me-1 text-warning"></i>{{ user.profile.location }}
                     </p>
                 {% endif %}
                 
                 {% if user.profile.bio %}
-                    <p class="mb-3 text-muted animate__animated animate__fadeInDown animate__delay-3s">
+                    <p class="mb-3 text-muted">
                         <strong>Bio:</strong> {{ user.profile.bio }}
                     </p>
                 {% endif %}
 
                 <!-- Edit Button -->
                 <div class="mt-4">
-                    <a href="{% url 'profile_edit' %}" class="btn btn-warning text-dark fw-bold px-5 py-2 shadow-sm hover-grow">
+                    <a href="{% url 'profile_edit' %}" 
+                       class="btn btn-warning text-dark fw-bold px-5 py-2 shadow-sm hover-grow">
                         Edit Profile
                     </a>
                 </div>
@@ -55,36 +55,44 @@
 </div>
 
 <style>
-/* Card hover effect */
-.profile-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 20px 40px rgba(0,0,0,0.2);
-}
+/* Google Font */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+body { font-family: 'Poppins', sans-serif; }
 
-/* Profile pic hover */
+/* Card hover */
+.profile-card { transition: transform 0.3s ease, box-shadow 0.3s ease; }
+.profile-card:hover { transform: translateY(-6px); box-shadow: 0 20px 40px rgba(0,0,0,0.2); }
+
+/* Profile Pic */
+.profile-pic {
+    width: 120px; height: 120px; object-fit: cover;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
 .profile-pic:hover {
     transform: scale(1.1);
-    box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+    box-shadow: 0 10px 25px rgba(241, 196, 15, 0.6);
 }
 
-/* Badge hover */
-.badge {
-    font-size: 0.9rem;
-    border-radius: 12px;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-.badge:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-}
-
-/* Edit button hover */
+/* Button hover */
+.hover-grow { transition: transform 0.3s ease, box-shadow 0.3s ease; }
 .hover-grow:hover {
     transform: scale(1.05);
-    transition: transform 0.3s ease;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.2);
+}
+
+/* Subtle animated background */
+body {
+    background: linear-gradient(135deg, #fdfbfb, #ebedee);
+    background-size: 400% 400%;
+    animation: gradientShift 15s ease infinite;
+}
+@keyframes gradientShift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
 }
 </style>
 
-<!-- Animate.css CDN -->
+<!-- Animate.css -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
 {% endblock %}

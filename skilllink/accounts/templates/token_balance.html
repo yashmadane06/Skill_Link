@@ -3,72 +3,97 @@
 {% block title %}Add Tokens - SkillLink{% endblock %}
 
 {% block content %}
-<div class="container mt-5 max-w-3xl">
+<div class="container my-5 d-flex justify-content-center">
+  <div class="w-100" style="max-width: 850px;">
 
-  <!-- Add Tokens Card -->
-  <div class="card shadow mb-5" style="border: 2px solid #F0E68C; background-color: #FFF8DC;">
-    <div class="card-body">
-      <h2 class="card-title fw-bold mb-3 text-dark">Add Tokens</h2>
-      <p class="text-dark mb-4">
-        Your current balance: 
-        <span class="fw-semibold">{{ profile.token_balance }}</span> tokens
-      </p>
+    <!-- Add Tokens Card -->
+    <div class="card shadow-lg mb-5 border-0" style="border-radius: 18px; background: #fff7e6;">
+      <div class="card-body p-4">
+        <h2 class="fw-bold text-dark mb-3">💰 Add Tokens</h2>
+        <p class="text-muted">
+          Your current balance:
+          <span class="fw-bold text-dark">{{ profile.token_balance }}</span> tokens
+        </p>
 
-      <form method="POST" action="{% url 'initiate_payment' %}">
-        {% csrf_token %}
-        <div class="mb-3">
-          <label for="tokens" class="form-label fw-semibold text-dark">Amount of Tokens</label>
-          <input 
-            type="number" 
-            name="tokens" 
-            id="tokens" 
-            min="1"
-            class="form-control" 
-            placeholder="Enter number of tokens" 
-            required>
-        </div>
-        <button type="submit" class="btn btn-success fw-bold shadow">
-          Add Tokens
-        </button>
-      </form>
+        <form method="POST" action="{% url 'initiate_payment' %}">
+          {% csrf_token %}
+          <div class="mb-3">
+            <label for="tokens" class="form-label fw-semibold text-dark">Amount of Tokens</label>
+            <input 
+              type="number" 
+              name="tokens" 
+              id="tokens" 
+              min="1"
+              class="form-control shadow-sm" 
+              placeholder="Enter number of tokens" 
+              required
+              style="border-radius: 12px;">
+          </div>
+          <div class="d-grid">
+            <button type="submit" class="btn btn-success fw-bold shadow-sm" style="border-radius: 12px;">
+              ➕ Add Tokens
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
-  </div>
 
-  <!-- Token History Card -->
-  <div class="card shadow" style="border: 2px solid #F0E68C; background-color: #FFF8DC;">
-    <div class="card-body">
-      <h3 class="card-title fw-bold mb-4 text-dark">Token History</h3>
+    <!-- Token History Card -->
+    <div class="card shadow-lg border-0" style="border-radius: 18px; background: #fff7e6;">
+      <div class="card-body p-4">
+        <h3 class="fw-bold text-dark mb-4">📜 Token History</h3>
 
-      {% if token_history %}
-        <div class="table-responsive">
-          <table class="table table-striped table-hover">
-            <thead style="background-color: #F0E68C;">
-              <tr>
-                <th>Date</th>
-                <th>Type</th>
-                <th>Description</th>
-                <th>Tokens</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for tx in token_history %}
+        {% if token_history %}
+          <div class="table-responsive">
+            <table class="table align-middle">
+              <thead class="table-warning">
                 <tr>
-                  <td>{{ tx.timestamp|date:"M d, Y H:i" }}</td>
-                  <td class="text-capitalize">{{ tx.transaction_type }}</td>
-                  <td>{{ tx.description }}</td>
-                  <td class="{% if tx.transaction_type in 'earned,purchased' %}text-success{% else %}text-danger{% endif %}">
-                    {% if tx.transaction_type in 'earned,purchased' %}+{% else %}-{% endif %}{{ tx.amount }}
-                  </td>
+                  <th>Date</th>
+                  <th>Type</th>
+                  <th>Description</th>
+                  <th class="text-end">Tokens</th>
                 </tr>
-              {% endfor %}
-            </tbody>
-          </table>
-        </div>
-      {% else %}
-        <p class="text-dark">No token history available.</p>
-      {% endif %}
+              </thead>
+              <tbody>
+                {% for tx in token_history %}
+                  <tr>
+                    <td>{{ tx.timestamp|date:"M d, Y H:i" }}</td>
+                    <td class="text-capitalize">{{ tx.transaction_type }}</td>
+                    <td>{{ tx.description }}</td>
+                    <td class="text-end fw-bold {% if tx.transaction_type in 'earned,purchased' %}text-success{% else %}text-danger{% endif %}">
+                      {% if tx.transaction_type in 'earned,purchased' %}+{% else %}-{% endif %}{{ tx.amount }}
+                    </td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        {% else %}
+          <p class="text-muted">No token history available.</p>
+        {% endif %}
+      </div>
     </div>
-  </div>
 
+  </div>
 </div>
+<style>
+  .token-balance {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #28a745;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% { text-shadow: 0 0 5px #28a745; }
+  50% { text-shadow: 0 0 15px #28a745; }
+  100% { text-shadow: 0 0 5px #28a745; }
+}
+
+.table-hover tbody tr:hover {
+  background-color: #fffacd !important;
+  transition: 0.3s;
+}
+
+</style>
 {% endblock %}

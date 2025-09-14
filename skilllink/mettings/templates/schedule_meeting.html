@@ -4,21 +4,44 @@
 
 {% block content %}
 <div class="container mt-5 d-flex justify-content-center">
-    <div class="card shadow-lg p-4" style="max-width: 500px; border: 2px solid #F0E68C; background-color: #FFF8DC;">
-        <h2 class="card-title text-center fw-bold mb-4">Schedule Meeting</h2>
-        <p class="text-dark mb-2"><strong>Skill:</strong> {{ booking.skill.name }}</p>
-        <p class="text-dark mb-4"><strong>Requester:</strong> {{ booking.requester.user.first_name }} {{ booking.requester.user.last_name }}</p>
 
-        <form method="POST">
-            {% csrf_token %}
-            <div class="mb-3">
-                <label for="proposed_time" class="form-label fw-semibold">Meeting Date & Time:</label>
-                <input type="datetime-local" name="proposed_time" id="proposed_time" class="form-control" required>
-            </div>
-            <div class="text-center">
-                <button type="submit" class="btn btn-success fw-bold px-4 py-2 shadow">Schedule</button>
-            </div>
-        </form>
-    </div>
+  <div class="card shadow-lg p-4 animate__animated animate__fadeInUp" 
+       style="max-width: 500px; border: 2px solid #F0E68C; background-color: #FFF8DC; border-radius:15px; transition: transform 0.3s ease;">
+       
+    <h2 class="card-title text-center fw-bold mb-4 animate__animated animate__fadeInDown">{{ booking.skill.name }} Meeting</h2>
+    
+    <p class="text-dark mb-2"><strong>Skill:</strong> {{ booking.skill.name }}</p>
+    <p class="text-dark mb-4"><strong>Requester:</strong> {{ booking.requester.user.first_name }} {{ booking.requester.user.last_name }}</p>
+
+    <form method="POST">
+        {% csrf_token %}
+        <div class="mb-3">
+            <label for="proposed_time" class="form-label fw-semibold">Meeting Date & Time:</label>
+            <input type="datetime-local" name="proposed_time" id="proposed_time" class="form-control" required>
+        </div>
+        <div class="text-center mt-3">
+            <button type="submit" class="btn btn-success fw-bold px-4 py-2 shadow hover-grow">
+                Schedule
+            </button>
+        </div>
+    </form>
+  </div>
 </div>
+
+<style>
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.hover-grow:hover {
+    transform: scale(1.05);
+    box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+</style>
+
+<!-- Animate.css CDN -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
 {% endblock %}

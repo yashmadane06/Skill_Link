@@ -3,27 +3,36 @@
 
 {% block content %}
 <div class="d-flex justify-content-center align-items-center mt-5">
-    <div class="card shadow-sm" style="max-width: 400px; width: 100%; background-color: #FFF8DC; border: 2px solid #F0E68C;">
+    <div class="card shadow-lg login-card animate__animated animate__fadeInUp" 
+         style="max-width: 400px; width: 100%; background: linear-gradient(135deg, #fff8dc, #fdf5e6); border: 2px solid #F0E68C; border-radius: 15px;">
         <div class="card-body p-4">
+
             <!-- Header -->
-            <h2 class="text-center mb-4 fw-bold text-dark">Login</h2>
+            <h2 class="text-center mb-4 fw-bold text-dark animate__animated animate__fadeInDown">
+                Login
+            </h2>
 
             <!-- Login Form -->
             <form method="POST" action="{% url 'login' %}">
                 {% csrf_token %}
-                
+
                 <div class="mb-3">
                     <label for="username" class="form-label fw-semibold">Email</label>
                     <input type="text" name="username" id="username" class="form-control" placeholder="Enter your email" required>
                 </div>
 
-                <div class="mb-3">
+                <div class="mb-3 position-relative">
                     <label for="password" class="form-label fw-semibold">Password</label>
                     <input type="password" name="password" id="password" class="form-control" placeholder="Enter your password" required>
+                    <span id="togglePassword" style="position:absolute; right:10px; top:38px; cursor:pointer;">
+                        <i class="fas fa-eye"></i>
+                    </span>
                 </div>
 
                 <div class="d-grid">
-                    <button type="submit" class="btn btn-warning text-dark fw-bold shadow-sm">Login</button>
+                    <button type="submit" class="btn btn-warning text-dark fw-bold shadow-sm hover-grow">
+                        Login
+                    </button>
                 </div>
             </form>
 
@@ -35,4 +44,48 @@
         </div>
     </div>
 </div>
+
+<style>
+/* Google Font */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+body { font-family: 'Poppins', sans-serif; }
+
+/* Card hover */
+.login-card { transition: transform 0.3s ease, box-shadow 0.3s ease; }
+.login-card:hover { transform: translateY(-5px); box-shadow: 0 18px 36px rgba(0,0,0,0.15); }
+
+/* Input fields focus */
+input {
+    border-radius: 8px !important;
+    border: 1px solid #ddd !important;
+    padding: 10px !important;
+    transition: all 0.3s ease;
+}
+input:focus {
+    border-color: #f1c40f !important;
+    box-shadow: 0 0 6px rgba(241, 196, 15, 0.6) !important;
+}
+
+/* Buttons hover */
+.hover-grow { transition: transform 0.3s ease, box-shadow 0.3s ease; }
+.hover-grow:hover {
+    transform: scale(1.05);
+    box-shadow: 0 8px 18px rgba(0,0,0,0.2);
+}
+</style>
+
+<!-- Animate.css -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+
+<!-- Show/hide password script -->
+<script>
+const togglePassword = document.getElementById('togglePassword');
+const password = document.getElementById('password');
+
+togglePassword.addEventListener('click', () => {
+    const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+    password.setAttribute('type', type);
+    togglePassword.innerHTML = type === 'password' ? '<i class="fas fa-eye"></i>' : '<i class="fas fa-eye-slash"></i>';
+});
+</script>
 {% endblock %}

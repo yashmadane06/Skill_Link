@@ -118,10 +118,14 @@
 </div>
 
 <style>
-/* Card hover animation */
+/* Font */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+body { font-family: 'Poppins', sans-serif; }
+
+/* Card hover */
 .dashboard-card:hover, .booking-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+    transform: translateY(-7px) scale(1.02);
+    box-shadow: 0 25px 50px rgba(0,0,0,0.15);
 }
 
 /* Buttons hover */
@@ -129,28 +133,29 @@
     transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 .dashboard-btn:hover, .booking-btn:hover {
-    transform: scale(1.05);
-    box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+    transform: scale(1.07);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.25);
 }
 
-/* Badges */
+/* Badges hover */
 .badge {
-    font-size: 0.9rem;
-    border-radius: 12px;
-    padding: 0.35em 0.7em;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 .badge:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
 }
 
 /* Animate entrance */
-.animate__animated {
-    --animate-duration: 0.8s;
+.animate__animated { --animate-duration: 0.8s; }
+
+/* Responsive tweaks */
+@media (max-width: 768px) {
+    .dashboard-card { margin-bottom: 20px; }
 }
 </style>
 
 <!-- Animate.css CDN -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+
 {% endblock %}
