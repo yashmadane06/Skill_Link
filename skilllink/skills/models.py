@@ -1,11 +1,12 @@
 from django.db import models
 from accounts.models import Profile
+from cloudinary.models import CloudinaryField
 
 # --- Skill Master Table ---
 class Skill(models.Model):
     name = models.CharField(max_length=100)
     category = models.CharField(max_length=50, blank=True, null=True)
-    skill_icon = models.ImageField(upload_to='skill_icons/', blank=True, null=True)
+    skill_icon  =CloudinaryField('image', default='default.png')
 
     def __str__(self):
         return self.name
