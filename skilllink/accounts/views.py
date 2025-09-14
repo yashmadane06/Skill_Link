@@ -105,7 +105,7 @@ def verify_otp(request):
             del request.session["temp_user"]  # cleanup
 
             messages.success(request, "Registration successful!")
-            return redirect("home")
+            return redirect('index')
         else:
             messages.error(request, "Invalid OTP. Please try again.")
 
