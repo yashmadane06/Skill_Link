@@ -9,7 +9,6 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.utils import timezone
-
 # App models & forms
 from .models import Profile, Transaction, EmailOTP
 from .forms import ProfileForm, ProfileSkillForm
@@ -83,6 +82,8 @@ def register_page(request):
 
 
 # -------- VERIFY OTP --------
+
+
 def verify_otp(request):
     email = request.session.get('register_email')  # email stored after registration
     if not email:
@@ -92,7 +93,7 @@ def verify_otp(request):
     if request.method == "POST":
         otp_input = request.POST.get('otp')
         try:
-            otp_obj = EmailOtp.objects.get(email=email, otp=otp_input, is_used=False)
+            otp_obj = EmailOTP.objects.get(email=email, otp=otp_input, is_used=False)
             if otp_obj.expiry_time < timezone.now():
                 messages.error(request, "OTP has expired. Please request a new one.")
             else:
@@ -105,10 +106,11 @@ def verify_otp(request):
 
                 messages.success(request, "✅ OTP verified successfully! Welcome.")
                 return redirect('dashboard')
-        except EmailOtp.DoesNotExist:
+        except EmailOTP.DoesNotExist:
             messages.error(request, "❌ Invalid OTP. Please try again.")
 
     return render(request, 'accounts/verify_otp.html', {'email': email})
+v
 
 @require_POST
 def resend_otp(request):
