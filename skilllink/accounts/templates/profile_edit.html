@@ -4,60 +4,109 @@
 {% block title %}Edit Profile - SkillLink{% endblock %}
 
 {% block content %}
-<div class="container mt-5">
-    <h2 class="mb-4 text-center fw-bold text-dark">Edit Profile</h2>
+<div class="container my-5">
+    <h2 class="mb-4 text-center fw-bold text-dark animate__animated animate__fadeInDown">
+        Edit Profile
+    </h2>
 
     <!-- Profile Info -->
-    <div class="card shadow-sm mb-4" style="border:2px solid #F0E68C; background-color:#FFF8DC;">
+    <div class="card profile-card shadow-lg mb-5 animate__animated animate__fadeInUp" 
+         style="border:2px solid #F0E68C; background:linear-gradient(135deg, #fff8dc, #fdf5e6); border-radius:15px;">
         <div class="card-body">
             <form method="post" enctype="multipart/form-data">
                 {% csrf_token %}
                 {% for field in profile_form %}
                     <div class="mb-3">
-                        {{ field.label_tag }}
+                        <label class="fw-semibold">{{ field.label }}</label>
                         {{ field }}
                         {% for error in field.errors %}
-                            <div class="text-danger">{{ error }}</div>
+                            <div class="text-danger small">{{ error }}</div>
                         {% endfor %}
                     </div>
                 {% endfor %}
-                <div class="text-center">
-                    <button type="submit" class="btn btn-success px-4 py-2 fw-bold shadow-sm">Save Profile</button>
+                <div class="text-center mt-4">
+                    <button type="submit" class="btn btn-warning text-dark fw-bold px-5 py-2 shadow-sm hover-grow">
+                        Save Profile
+                    </button>
                 </div>
             </form>
         </div>
     </div>
 
     <!-- Skills Section -->
-    <div class="card shadow-sm" style="border:2px solid #F0E68C; background-color:#FFF8DC;">
-        <div class="card-header bg-secondary text-white d-flex justify-content-between align-items-center">
+    <div class="card shadow-lg animate__animated animate__fadeInUp animate__delay-1s" 
+         style="border:2px solid #F0E68C; background:linear-gradient(135deg, #fff8dc, #fdf5e6); border-radius:15px;">
+        <div class="card-header d-flex justify-content-between align-items-center bg-warning text-dark fw-bold">
             <h5 class="mb-0">My Skills</h5>
-            <a href="{% url 'add_skill' %}" class="btn btn-light btn-sm fw-bold">+ Add Skill</a>
+            <a href="{% url 'add_skill' %}" class="btn btn-dark btn-sm fw-bold shadow-sm hover-grow">
+                + Add Skill
+            </a>
         </div>
         <div class="card-body">
             {% if skills %}
                 <ul class="list-group list-group-flush">
                     {% for skill in skills %}
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <li class="list-group-item d-flex justify-content-between align-items-center skill-item">
                             <div>
                                 {% if skill.skill.skill_icon %}
-                                    <img src="{{ skill.skill.skill_icon.url }}" alt="{{ skill.skill.name }}" class="rounded me-2" style="width:32px; height:32px;">
+                                    <img src="{{ skill.skill.skill_icon.url }}" 
+                                         alt="{{ skill.skill.name }}" 
+                                         class="rounded me-2" 
+                                         style="width:32px; height:32px;">
                                 {% endif %}
                                 <strong>{{ skill.skill.name }}</strong>
                                 <span class="badge bg-info text-dark ms-2">{{ skill.get_experience_level_display }}</span>
                                 <p class="text-muted mb-0">{{ skill.personal_description|default:"No description" }}</p>
                             </div>
                             <div class="btn-group btn-group-sm">
-                                <a href="{% url 'edit_skill' skill.id %}" class="btn btn-outline-primary">Edit</a>
-                                <a href="{% url 'delete_skill' skill.id %}" class="btn btn-outline-danger" onclick="return confirm('Are you sure?');">Delete</a>
+                                <a href="{% url 'edit_skill' skill.id %}" class="btn btn-outline-primary shadow-sm">Edit</a>
+                                <a href="{% url 'delete_skill' skill.id %}" 
+                                   class="btn btn-outline-danger shadow-sm"
+                                   onclick="return confirm('Are you sure?');">Delete</a>
                             </div>
                         </li>
                     {% endfor %}
                 </ul>
             {% else %}
-                <p class="text-muted">No skills added yet. Click "Add Skill" to get started.</p>
+                <p class="text-muted text-center">No skills added yet. Click <strong>"Add Skill"</strong> to get started.</p>
             {% endif %}
         </div>
     </div>
 </div>
+
+<style>
+/* Google Font */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+body { font-family: 'Poppins', sans-serif; }
+
+/* Card Hover */
+.profile-card { transition: transform 0.3s ease, box-shadow 0.3s ease; }
+.profile-card:hover { transform: translateY(-5px); box-shadow: 0 18px 36px rgba(0,0,0,0.15); }
+
+/* Form Fields */
+input, textarea, select {
+    border-radius: 8px !important;
+    border: 1px solid #ddd !important;
+    padding: 10px !important;
+    transition: all 0.3s ease;
+}
+input:focus, textarea:focus, select:focus {
+    border-color: #f1c40f !important;
+    box-shadow: 0 0 6px rgba(241, 196, 15, 0.6) !important;
+}
+
+/* Buttons */
+.hover-grow { transition: transform 0.3s ease, box-shadow 0.3s ease; }
+.hover-grow:hover {
+    transform: scale(1.05);
+    box-shadow: 0 8px 18px rgba(0,0,0,0.2);
+}
+
+/* Skill Items */
+.skill-item { transition: background-color 0.3s ease, transform 0.2s ease; }
+.skill-item:hover { background-color: #fff3cd; transform: translateX(5px); }
+</style>
+
+<!-- Animate.css -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
 {% endblock %}

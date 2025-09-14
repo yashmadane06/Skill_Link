@@ -1,13 +1,35 @@
 {% extends 'base/base.html' %}
 
 {% block content %}
-    {% if booking.status == 'pending' %}
-    {% if booking.provider.user == user %}
-        <a href="{% url 'booking_update_status' booking.id 'accept' %}">Accept</a>
-        <a href="{% url 'booking_update_status' booking.id 'reject' %}">Reject</a>
-    {% elif booking.requester.user == user %}
-        <a href="{% url 'booking_update_status' booking.id 'cancel' %}">Cancel</a>
-    {% endif %}
-{% endif %}
+<div class="d-flex gap-2">
 
+    {% if booking.status == 'pending' %}
+        {% if booking.provider.user == user %}
+            <a href="{% url 'booking_update_status' booking.id 'accept' %}" 
+               class="btn btn-success btn-sm fw-bold shadow-sm">
+               Accept
+            </a>
+            <a href="{% url 'booking_update_status' booking.id 'reject' %}" 
+               class="btn btn-danger btn-sm fw-bold shadow-sm">
+               Reject
+            </a>
+        {% elif booking.requester.user == user %}
+            <a href="{% url 'booking_update_status' booking.id 'cancel' %}" 
+               class="btn btn-warning btn-sm fw-bold shadow-sm">
+               Cancel
+            </a>
+        {% endif %}
+    {% endif %}
+
+</div>
+
+<style>
+.btn {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+}
+</style>
 {% endblock %}

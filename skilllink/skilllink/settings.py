@@ -12,6 +12,19 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 
 from pathlib import Path
 import os
+from decouple import config
+import cloudinary
+import cloudinary.uploader
+import cloudinary.api
+
+
+
+DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
+
+
+CLOUDINARY_URL = config('CLOUDINARY_URL')
+
+
 
 
 
@@ -28,10 +41,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-&7f1um-rj65ryxq666sl&8r-6z-1sckm$kjbvwm#$711dnyxbr'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+# DEBUG = False
+# ALLOWED_HOSTS = ['skilllink-1-zeqc.onrender.com',]
 
+DEBUG = True
+ALLOWED_HOSTS = ["*"]
 
-ALLOWED_HOSTS = ['skilllink-1-zeqc.onrender.com',]
 
 
 # Application definition
@@ -50,6 +65,8 @@ INSTALLED_APPS = [
     'skills',
     "channels",
     'django_crontab',
+    "cloudinary",
+    "cloudinary_storage",
 ]
 
 MIDDLEWARE = [
@@ -169,9 +186,32 @@ EMAIL_PORT = 587
 EMAIL_HOST_USER = 'skilllinproj@gmail.com'  # Replace with your email
 EMAIL_HOST_PASSWORD = 'bckqhhyppwpyzagb'
 
-CSRF_TRUSTED_ORIGINS = ["https://skilllink-1-zeqc.onrender.com/"]
+# CSRF_TRUSTED_ORIGINS = ["https://skilllink-1-zeqc.onrender.com/"]
 
-SECURE_HSTS_SECONDS = 31536000
-SECURE_SSL_REDIRECT = True
-SESSION_COOKIE_SECURE = True
-CSRF_COOKIE_SECURE = True
+# SECURE_HSTS_SECONDS = 31536000
+# SECURE_SSL_REDIRECT = True
+# SESSION_COOKIE_SECURE = True
+# CSRF_COOKIE_SECURE = True
+
+CSRF_TRUSTED_ORIGINS = []
+SECURE_HSTS_SECONDS = 0
+SECURE_SSL_REDIRECT = False
+SESSION_COOKIE_SECURE = False
+CSRF_COOKIE_SECURE = False
+
+
+# Use Cloudinary for media storage
+
+# Optional: set MEDIA_URL (Cloudinary handles actual URL)
+MEDIA_URL = "/media/"
+
+# At the bottom of settings.py
+
+
+cloudinary.config(
+    cloud_name="dctwxqpeo",
+    api_key="948549915113465",
+    api_secret="1_L9u37eelt29fTwNyrr99yft4E",
+)
+
+DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
