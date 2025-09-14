@@ -9,7 +9,7 @@ from .models import Booking, BookingHistory
 from skills.models import ProfileSkill
 import uuid
 from django.utils import timezone
-from datetime import timedelta
+from datetime import timedelta,datetime
 from django.http import Http404
 
 from django.shortcuts import render, redirect, get_object_or_404
@@ -148,7 +148,18 @@ def schedule_meeting(request, booking_id):
     booking = get_object_or_404(Booking, id=booking_id, provider=request.user.profile)
 
     if request.method == "POST":
-        proposed_time = request.POST.get("proposed_time")
+        proposed_time_str = request.POST.get("proposed_time")
+
+        if not proposed_time_str:
+            messages.error(request, "Please select a valid time.")
+            return redirect("schedule_meeting", booking_id=booking.id)
+
+        try:
+            # Convert string to datetime (assuming input is HTML5 datetime-local format)
+            proposed_time = datetime.strptime(proposed_time_str, "%Y-%m-%dT%H:%M")
+        except ValueError:
+            messages.error(request, "Invalid date format. Please try again.")
+            return redirect("schedule_meeting", booking_id=booking.id)
 
         # Save history for multiple proposals
         BookingHistory.objects.create(
@@ -161,21 +172,25 @@ def schedule_meeting(request, booking_id):
         booking.status = "scheduled"
         booking.proposed_time = proposed_time
 
-        # Create Zoom meeting
-        zoom_response = create_zoom_meeting(
-            topic=f"{booking.skill.name} with {booking.provider.user.username}",
-            start_time=proposed_time
-        )
-        join_url = zoom_response.get("join_url")
-        if join_url:
-            booking.meeting_link = join_url
+        # Create Zoom meeting safely
+        try:
+            zoom_response = create_zoom_meeting(
+                topic=f"{booking.skill.name} with {booking.provider.user.username}",
+                start_time=proposed_time.isoformat()
+            )
+            join_url = zoom_response.get("join_url")
+            if join_url:
+                booking.meeting_link = join_url
+        except Exception as e:
+            messages.error(request, f"Zoom error: {e}")
+
         booking.save()
 
         messages.success(request, "Meeting scheduled & Zoom link created.")
         return redirect("booking_list")
 
     # Show all proposed times for this booking
-    history = BookingHistory.objects.filter(booking=booking).order_by('proposed_time')
+    history = BookingHistory.objects.filter(booking=booking).order_by("proposed_time")
     return render(request, "schedule_meeting.html", {"booking": booking, "history": history})
 
 
