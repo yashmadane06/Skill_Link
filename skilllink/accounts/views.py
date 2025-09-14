@@ -86,28 +86,30 @@ def register_page(request):
 # -------- VERIFY OTP --------
 
 
-def verify_otp(request):
+ef verify_otp(request):
+    # Get temp_user info from session
     temp_user = request.session.get("temp_user")
     if not temp_user:
         messages.error(request, "No registration info found. Please register first.")
         return redirect('register')
 
     email = temp_user.get('email')
+    otp_session = temp_user.get('otp')
 
     if request.method == "POST":
         otp_input = request.POST.get('otp')
 
-        if otp_input == temp_user.get('otp'):
-            # OTP verified
-            # Create actual user now
-            user = User.objects.create_user(
+        if otp_input == otp_session:
+            # Check if user already exists
+            user, created = User.objects.get_or_create(
                 username=temp_user['username'],
-                email=temp_user['email'],
-                password=temp_user['password']
+                defaults={'email': temp_user['email']}
             )
-            user.save()
+            if created:
+                user.set_password(temp_user['password'])
+                user.save()
 
-            # Create profile
+            # Create profile if not exists
             Profile.objects.get_or_create(user=user)
 
             # Log in user
