@@ -9,6 +9,8 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.utils import timezone
+from django.views.decorators.http import require_POST
+
 # App models & forms
 from .models import Profile, Transaction,EmailOTP
 from .forms import ProfileForm, ProfileSkillForm
