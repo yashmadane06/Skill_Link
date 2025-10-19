@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import create_booking, booking_list, booking_update_status, schedule_meeting, booking_success,complete_meeting,video_call,schedule_meeting,start_meeting
+from .views import create_booking, booking_list, booking_update_status, schedule_meeting, booking_success,complete_meeting,schedule_meeting,start_meeting
 
 urlpatterns = [
     path('create/<int:skill_id>/<int:provider_id>/', create_booking, name='create_booking'),

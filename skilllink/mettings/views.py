@@ -1,28 +1,15 @@
 from django.db import transaction
-from django.db.models import F
-from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth.decorators import login_required
-from django.contrib import messages
-from skills.models import Skill
-from accounts.models import Profile, Transaction
-from .models import Booking, BookingHistory
-from skills.models import ProfileSkill
-import uuid
-from django.utils import timezone
-from datetime import timedelta,datetime
-from django.http import Http404
-
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from accounts.models import Profile, Transaction
 from skills.models import Skill, ProfileSkill
-from .models import Booking
-import uuid
+from .models import Booking, BookingHistory
 from skilllink.zoom_utils import create_zoom_meeting
+import uuid
+from datetime import datetime
 
-
-
+# ------------------ CREATE BOOKING ------------------
 @login_required
 def create_booking(request, skill_id, provider_id):
     requester = request.user.profile
@@ -33,72 +20,52 @@ def create_booking(request, skill_id, provider_id):
         messages.error(request, "You cannot book your own skill.")
         return redirect('index')
 
-    # Pick a ProfileSkill safely (if multiple exist choose first; you can refine selection later)
-    profile_skill_qs = ProfileSkill.objects.filter(profile=provider, skill=skill)
-    if not profile_skill_qs.exists():
-        messages.error(request, "This provider does not offer the selected skill.")
+    # Check if provider teaches this skill
+    profile_skill = ProfileSkill.objects.filter(profile=provider, skill=skill).first()
+    if not profile_skill:
+        messages.error(request, "This provider does not offer this skill.")
         return redirect('index')
-    profile_skill = profile_skill_qs.first()
-    tokens_to_deduct = profile_skill.token_cost
 
-    # Prevent duplicate active bookings (idempotency)
-    existing = Booking.objects.filter(
+    tokens_needed = profile_skill.token_cost
+
+    # Prevent duplicate pending bookings
+    if Booking.objects.filter(
         requester=requester,
         provider=provider,
         skill=skill,
         status__in=['pending', 'accepted', 'scheduled']
-    ).first()
-    if existing:
-        messages.info(request, "You already have a booking request for this skill. Check your bookings.")
+    ).exists():
+        messages.info(request, "You already have a booking request for this skill.")
         return redirect('booking_list')
 
-    # Atomic block: lock requester row, re-check balance, deduct once, create booking
+    # Deduct tokens atomically
     try:
         with transaction.atomic():
-            # lock the requester row to avoid race conditions
-            req_locked = Profile.objects.select_for_update().get(pk=requester.pk)
-
-            # Replace `tokens` with your Profile's token field name if different
-            available = getattr(req_locked, 'tokens', None)
-            if available is None:
-                # If you have a helper method (deduct_tokens), use it instead below
-                messages.error(request, "Token balance not found on profile model.")
+            if requester.token_balance < tokens_needed:
+                messages.error(request, "Insufficient tokens to book this skill.")
                 return redirect('index')
 
-            if available < tokens_to_deduct:
-                messages.error(request, f"You need {tokens_to_deduct} tokens to book this skill.")
-                return redirect('index')
+            # Deduct tokens
+            requester.deduct_tokens(tokens_needed, description=f"Booking for {skill.name}")
 
-            # Deduct tokens using atomic DB update (F expression)
-            Profile.objects.filter(pk=req_locked.pk).update(tokens=F('tokens') - tokens_to_deduct)
-
-            # Create booking and mark tokens_deducted True so refunds won't double-refund
+            # Create booking
             booking = Booking.objects.create(
-                requester=req_locked,
+                requester=requester,
                 provider=provider,
                 skill=skill,
-                tokens_spent=tokens_to_deduct,
+                tokens_spent=tokens_needed,
                 tokens_deducted=True,
+                status='pending'
             )
 
-            # Create transaction log
-            Transaction.objects.create(
-                user=req_locked,
-                amount=tokens_to_deduct,
-                transaction_type='spent',
-                description=f"Booking for {skill.name}"
-            )
-
+        messages.success(request, f"Booking request sent. {tokens_needed} tokens deducted.")
+        return redirect('booking_success')
     except Exception as e:
-        # safe fallback; don't expose raw error to user
-        messages.error(request, "Failed to create booking. Please try again.")
-        # optional: log.exception(e)
+        messages.error(request, f"Failed to create booking: {e}")
         return redirect('index')
 
-    messages.success(request, f"Booking request sent. {tokens_to_deduct} tokens deducted.")
-    return redirect('booking_success')
 
-
+# ------------------ LIST BOOKINGS ------------------
 @login_required
 def booking_list(request):
     profile = request.user.profile
@@ -108,132 +75,136 @@ def booking_list(request):
         "bookings_received": bookings_received,
         "bookings_made": bookings_made
     })
-    
-    
 
 
+# ------------------ UPDATE BOOKING STATUS ------------------
+@login_required
 def booking_update_status(request, booking_id, action):
     booking = get_object_or_404(Booking, id=booking_id)
-    if booking.provider != request.user.profile:
+    user_profile = request.user.profile
+
+    # Only provider or requester can update
+    if user_profile not in [booking.provider, booking.requester]:
         messages.error(request, "You cannot modify this booking.")
         return redirect('booking_list')
 
-    if action == "accept":
+    if action == "accept" and user_profile == booking.provider:
         booking.status = "accepted"
         booking.save()
-        messages.success(request, "Booking accepted. Tokens will be released as meeting progresses.")
+        messages.success(request, "Booking accepted. Provider will schedule the meeting.")
 
-    elif action == "reject":
-        booking.status = "rejected"
+    elif action == "reject" and user_profile == booking.provider:
+        booking.status = "canceled"
         booking.save()
-
-    # Refund exactly what was deducted
         booking.requester.add_tokens(booking.tokens_spent)
-
         Transaction.objects.create(
             user=booking.requester,
             amount=booking.tokens_spent,
             transaction_type="refund",
             description=f"Refund for rejected booking {booking.skill.name}"
         )
+        messages.info(request, "Booking rejected. Tokens refunded.")
 
-        messages.info(request, f"Booking rejected. {booking.tokens_spent} tokens refunded.")
+    elif action == "cancel" and user_profile == booking.requester:
+        booking.status = "canceled"
+        booking.save()
+        booking.requester.add_tokens(booking.tokens_spent)
+        Transaction.objects.create(
+            user=booking.requester,
+            amount=booking.tokens_spent,
+            transaction_type="refund",
+            description=f"Refund for canceled booking {booking.skill.name}"
+        )
+        messages.info(request, "Booking canceled. Tokens refunded.")
+
+    else:
+        messages.error(request, "Invalid action or permission.")
     return redirect('booking_list')
 
 
-
-
+# ------------------ SCHEDULE MEETING ------------------
 @login_required
 def schedule_meeting(request, booking_id):
     booking = get_object_or_404(Booking, id=booking_id, provider=request.user.profile)
 
     if request.method == "POST":
         proposed_time_str = request.POST.get("proposed_time")
-
         if not proposed_time_str:
-            messages.error(request, "Please select a valid time.")
+            messages.error(request, "Select a valid time.")
             return redirect("schedule_meeting", booking_id=booking.id)
 
         try:
-            # Convert string to datetime (assuming input is HTML5 datetime-local format)
             proposed_time = datetime.strptime(proposed_time_str, "%Y-%m-%dT%H:%M")
         except ValueError:
-            messages.error(request, "Invalid date format. Please try again.")
+            messages.error(request, "Invalid date format.")
             return redirect("schedule_meeting", booking_id=booking.id)
 
-        # Save history for multiple proposals
         BookingHistory.objects.create(
             booking=booking,
             proposer=request.user.profile,
             proposed_time=proposed_time
         )
 
-        # Update booking with latest selected time
-        booking.status = "scheduled"
         booking.proposed_time = proposed_time
+        booking.status = "scheduled"
 
-        # Create Zoom meeting safely
         try:
-            zoom_response = create_zoom_meeting(
-                topic=f"{booking.skill.name} with {booking.provider.user.username}",
-                start_time=proposed_time.isoformat()
-            )
-            join_url = zoom_response.get("join_url")
-            if join_url:
-                booking.meeting_link = join_url
+            zoom_response = create_zoom_meeting(topic=f"{booking.skill.name} with {booking.provider.user.username}")
+            booking.meeting_link = zoom_response.get("join_url")
         except Exception as e:
             messages.error(request, f"Zoom error: {e}")
 
         booking.save()
-
         messages.success(request, "Meeting scheduled & Zoom link created.")
         return redirect("booking_list")
 
-    # Show all proposed times for this booking
     history = BookingHistory.objects.filter(booking=booking).order_by("proposed_time")
     return render(request, "schedule_meeting.html", {"booking": booking, "history": history})
 
 
-
-
-
+# ------------------ START MEETING ------------------
+from django.utils import timezone
 @login_required
-def video_call(request, booking_id, token):
+def start_meeting(request, booking_id):
     booking = get_object_or_404(Booking, id=booking_id)
+
+    # Only requester or provider can join/start
     if request.user.profile not in [booking.requester, booking.provider]:
         messages.error(request, "You are not allowed to join this meeting.")
         return redirect('booking_list')
 
-    return render(request, "video_call.html", {"booking": booking, "token": token})
+    # Create Zoom meeting if not exists
+    if not booking.meeting_link:
+        try:
+            zoom_response = create_zoom_meeting(
+                topic=f"{booking.skill.name} with {booking.provider.user.username}",
+                duration=60  # in minutes (optional)
+            )
+            booking.meeting_link = zoom_response.get("join_url")
+            booking.meeting_started = True
+            booking.meeting_started_at = timezone.now()
+            booking.save()
+            messages.success(request, "Zoom meeting created. You can join now.")
+        except Exception as e:
+            messages.error(request, f"Zoom error: {e}")
+            return redirect('booking_list')
+
+    # Mark meeting as started
+    if not booking.meeting_started:
+        booking.meeting_started = True
+        booking.meeting_started_at = timezone.now()
+        booking.save()
+
+    return redirect(booking.meeting_link)
 
 
-@login_required
-def booking_success(request):
-    return render(request, "booking_success.html")
-
-
-
-
-
-
+# ------------------ COMPLETE MEETING ------------------
 @login_required
 def complete_meeting(request, booking_id):
     booking = get_object_or_404(Booking, id=booking_id, provider=request.user.profile)
 
     if booking.status != "scheduled":
         messages.error(request, "Cannot complete meeting that is not scheduled.")
-        return redirect("dashboard")
-
-    # ✅ Ensure meeting started time exists
-    if not booking.meeting_started_at:
-        messages.error(request, "Meeting has not started yet.")
-        return redirect("dashboard")
-
-    # ✅ Check if 30 minutes passed since meeting started
-    if timezone.now() < booking.meeting_started_at + timedelta(minutes=30):
-        remaining_time = (booking.meeting_started_at + timedelta(minutes=30)) - timezone.now()
-        minutes_left = remaining_time.seconds // 60
-        messages.warning(request, f"Meeting must run at least 30 minutes. Wait {minutes_left} more minutes.")
         return redirect("dashboard")
 
     if not booking.tokens_released:
@@ -251,29 +222,32 @@ def complete_meeting(request, booking_id):
         booking.tokens_released = True
         booking.status = "completed"
         booking.save()
-
-        messages.success(request, f"Meeting completed. Provider received {provider_total} tokens after commission.")
+        messages.success(request, f"Meeting completed. Provider received {provider_total} tokens.")
     else:
         messages.info(request, "Tokens already released.")
 
     return redirect("dashboard")
+def booking_success(request):
+    return render(request, "booking_success.html")
+
+from django.shortcuts import render, get_object_or_404, redirect
+from django.contrib.auth.decorators import login_required
+from django.contrib import messages
+from .models import Booking, BookingHistory
 
 @login_required
-def start_meeting(request, booking_id):
+def booking_details(request, booking_id):
     booking = get_object_or_404(Booking, id=booking_id)
 
-    # Restrict join 5 minutes before start
-    if booking.proposed_time - timedelta(minutes=5) > timezone.now():
-        messages.warning(request, "You can join 5 minutes before the meeting starts.")
-        return redirect("booking_list")
+    # Only allow requester or provider to view
+    if request.user.profile not in [booking.requester, booking.provider]:
+        messages.error(request, "You are not allowed to view this booking.")
+        return redirect('booking_list')
 
-    if booking.meeting_link:
-        if not booking.meeting_started:
-            booking.meeting_started = True
-            booking.meeting_started_at = timezone.now()
-            booking.save()
-        return redirect(booking.meeting_link)
-    else:
-        messages.error(request, "Meeting link not found.")
-        return redirect("booking_list")
+    # Fetch all proposed times
+    history = BookingHistory.objects.filter(booking=booking).order_by('proposed_time')
 
+    return render(request, 'booking_details.html', {
+        'booking': booking,
+        'history': history,
+    })

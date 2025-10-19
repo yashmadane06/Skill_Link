@@ -20,11 +20,28 @@ def index(request):
 
     # Manual team info
     team = [
-        {"name": "Yash Madane", "role": "Backend Developer", "image": "https://wallpapers-clan.com/wp-content/uploads/2023/06/cool-pfp-02.jpg"},
-        {"name": "Faizan Mulani", "role": "Project Manager", "image": "https://wallpapers-clan.com/wp-content/uploads/2023/06/cool-pfp-02.jpg"},
-        {"name": "Mustkim Maniyar", "role": "Frontend Developer", "image": "https://wallpapers-clan.com/wp-content/uploads/2023/06/cool-pfp-02.jpg"},
-        {"name": "Rushabh Patekar", "role": "UI/UX Designerr", "image": "https://wallpapers-clan.com/wp-content/uploads/2023/06/cool-pfp-02.jpg"},
-        {"name": "Dipak Supekar", "role": "QA & Testing", "image": "https://wallpapers-clan.com/wp-content/uploads/2023/06/cool-pfp-02.png"},
+        {"name": "Faizan Mulani", "role": "Project Manager", "image": "https://wallpapers-clan.com/wp-content/uploads/2023/06/cool-pfp-02.jpg",
+        "social": {
+            "instagram": "https://instagram.com/faizan.m_75",
+        }},
+        {"name": "Yash Madane", "role": "Backend Developer", "image": "https://wallpapers-clan.com/wp-content/uploads/2023/06/cool-pfp-02.jpg",
+        "social": {
+            "instagram": "https://instagram.com/yash20_06",
+            "linkedin": "https://linkedin.com/in/yash-madane",
+            "github": "https://github.com/yashmadane06"
+        }},
+        {"name": "Mustkim Maniyar", "role": "Frontend Developer", "image": "https://wallpapers-clan.com/wp-content/uploads/2023/06/cool-pfp-02.jpg",
+        "social": {
+            "instagram": "https://instagram.com/_mustkim_maniyar_585",
+        }},
+        {"name": "Rushabh Patekar", "role": "UI/UX Designerr", "image": "https://wallpapers-clan.com/wp-content/uploads/2023/06/cool-pfp-02.jpg",
+        "social": {
+            "instagram": "https://instagram.com/rushabh_patekar_",
+        }},
+        {"name": "Dipak Supekar", "role": "QA & Testing", "image": "https://wallpapers-clan.com/wp-content/uploads/2023/06/cool-pfp-02.png",
+        "social": {
+            "instagram": "https://instagram.com/dipaksupekar_09",
+        }},
     ]
 
     return render(request, 'index.html', {
