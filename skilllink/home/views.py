@@ -38,7 +38,7 @@ def index(request):
         "social": {
             "instagram": "https://instagram.com/rushabh_patekar_",
         }},
-        {"name": "Dipak Supekar", "role": "QA & Testing", "image": "https://wallpapers-clan.com/wp-content/uploads/2023/06/cool-pfp-02.png",
+        {"name": "Dipak Supekar", "role": "QA & Testing", "image": "https://wallpapers-clan.com/wp-content/uploads/2023/06/cool-pfp-02.jpg",
         "social": {
             "instagram": "https://instagram.com/dipaksupekar_09",
         }},
