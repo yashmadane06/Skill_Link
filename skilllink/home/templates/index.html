@@ -33,10 +33,14 @@
               <!-- Skill Image -->
               <div class="skill-img-wrapper d-flex align-items-center justify-content-center">
                 {% if item.skill.skill_icon %}
-                    <img src="{{ item.skill.skill_icon }}" alt="{{ item.skill.name }}">
-                {% else %}
-                    <img src="https://via.placeholder.com/120.png?text={{ item.skill.name|urlencode }}" alt="{{ item.skill.name }}">
-                {% endif %}
+                    
+                      <img src="{{ item.skill.skill_icon }}" alt="{{ item.skill.name }}">
+                    {% else %}
+                      <img src="https://via.placeholder.com/120.png?text={{ item.skill.name|urlencode }}" alt="{{ item.skill.name }}">
+                    {% endif %}
+
+
+
 
                 <div class="skill-hover-overlay d-flex align-items-center justify-content-center">
                   <a href="{% url 'create_booking' item.skill.id profile_skill.profile.id %}" class="btn btn-warning btn-sm fw-bold">Send Request</a>

@@ -6,7 +6,7 @@ from cloudinary.models import CloudinaryField
 class Skill(models.Model):
     name = models.CharField(max_length=100)
     category = models.CharField(max_length=50, blank=True, null=True)
-    skill_icon  =CloudinaryField('image', default='default.png')
+    skill_icon = CloudinaryField('image', folder='skills/', default='default.png')
 
     def __str__(self):
         return self.name
