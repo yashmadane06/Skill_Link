@@ -49,29 +49,37 @@ def register_page(request):
 
         otp = random.randint(100000, 999999)
 
-        # Save details in session
+        # Save essential details in session (avoid raw password if needed)
         request.session["temp_user"] = {
             "username": username,
             "email": email,
-            "password": password1,
+            "password": password1,  # keep if you plan to create user after OTP
             "otp": str(otp),
         }
 
-        # Send OTP email safely
+        # Attempt to send OTP
+        email_sent = False
         try:
             send_mail(
                 "Your OTP for SkillLink",
                 f"Your OTP is {otp}. It will expire in 2 minutes.",
                 "no-reply@skilllink.com",
                 [email],
-                fail_silently=True,  # prevents Render crash
+                fail_silently=False,  # now we catch exceptions
             )
+            email_sent = True
         except Exception as e:
             messages.error(request, f"Failed to send OTP email: {str(e)}")
 
-        return redirect("verify_otp")
+        if email_sent:
+            messages.success(request, "OTP sent to your email. Please verify.")
+            return redirect("verify_otp")
+        else:
+            # Don't redirect to OTP if email failed
+            return redirect("register")
 
     return render(request, "register.html")
+
 
 
 # ---------------- VERIFY OTP ----------------
