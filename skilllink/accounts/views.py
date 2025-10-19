@@ -38,8 +38,8 @@ def login_page(request):
 # ---------------- REGISTER USER ----------------
 def register_page(request):
     if request.method == "POST":
-        username = request.POST.get("username").strip()
-        email = request.POST.get("email").strip()
+        username = request.POST.get("username")
+        email = request.POST.get("email")
         password1 = request.POST.get("password1")
         password2 = request.POST.get("password2")
 
@@ -47,14 +47,9 @@ def register_page(request):
             messages.error(request, "Passwords do not match")
             return redirect("register")
 
-        if User.objects.filter(username=username).exists():
-            messages.error(request, "Username already taken")
-            return redirect("register")
-        if User.objects.filter(email=email).exists():
-            messages.error(request, "Email already registered")
-            return redirect("register")
-
         otp = random.randint(100000, 999999)
+
+        # Save details in session
         request.session["temp_user"] = {
             "username": username,
             "email": email,
@@ -62,17 +57,17 @@ def register_page(request):
             "otp": str(otp),
         }
 
+        # Send OTP email safely
         try:
             send_mail(
                 "Your OTP for SkillLink",
                 f"Your OTP is {otp}. It will expire in 2 minutes.",
                 "no-reply@skilllink.com",
                 [email],
-                fail_silently=False,
+                fail_silently=True,  # prevents Render crash
             )
         except Exception as e:
-            messages.error(request, f"Failed to send OTP: {str(e)}")
-            return redirect("register")
+            messages.error(request, f"Failed to send OTP email: {str(e)}")
 
         return redirect("verify_otp")
 
@@ -112,20 +107,22 @@ def verify_otp(request):
 @require_POST
 def resend_otp(request):
     temp_user = request.session.get("temp_user")
+
     if not temp_user:
         return JsonResponse({"success": False, "message": "No user session found"})
 
     otp = random.randint(100000, 999999)
     temp_user["otp"] = str(otp)
-    request.session["temp_user"] = temp_user
+    request.session["temp_user"] = temp_user  # update session
 
+    # Send OTP email safely
     try:
         send_mail(
             "Your OTP for SkillLink",
             f"Your new OTP is {otp}. It will expire in 2 minutes.",
             "no-reply@skilllink.com",
             [temp_user["email"]],
-            fail_silently=False,
+            fail_silently=True,  # prevents Render crash
         )
         return JsonResponse({"success": True})
     except Exception as e:
