@@ -19,6 +19,23 @@ from mettings.models import Booking
 import random
 import razorpay
 
+from django.core.mail import send_mail
+from django.contrib import messages
+
+
+from django.template.loader import render_to_string
+from django.conf import settings
+
+def send_otp_email(email, otp, username):
+    html_message = render_to_string("otp_email_template.html", {"otp": otp, "username": username})
+    send_mail(
+        subject="Your SkillLink OTP",
+        message=f"Your OTP is {otp}",  # plain text fallback
+        from_email=settings.EMAIL_HOST_USER,
+        recipient_list=[email],
+        fail_silently=False,
+        html_message=html_message
+    )
 
 # ---------------- LOGIN ----------------
 @csrf_protect
@@ -47,39 +64,27 @@ def register_page(request):
             messages.error(request, "Passwords do not match")
             return redirect("register")
 
-        otp = random.randint(100000, 999999)
+        # Generate OTP
+        otp = str(random.randint(100000, 999999))
 
-        # Save essential details in session (avoid raw password if needed)
+        # Store temporary user in session
         request.session["temp_user"] = {
             "username": username,
             "email": email,
-            "password": password1,  # keep if you plan to create user after OTP
-            "otp": str(otp),
+            "password": password1,  # optionally hash this
+            "otp": otp
         }
 
-        # Attempt to send OTP
-        email_sent = False
         try:
-            send_mail(
-                "Your OTP for SkillLink",
-                f"Your OTP is {otp}. It will expire in 2 minutes.",
-                "no-reply@skilllink.com",
-                [email],
-                fail_silently=False,  # now we catch exceptions
-            )
-            email_sent = True
-        except Exception as e:
-            messages.error(request, f"Failed to send OTP email: {str(e)}")
-
-        if email_sent:
+            send_otp_email(email, otp, username)
             messages.success(request, "OTP sent to your email. Please verify.")
             return redirect("verify_otp")
-        else:
-            # Don't redirect to OTP if email failed
+        except Exception as e:
+            print("OTP sending failed:", e)
+            messages.error(request, f"Failed to send OTP email: {str(e)}")
             return redirect("register")
 
     return render(request, "register.html")
-
 
 
 # ---------------- VERIFY OTP ----------------
@@ -115,26 +120,24 @@ def verify_otp(request):
 @require_POST
 def resend_otp(request):
     temp_user = request.session.get("temp_user")
-
     if not temp_user:
-        return JsonResponse({"success": False, "message": "No user session found"})
+        messages.error(request, "Session expired. Please register again.")
+        return redirect("register")
 
-    otp = random.randint(100000, 999999)
-    temp_user["otp"] = str(otp)
+    # Generate new OTP
+    otp = str(random.randint(100000, 999999))
+    temp_user["otp"] = otp
     request.session["temp_user"] = temp_user  # update session
 
-    # Send OTP email safely
     try:
-        send_mail(
-            "Your OTP for SkillLink",
-            f"Your new OTP is {otp}. It will expire in 2 minutes.",
-            "no-reply@skilllink.com",
-            [temp_user["email"]],
-            fail_silently=True,  # prevents Render crash
-        )
-        return JsonResponse({"success": True})
+        send_otp_email(temp_user["email"], otp, temp_user["username"])
+        messages.success(request, "OTP resent successfully. Please check your email.")
+        return redirect("verify_otp")
     except Exception as e:
-        return JsonResponse({"success": False, "message": f"Failed to send OTP: {str(e)}"})
+        print("Resend OTP failed:", e)
+        messages.error(request, "Failed to resend OTP. Try again.")
+        return redirect("verify_otp")
+
 
 
 # ---------------- LOGOUT ----------------
