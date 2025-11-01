@@ -21,6 +21,8 @@ import razorpay
 
 from django.core.mail import send_mail
 from django.contrib import messages
+from  skilllink.Base.EmailOTP import send_otp
+
 
 
 from django.template.loader import render_to_string
@@ -58,60 +60,59 @@ def register_page(request):
         password1 = request.POST.get("password1")
         password2 = request.POST.get("password2")
 
+        # validations
         if password1 != password2:
             messages.error(request, "Passwords do not match")
             return redirect("register")
 
-        # Generate OTP
-        otp = str(random.randint(100000, 999999))
-
-        # Store temporary user in session
-        request.session["temp_user"] = {
-            "username": username,
-            "email": email,
-            "password": password1,  # optionally hash this
-            "otp": otp
-        }
-
-        try:
-            send_otp_email(email, otp, username)
-            messages.success(request, "OTP sent to your email. Please verify.")
-            return redirect("verify_otp")
-        except Exception as e:
-            print("OTP sending failed:", e)
-            messages.error(request, f"Failed to send OTP email: {str(e)}")
+        if User.objects.filter(username=username).exists():
+            messages.error(request, "Username already exists")
             return redirect("register")
+
+        if User.objects.filter(email=email).exists():
+            messages.error(request, "Email already registered")
+            return redirect("register")
+
+        # ✅ Generate OTP
+        otp = send_otp(email)
+
+        # ✅ Store in session
+        request.session["reg_username"] = username
+        request.session["reg_email"] = email
+        request.session["reg_password"] = password1
+        request.session["reg_otp"] = otp
+
+        return redirect("verify_otp")
 
     return render(request, "register.html")
 
-
 # ---------------- VERIFY OTP ----------------
 def verify_otp(request):
-    temp_user = request.session.get("temp_user")
-    if not temp_user:
-        messages.error(request, "No registration info found. Please register first.")
-        return redirect("register")
-
-    email = temp_user.get("email")
-    otp_session = temp_user.get("otp")
-
     if request.method == "POST":
-        otp_input = request.POST.get("otp", "").strip()
-        if otp_input == otp_session:
-            user = User.objects.create_user(
-                username=temp_user["username"],
-                email=temp_user["email"],
-                password=temp_user["password"]
-            )
-            Profile.objects.get_or_create(user=user)
-            login(request, user)
-            del request.session["temp_user"]
-            messages.success(request, "✅ OTP verified successfully! Welcome.")
-            return redirect("dashboard")
-        else:
-            messages.error(request, "❌ Invalid OTP. Please try again.")
+        entered_otp = request.POST.get("otp")
+        session_otp = request.session.get("reg_otp")
 
-    return render(request, "verify_otp.html", {"email": email})
+        if entered_otp == session_otp:
+            # ✅ create user
+            username = request.session["reg_username"]
+            email = request.session["reg_email"]
+            password = request.session["reg_password"]
+
+            user = User.objects.create_user(username=username, email=email, password=password)
+            login(request, user)
+
+            # ✅ clear session data
+            for key in ["reg_username", "reg_email", "reg_password", "reg_otp"]:
+                request.session.pop(key, None)
+
+            messages.success(request, "Registration complete!")
+            return redirect("home")
+
+        else:
+            messages.error(request, "Incorrect OTP")
+            return redirect("verify_otp")
+
+    return render(request, "verify_otp.html")
 
 
 # ---------------- RESEND OTP ----------------
