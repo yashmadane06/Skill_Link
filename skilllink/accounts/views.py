@@ -21,7 +21,7 @@ import razorpay
 
 from django.core.mail import send_mail
 from django.contrib import messages
-from  skilllink.Base.EmailOTP import send_otp
+from Base.EmailOTP import send_otp
 
 
 
