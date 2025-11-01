@@ -27,14 +27,12 @@ from django.template.loader import render_to_string
 from django.conf import settings
 
 def send_otp_email(email, otp, username):
-    html_message = render_to_string("otp_email_template.html", {"otp": otp, "username": username})
     send_mail(
         subject="Your SkillLink OTP",
         message=f"Your OTP is {otp}",  # plain text fallback
         from_email=settings.EMAIL_HOST_USER,
         recipient_list=[email],
-        fail_silently=False,
-        html_message=html_message
+        fail_silently=False
     )
 
 # ---------------- LOGIN ----------------
