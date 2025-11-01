@@ -24,25 +24,12 @@ class EmailOTP(models.Model):
     def __str__(self):
         return f"{self.user.username} OTP"
 
-class EmailOTP(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-    otp = models.CharField(max_length=6, blank=True, null=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    def generate_otp(self):
-        self.otp = str(random.randint(100000, 999999))
-        self.save()
-        return self.otp
-
-    def __str__(self):
-        return f"{self.user.username} OTP"
-
 # ---------------- PROFILE ----------------
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     bio = models.CharField(max_length=100 ,blank=True, null=True)
-    profile_pic = CloudinaryField('image', folder='profiles/', blank=True, null=True)   
+    profile_pic = CloudinaryField('image', folder='profile_pics/', blank=True, null=True)   
     location = models.CharField(max_length=100, blank=True, null=True)
     languages_spoken = models.CharField(max_length=200, blank=True, null=True)
     experience_level = models.CharField(

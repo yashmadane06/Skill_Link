@@ -189,7 +189,6 @@ EMAIL_HOST_USER = 'skilllinproj@gmail.com'  # Replace with your email
 EMAIL_HOST_PASSWORD = 'bckqhhyppwpyzagb'
 
 CSRF_TRUSTED_ORIGINS = ["https://skilllink-1-zeqc.onrender.com/"]
-
 SECURE_HSTS_SECONDS = 31536000
 SECURE_SSL_REDIRECT = True
 SESSION_COOKIE_SECURE = True
