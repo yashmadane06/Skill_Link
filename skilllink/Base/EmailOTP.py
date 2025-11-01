@@ -5,7 +5,6 @@ import random
 def send_otp(email):
     otp = str(random.randint(100000, 999999))
     
-    # Send email
     send_mail(
         subject="SkillLink Registration OTP",
         message=f"Your OTP for SkillLink registration is: {otp}",
