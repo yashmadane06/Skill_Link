@@ -422,6 +422,20 @@
             });
           </script>
         </div>
+          {% endif %}
+        </ul>
+
+        <!-- Search Bar -->
+        <form class="d-flex ms-lg-3 mt-3 mt-lg-0" method="GET" action="{% url 'skill_list' %}">
+          <input class="form-control me-2 rounded-pill search-input"
+       type="search"
+       placeholder="Search skills..."
+       aria-label="Search"
+       name="q"
+       value="{{ query|default:'' }}">
+
+          <button class="btn btn-warning rounded-pill px-3" type="submit">Go</button>
+        </form>
       </div>
     </nav>
 
