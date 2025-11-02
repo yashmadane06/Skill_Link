@@ -29,7 +29,7 @@ class EmailOTP(models.Model):
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     bio = models.CharField(max_length=100 ,blank=True, null=True)
-    profile_pic = CloudinaryField('image', folder='profile_pics/', blank=True, null=True)   
+    profile_pic = CloudinaryField('image', folder='profile_skills', blank=True, null=True)   
     location = models.CharField(max_length=100, blank=True, null=True)
     languages_spoken = models.CharField(max_length=200, blank=True, null=True)
     experience_level = models.CharField(
@@ -44,7 +44,7 @@ class Profile(models.Model):
     tokens_balance = models.PositiveIntegerField(default=0)
     rating = models.FloatField(default=0.0)
     joined_on = models.DateTimeField(auto_now_add=True)
-    verified = models.BooleanField(default=False)
+    verified = models.BooleanField(default=True)
     
     def __str__(self):
         return self.user.username
