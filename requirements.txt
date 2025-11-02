@@ -26,5 +26,5 @@ whitenoise==6.10.0
 # Dev helper
 django-browser-reload==1.17.0
 
-# REQUIRED FOR RENDER DEPLOY
+# Required for Render deploy
 gunicorn==23.0.0
