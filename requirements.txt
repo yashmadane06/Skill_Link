@@ -3,7 +3,7 @@ asgiref==3.9.1
 binaryornot==0.4.4 
 blinker==1.8.2
 certifi==2025.8.3 
-hannels==4.3.1 
+channels==4.3.1 
 channels_redis==4.3.0 
 chardet==5.2.0 
 charset-normalizer==3.4.3 
