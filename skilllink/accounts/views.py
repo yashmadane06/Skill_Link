@@ -82,7 +82,7 @@ def register_page(request):
         user.save()
 
         messages.success(request, "Account created successfully! Please login.")
-        return redirect("home")
+        return redirect("login")
 
     return render(request, "register.html")
 
