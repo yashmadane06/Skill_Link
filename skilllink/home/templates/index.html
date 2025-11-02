@@ -375,29 +375,32 @@
                      class="rounded-circle me-3 border border-warning shadow-sm reviewer-pic" 
                      alt="User Pic"
                      style="width:60px; height:60px; object-fit:cover;">
-                    {% else %}
-                    <img src="{{ review.profile_pic }}" 
+              {% else %}
+                <img src="{{ review.profile_pic }}" 
                      class="rounded-circle me-3 border border-warning shadow-sm reviewer-pic" 
                      alt="User Pic"
                      style="width:60px; height:60px; object-fit:cover;">
-                  {% else %}
-                  <img src="https://via.placeholder.com/60.png?text=User" 
+              {% endif %}
+            {% else %}
+              <img src="https://via.placeholder.com/60.png?text=User" 
                    class="rounded-circle me-3 border border-warning shadow-sm reviewer-pic" 
                    alt="User Pic"
                    style="width:60px; height:60px; object-fit:cover;">
-              {% endif %}
             {% endif %}
+            
             <div>
               <h6 class="fw-bold mb-0 reviewer-name">{{ review.name }}</h6>
               <small class="text-muted reviewer-role">{{ review.role|default:"SkillLink User" }}</small>
             </div>
           </div>
+
           <p class="review-text mb-0">“{{ review.text }}”</p>
         </div>
       </div>
     {% endfor %}
   </div>
 </section>
+
 
 <style>
 /* ========== GENERAL THEME ========== */
