@@ -1,0 +1,349 @@
+/* Container */
+#hero {
+  background: linear-gradient(180deg, #f9f9f9 0%, #f3f3f3 100%);
+}
+
+/* Hero Card */
+.hero-card {
+  width: 100%;
+  max-width: 850px;
+  aspect-ratio: 16 / 9;
+  position: relative;
+  background: #000;
+  border-radius: 30px;
+}
+
+/* Background Image */
+.hero-bg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: inherit;
+  filter: brightness(0.8);
+}
+
+/* Overlay Content */
+.hero-content {
+  width: 90%;
+  max-width: 700px;
+  text-shadow: 2px 2px 10px rgba(0,0,0,0.7);
+}
+
+/* Text styling */
+.hero-title {
+  font-size: 2.8rem;
+  font-weight: 800;
+}
+.hero-content p.lead {
+  font-size: 1.15rem;
+  color: #f1f1f1;
+}
+
+/* Buttons */
+.hero-content .btn {
+  transition: all 0.3s ease;
+  border: none;
+}
+.hero-content .btn-warning {
+  background-color: #ffcc33;
+  color: #000;
+}
+.hero-content .btn-warning:hover {
+  background-color: #f1b800;
+  transform: translateY(-3px);
+}
+.hero-content .btn-light {
+  background: #fff;
+  color: #111;
+}
+.hero-content .btn-light:hover {
+  background: #f8f9fa;
+  transform: translateY(-3px);
+}
+
+/* Responsiveness */
+@media (max-width: 992px) {
+  .hero-title {
+    font-size: 2.2rem;
+  }
+  .hero-content p.lead {
+    font-size: 1rem;
+  }
+}
+@media (max-width: 768px) {
+  .hero-card {
+    aspect-ratio: 4 / 3;
+  }
+  .hero-title {
+    font-size: 1.8rem;
+  }
+}
+@media (max-width: 576px) {
+  .hero-card {
+    border-radius: 20px;
+  }
+  .hero-content {
+    width: 95%;
+  }
+  .hero-title {
+    font-size: 1.6rem;
+  }
+  .hero-content .btn {
+    width: 100%;
+    font-size: 0.95rem;
+  }
+}
+
+
+
+
+
+
+
+
+.skills-section {
+  background: var(--bg-light, #fffdf5);
+  transition: background 0.4s ease, color 0.4s ease;
+}
+
+/* Title */
+.text-theme {
+  color: #d4af37;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+/* Skill Card */
+.skill-card {
+  background: #ffffff;
+  border-radius: 15px;
+  overflow: hidden;
+  transition: transform 0.4s ease, box-shadow 0.4s ease;
+  cursor: pointer;
+  position: relative;
+  font-family: 'Poppins', sans-serif;
+}
+
+.skill-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.15);
+}
+
+/* Skill Image */
+.skill-img-wrapper {
+  width: 100%;
+  height: 160px;
+  overflow: hidden;
+  position: relative;
+}
+
+.skill-img-wrapper img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+
+.skill-card:hover .skill-img-wrapper img {
+  transform: scale(1.08);
+}
+
+/* Overlay on Hover */
+.skill-hover-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 215, 0, 0.4);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.skill-card:hover .skill-hover-overlay {
+  opacity: 1;
+}
+
+/* Skill Info */
+.card-body {
+  background: #fffef7;
+  transition: background 0.4s ease;
+}
+
+.username {
+  font-size: 0.9rem;
+  color: #222;
+}
+
+.skill-name {
+  color: #666;
+  font-size: 0.85rem;
+}
+
+/* Theme Buttons */
+.btn-theme {
+  background: #d4af37;
+  color: #222;
+  border: none;
+  transition: all 0.3s ease;
+}
+
+.btn-theme:hover {
+  background: #e6b800;
+  color: #111;
+  transform: scale(1.05);
+}
+
+/* Explore Card */
+.explore-card {
+  background: #d4af37;
+  border-radius: 15px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.explore-card:hover {
+  transform: scale(1.05);
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.2);
+}
+
+/* === DARK MODE === */
+.dark-mode .skills-section {
+  background: #121212;
+}
+
+.dark-mode .text-theme {
+  color: #ffcf33;
+}
+
+.dark-mode .skill-card {
+  background: #1e1e1e;
+  box-shadow: 0 6px 14px rgba(255, 255, 255, 0.05);
+}
+
+.dark-mode .skill-name,
+.dark-mode .username {
+  color: #ccc;
+}
+
+.dark-mode .card-body {
+  background: #1b1b1b;
+}
+
+.dark-mode .skill-hover-overlay {
+  background: rgba(255, 215, 0, 0.15);
+}
+
+.dark-mode .explore-card {
+  background: #ffcf33;
+  color: #1e1e1e;
+}
+
+/* === RESPONSIVE === */
+@media (max-width: 992px) {
+  .skill-img-wrapper {
+    height: 140px;
+  }
+}
+
+@media (max-width: 576px) {
+  .skill-img-wrapper {
+    height: 120px;
+  }
+  .username {
+    font-size: 0.85rem;
+  }
+  .skill-name {
+    font-size: 0.8rem;
+  }
+}
+
+.testimonial-section {
+  font-family: 'Poppins', sans-serif;
+}
+
+.section-title {
+  color: #222;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+/* ========== CARD STYLING ========== */
+.review-card {
+  background: linear-gradient(135deg, #fffdf2, #fefaf1);
+  border-radius: 18px;
+  border: none;
+  transition: all 0.4s ease;
+}
+.review-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 18px 38px rgba(0, 0, 0, 0.15);
+}
+
+/* Reviewer image */
+.reviewer-pic {
+  transition: transform 0.3s ease;
+}
+.review-card:hover .reviewer-pic {
+  transform: scale(1.05);
+}
+
+/* Reviewer text */
+.reviewer-name {
+  color: #111;
+  font-weight: 600;
+}
+.reviewer-role {
+  font-size: 0.85rem;
+  color: #777;
+}
+.review-text {
+  font-size: 0.95rem;
+  color: #555;
+  line-height: 1.6;
+  font-style: italic;
+}
+
+/* ========== RESPONSIVE ========== */
+@media (max-width: 768px) {
+  .review-card { padding: 1.5rem; }
+  .review-text { font-size: 0.9rem; }
+  .section-title { font-size: 1.5rem; }
+}
+@media (max-width: 480px) {
+  .reviewer-pic { width: 50px; height: 50px; }
+  .review-text { font-size: 0.85rem; }
+  .reviewer-name { font-size: 1rem; }
+}
+
+/* ========== DARK MODE ========== */
+body.dark-mode .review-card {
+  background: linear-gradient(135deg, #1a1a1a, #262626);
+  color: #f1f1f1;
+  box-shadow: 0 10px 20px rgba(255, 215, 0, 0.05);
+}
+body.dark-mode .section-title {
+  color: #f9f9f9;
+}
+body.dark-mode .review-text {
+  color: #ddd;
+}
+body.dark-mode .reviewer-name {
+  color: #fff;
+}
+body.dark-mode .reviewer-role {
+  color: rgb(120 122 125 / 75%) !important;
+}
+body.dark-mode .review-card:hover {
+  box-shadow: 0 20px 40px rgba(255, 215, 0, 0.2);
+}
+
+/* ========== FADE-IN ANIMATION ========== */
+.fade-in {
+  opacity: 0;
+  transform: translateY(40px);
+  transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+}
+.fade-in.visible {
+  opacity: 1;
+  transform: translateY(0);
+}

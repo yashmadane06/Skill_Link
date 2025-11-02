@@ -6,9 +6,6 @@
 {% block content %}
 
 
-
-
-
 <!-- HERO -->
 <section id="hero" class="d-flex justify-content-center align-items-center py-5">
   <div class="hero-card text-center shadow-lg rounded-5 overflow-hidden position-relative">
@@ -137,45 +134,52 @@
     <h2 class="text-center mb-4 text-theme">Trending Skills</h2>
 
     <div class="row g-4 justify-content-center">
-      {% for item in skills|slice:":7" %}
-        {% for profile_skill in item.providers %}
-          <div class="col-12 col-md-6 col-lg-4">
-            <div class="skill-card shadow-sm h-100 position-relative overflow-hidden">
+      {# NOTE: Use a pre-flattened list `trending_cards` from the view (each item = {'skill': skill, 'provider': provider}) #}
+      {% for card in trending_cards %}
+        <div class="col-12 col-md-6 col-lg-4">
+          <div class="skill-card shadow-sm h-100 position-relative overflow-hidden">
 
-              <!-- Skill Image -->
-              <div class="skill-img-wrapper d-flex align-items-center justify-content-center">
-                {% if item.skill.skill_icon %}
-                  <img src="{{ item.skill.skill_icon }}" alt="{{ item.skill.name }}">
-                {% else %}
-                  <img src="https://via.placeholder.com/120.png?text={{ item.skill.name|urlencode }}" alt="{{ item.skill.name }}">
-                {% endif %}
+            <!-- Skill Image -->
+            <div class="skill-img-wrapper d-flex align-items-center justify-content-center">
+              {% if card.skill.skill_icon %}
+                <img src="{{ card.skill.skill_icon }}" alt="{{ card.skill.name }}">
+              {% else %}
+                <img src="https://via.placeholder.com/120.png?text={{ card.skill.name|urlencode }}" alt="{{ card.skill.name }}">
+              {% endif %}
 
-                <div class="skill-hover-overlay d-flex align-items-center justify-content-center">
-                  <a href="{% url 'create_booking' item.skill.id profile_skill.profile.id %}" class="btn btn-theme btn-sm fw-bold">Send Request</a>
-                </div>
+              <div class="skill-hover-overlay d-flex align-items-center justify-content-center">
+                <a href="{% url 'create_booking' card.skill.id card.provider.profile.id %}" class="btn btn-theme btn-sm fw-bold">Send Request</a>
               </div>
+            </div>
 
-              <div class="card-body text-center p-3">
-                <div class="d-flex align-items-center justify-content-center mb-2">
-                  {% if profile_skill.profile.profile_pic %}
-                    <img src="{{ profile_skill.profile.profile_pic.url }}" 
+            <div class="card-body text-center p-3">
+              <div class="d-flex align-items-center justify-content-center mb-2">
+                {% if card.provider.profile.profile_pic %}
+                  {# If it's an ImageField, use .url; otherwise fall back to the value itself #}
+                  {% if card.provider.profile.profile_pic.url %}
+                    <img src="{{ card.provider.profile.profile_pic.url }}" 
                          class="rounded-circle me-2" 
                          alt="Tutor Pic" 
                          style="width:30px; height:30px; object-fit:cover;">
                   {% else %}
-                    <div class="rounded-circle bg-theme text-white fw-bold d-flex align-items-center justify-content-center me-2" 
-                         style="width:30px; height:30px; font-size:0.75rem;">
-                        {{ profile_skill.profile.user.first_name|slice:":1" }}
-                    </div>
+                    <img src="{{ card.provider.profile.profile_pic }}" 
+                         class="rounded-circle me-2" 
+                         alt="Tutor Pic" 
+                         style="width:30px; height:30px; object-fit:cover;">
                   {% endif %}
-                  <h6 class="fw-bold mb-0 username">{{ profile_skill.profile.user.username }}</h6>
-                </div>
-
-                <p class="skill-name">{{ item.skill.name }}</p>
+                {% else %}
+                  <div class="rounded-circle bg-theme text-white fw-bold d-flex align-items-center justify-content-center me-2" 
+                       style="width:30px; height:30px; font-size:0.75rem;">
+                      {{ card.provider.profile.user.first_name|slice:":1" }}
+                  </div>
+                {% endif %}
+                <h6 class="fw-bold mb-0 username">{{ card.provider.profile.user.username }}</h6>
               </div>
+
+              <p class="skill-name">{{ card.skill.name }}</p>
             </div>
           </div>
-        {% endfor %}
+        </div>
       {% endfor %}
 
       <!-- Explore More Card -->
@@ -347,6 +351,12 @@
     font-size: 0.8rem;
   }
 }
+
+/* Helper hidden class used by JS */
+.hidden {
+  display: none !important;
+  visibility: hidden !important;
+}
 </style>
 
 
@@ -359,10 +369,24 @@
       <div class="col-12 col-sm-6 col-lg-4 mb-4">
         <div class="card review-card shadow-sm p-4 h-100 position-relative overflow-hidden fade-in">
           <div class="d-flex align-items-center mb-3">
-            <img src="{{ review.profile_pic }}" 
-                 class="rounded-circle me-3 border border-warning shadow-sm reviewer-pic" 
-                 alt="User Pic"
-                 style="width:60px; height:60px; object-fit:cover;">
+            {% if review.profile_pic %}
+              {% if review.profile_pic.url %}
+                <img src="{{ review.profile_pic.url }}" 
+                     class="rounded-circle me-3 border border-warning shadow-sm reviewer-pic" 
+                     alt="User Pic"
+                     style="width:60px; height:60px; object-fit:cover;">
+              {% else %}
+                <img src="{{ review.profile_pic }}" 
+                     class="rounded-circle me-3 border border-warning shadow-sm reviewer-pic" 
+                     alt="User Pic"
+                     style="width:60px; height:60px; object-fit:cover;">
+              {% endif %}
+            {% else %}
+              <img src="https://via.placeholder.com/60.png?text=User" 
+                   class="rounded-circle me-3 border border-warning shadow-sm reviewer-pic" 
+                   alt="User Pic"
+                   style="width:60px; height:60px; object-fit:cover;">
+            {% endif %}
             <div>
               <h6 class="fw-bold mb-0 reviewer-name">{{ review.name }}</h6>
               <small class="text-muted reviewer-role">{{ review.role|default:"SkillLink User" }}</small>
@@ -470,17 +494,24 @@ body.dark-mode .review-card:hover {
 </style>
 
 <script>
-// Fade-in animation on scroll
-const fadeEls = document.querySelectorAll('.fade-in');
-const observer = new IntersectionObserver(entries => {
-  entries.forEach(entry => {
-    if (entry.isIntersecting) {
-      entry.target.classList.add('visible');
-    }
-  });
-}, { threshold: 0.2 });
+// Fade-in animation on scroll - guarded
+(function() {
+  const fadeEls = document.querySelectorAll('.fade-in');
+  if (fadeEls.length && 'IntersectionObserver' in window) {
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+        }
+      });
+    }, { threshold: 0.2 });
 
-fadeEls.forEach(el => observer.observe(el));
+    fadeEls.forEach(el => observer.observe(el));
+  } else {
+    // If no IntersectionObserver, reveal all as fallback
+    fadeEls.forEach(el => el.classList.add('visible'));
+  }
+})();
 </script>
 
 
@@ -732,21 +763,31 @@ body.dark-mode {
 
 <!-- SCRIPT -->
 <script>
-const groupPhoto = document.getElementById('group-photo');
-const teamSection = document.getElementById('about-team');
+(function() {
+  // Guarded observer for group photo visibility toggle.
+  const groupPhoto = document.getElementById('group-photo');
+  const teamSection = document.getElementById('about-team');
 
-// Hide group photo once team cards are visible
-const observer1 = new IntersectionObserver((entries) => {
-  entries.forEach(entry => {
-    if(entry.isIntersecting) {
-      groupPhoto.classList.add('hidden');
-    } else {
+  if (teamSection && groupPhoto && 'IntersectionObserver' in window) {
+    const observer1 = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          groupPhoto.classList.add('hidden'); // we define .hidden in CSS above
+        } else {
+          groupPhoto.classList.remove('hidden');
+        }
+      });
+    }, { threshold: 0.3 });
+
+    observer1.observe(teamSection);
+  } else {
+    // fallback behavior: ensure group photo visible if no support or elements missing
+    if (groupPhoto) {
       groupPhoto.classList.remove('hidden');
     }
-  });
-}, { threshold: 0.3 });
-
-observer1.observe(teamSection);
+    // No console errors if missing
+  }
+})();
 </script>
 
 {% endblock %}
