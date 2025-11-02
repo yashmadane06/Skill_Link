@@ -123,6 +123,8 @@
 @media (max-width: 768px) {
   .edit-skill-card {
     margin: 20px;
+    overflow: visible !important;
+    position: relative !important;
   }
 }
 
@@ -151,5 +153,16 @@
 .dark-mode a.text-dark {
   color: #ffcf33 !important;
 }
+/* ✅ FIX CHECKBOX CLICK ISSUE */
+.form-check,
+.form-check-input,
+.form-check-label {
+    position: relative !important;
+    z-index: 999 !important;
+    pointer-events: auto !important;
+}
+
+
+
 </style>
 {% endblock %}
