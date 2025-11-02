@@ -16,8 +16,9 @@
             <form method="POST" action="{% url 'login' %}" class="animate__animated animate__fadeIn">
                 {% csrf_token %}
                 <div class="mb-3">
-                    <label for="username" class="form-label fw-semibold mode-text">Email</label>
-                    <input type="text" name="username" id="username" class="form-control shadow-sm" placeholder="Enter your email" required>
+                    <label for="username" class="form-label fw-semibold mode-text">Username</label>
+                      <input type="text" name="username" id="username" class="form-control shadow-sm" placeholder="Enter your username" required>
+
                 </div>
 
                 <div class="mb-3 position-relative">
