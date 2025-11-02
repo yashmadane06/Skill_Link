@@ -57,31 +57,16 @@ def register_page(request):
     if request.method == "POST":
         username = request.POST.get("username")
         email = request.POST.get("email")
-        password1 = request.POST.get("password1")
-        password2 = request.POST.get("password2")
+        password = request.POST.get("password")
 
-        # validations
-        if password1 != password2:
-            messages.error(request, "Passwords do not match")
-            return redirect("register")
-
-        if User.objects.filter(username=username).exists():
-            messages.error(request, "Username already exists")
-            return redirect("register")
-
-        if User.objects.filter(email=email).exists():
-            messages.error(request, "Email already registered")
-            return redirect("register")
-
-        # ✅ Create user directly (NO OTP)
         user = User.objects.create_user(
             username=username,
             email=email,
-            password=password1
+            password=password
         )
-        user.save()
 
-        messages.success(request, "Account created successfully! Please login.")
+        # ✅ Profile will be automatically created by signal
+
         return redirect("login")
 
     return render(request, "register.html")
