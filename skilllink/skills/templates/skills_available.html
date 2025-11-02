@@ -5,43 +5,41 @@
 
 {% block content %}
 <section class="container my-5">
-    <h2 class="mb-4 text-center fw-bold animate__animated animate__fadeInDown">All Available Skills</h2>
+    <!-- <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold animate__animated animate__fadeInDown text-theme">All Available Skills</h2>
+        <button id="theme-toggle" class="theme-toggle-btn">🌙</button>
+    </div> -->
 
     <div class="skills-grid">
         {% for skill in skills %}
             {% for profile_skill in skill.profileskill_set.all %}
-            <div class="skill-card shadow-sm animate__animated animate__fadeInUp">
-                <!-- Skill Image -->
+            <div class="skill-card animate__animated animate__fadeInUp">
                 <div class="skill-img-wrapper">
                     <img src="{% if skill.skill_icon %}{{ skill.skill_icon.url }}{% else %}https://via.placeholder.com/250x150.png?text={{ skill.name|urlencode }}{% endif %}" 
                          class="card-img-top" alt="{{ skill.name }}">
                 </div>
                 
                 <div class="card-body text-center p-3">
-                    <!-- Tutor photo + name -->
                     <div class="d-flex align-items-center justify-content-center mb-2">
                         {% if profile_skill.profile.profile_pic %}
                             <img src="{{ profile_skill.profile.profile_pic.url }}" 
                                  class="rounded-circle me-2 tutor-pic shadow-sm" alt="Tutor Pic">
                         {% else %}
-                            <div class="rounded-circle bg-warning text-white fw-bold d-flex align-items-center justify-content-center me-2 tutor-pic shadow-sm">
+                            <div class="rounded-circle bg-theme text-white fw-bold d-flex align-items-center justify-content-center me-2 tutor-pic shadow-sm">
                                 {{ profile_skill.profile.user.first_name|slice:":1" }}
                             </div>
                         {% endif %}
                         <h6 class="fw-bold mb-0">{{ profile_skill.profile.user.username }}</h6>
                     </div>
 
-                    <!-- Skill name -->
-                    <p class="text-dark fw-semibold mb-1">{{ skill.name }}</p>
+                    <p class="fw-semibold mb-1 skill-name">{{ skill.name }}</p>
 
-                    <!-- Personal description -->
                     {% if profile_skill.personal_description %}
                         <p class="text-muted mb-2" style="font-size:0.8rem;">{{ profile_skill.personal_description }}</p>
                     {% endif %}
 
-                    <!-- Booking button -->
                     <a href="{% url 'create_booking' skill.id profile_skill.profile.id %}" 
-                       class="btn btn-success btn-sm w-100 skill-btn shadow-sm">Send Request</a>
+                       class="btn btn-theme btn-sm w-100 skill-btn">Send Request</a>
                 </div>
             </div>
             {% endfor %}
@@ -52,11 +50,65 @@
 <style>
 @import url('https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css');
 
+/* Theme Variables */
+:root {
+    --bg-color: #f9f7f3;
+    --card-bg: #ffffff;
+    --text-color: #222;
+    --accent: #ffb703;
+    --accent-dark: #fb8500;
+    --shadow: rgba(0, 0, 0, 0.15);
+}
+
+body.dark-mode {
+    --bg-color: #0e0e0e;
+    --card-bg: #1a1a1a;
+    --text-color: #f1f1f1;
+    --accent: #ffb703;
+    --accent-dark: #fb8500;
+    --shadow: rgba(255, 255, 255, 0.05);
+}
+
+body {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    transition: all 0.4s ease;
+}
+
+/* Header */
+.text-theme {
+    color: var(--accent);
+}
+
+/* Dark Mode Toggle */
+.theme-toggle-btn {
+    background: var(--card-bg);
+    color: var(--accent-dark);
+    border: 2px solid var(--accent-dark);
+    border-radius: 50%;
+    font-size: 1.2rem;
+    width: 42px;
+    height: 42px;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: all 0.3s ease;
+    position: relative;
+    z-index: 100;
+}
+
+.theme-toggle-btn:hover {
+    background: var(--accent-dark);
+    color: #fff;
+    transform: rotate(20deg);
+}
+
 /* Skills Grid */
 .skills-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 1rem;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 1.5rem;
     justify-items: center;
 }
 
@@ -64,70 +116,63 @@
 .skill-card {
     border-radius: 15px;
     overflow: hidden;
-    max-width: 220px;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    font-size: 0.85rem;
-    background: linear-gradient(180deg, #ffffff 0%, #fdf5e6 100%);
+    width: 100%;
+    max-width: 250px;
+    background: var(--card-bg);
+    box-shadow: 0 4px 12px var(--shadow);
+    transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
     cursor: pointer;
 }
 
-/* Skill Image Wrapper */
-.skill-img-wrapper {
-    width: 100%;
-    height: 140px;
-    overflow: hidden;
+.skill-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 14px 28px var(--shadow);
 }
 
+.skill-img-wrapper {
+    width: 100%;
+    height: 150px;
+    overflow: hidden;
+}
 .skill-card img.card-img-top {
     width: 100%;
     height: 100%;
     object-fit: cover;
     transition: transform 0.3s ease;
 }
+.skill-card:hover img.card-img-top {
+    transform: scale(1.08);
+}
 
-/* Tutor photo */
+/* Tutor Pic */
 .tutor-pic {
     width: 35px;
     height: 35px;
     object-fit: cover;
 }
 
-/* Card body */
-.skill-card .card-body {
-    padding: 0.5rem 0.6rem;
-}
-.skill-card h6 {
-    font-size: 0.85rem;
-    margin-bottom: 0.2rem;
-}
-.skill-card p {
-    margin-bottom: 0.2rem;
+/* Skill Name */
+.skill-name {
+    color: var(--accent-dark);
 }
 
-/* Button */
-.skill-card .skill-btn {
-    font-size: 0.75rem;
-    padding: 0.3rem 0.2rem;
+/* Buttons */
+.btn-theme {
+    background: var(--accent);
+    border: none;
+    color: #fff;
+    font-size: 0.8rem;
     transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
-
-/* Hover Effects */
-.skill-card:hover {
-    transform: translateY(-6px);
-    box-shadow: 0 14px 28px rgba(0,0,0,0.25);
-}
-.skill-card:hover img.card-img-top {
-    transform: scale(1.08);
-}
-.skill-card:hover .skill-btn {
+.btn-theme:hover {
+    background: var(--accent-dark);
     transform: scale(1.05);
-    box-shadow: 0 6px 12px rgba(0,0,0,0.2);
 }
 
-/* Responsive */
-@media (max-width: 992px) {
+/* RESPONSIVE */
+@media (max-width: 768px) {
     .skills-grid {
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
     }
 }
 @media (max-width: 576px) {
@@ -136,4 +181,50 @@
     }
 }
 </style>
+
+<script>
+// === Dark Mode Toggle ===
+const toggle = document.getElementById("theme-toggle");
+const body = document.body;
+
+// Load saved theme
+if (localStorage.getItem("theme") === "dark") {
+  body.classList.add("dark-mode");
+  toggle.textContent = "☀️";
+}
+
+toggle.addEventListener("click", () => {
+  body.classList.toggle("dark-mode");
+  const isDark = body.classList.contains("dark-mode");
+  toggle.textContent = isDark ? "☀️" : "🌙";
+  localStorage.setItem("theme", isDark ? "dark" : "light");
+});
+
+// === Mouse Follower Effect (also affects dark mode button) ===
+const follower = document.createElement("div");
+follower.style.position = "fixed";
+follower.style.top = "0";
+follower.style.left = "0";
+follower.style.width = "20px";
+follower.style.height = "20px";
+follower.style.borderRadius = "50%";
+follower.style.pointerEvents = "none";
+follower.style.zIndex = "9999";
+follower.style.background = "var(--accent)";
+follower.style.boxShadow = "0 0 20px var(--accent)";
+follower.style.transition = "transform 0.1s ease, opacity 0.4s ease";
+document.body.appendChild(follower);
+
+let mouseX = 0, mouseY = 0;
+document.addEventListener("mousemove", (e) => {
+    mouseX = e.clientX;
+    mouseY = e.clientY;
+    follower.style.transform = `translate(${mouseX - 10}px, ${mouseY - 10}px) scale(1)`;
+    follower.style.opacity = "1";
+});
+document.addEventListener("mouseleave", () => {
+    follower.style.transform = `scale(0.6)`;
+    follower.style.opacity = "0";
+});
+</script>
 {% endblock %}

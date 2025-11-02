@@ -5,108 +5,187 @@
 
 {% block content %}
 <div class="container my-5">
-    <h2 class="mb-4 text-center fw-bold text-dark animate__animated animate__fadeInDown">
-        Edit Profile
-    </h2>
+  
+  <!-- Header -->
+  <h2 class="text-center fw-bold mb-4 animate__animated animate__fadeInDown page-title">
+    ✏️ Edit Profile
+  </h2>
 
-    <!-- Profile Info -->
-    <div class="card profile-card shadow-lg mb-5 animate__animated animate__fadeInUp" 
-         style="border:2px solid #F0E68C; background:linear-gradient(135deg, #fff8dc, #fdf5e6); border-radius:15px;">
-        <div class="card-body">
-            <form method="post" enctype="multipart/form-data">
-                {% csrf_token %}
-                {% for field in profile_form %}
-                    <div class="mb-3">
-                        <label class="fw-semibold">{{ field.label }}</label>
-                        {{ field }}
-                        {% for error in field.errors %}
-                            <div class="text-danger small">{{ error }}</div>
-                        {% endfor %}
-                    </div>
-                {% endfor %}
-                <div class="text-center mt-4">
-                    <button type="submit" class="btn btn-warning text-dark fw-bold px-5 py-2 shadow-sm hover-grow">
-                        Save Profile
-                    </button>
-                </div>
-            </form>
+  <!-- Profile Info Card -->
+  <div class="card shadow-lg edit-profile-card animate__animated animate__fadeInUp">
+    <div class="card-body">
+      <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {% for field in profile_form %}
+          <div class="mb-3 reveal">
+            <label class="fw-semibold">{{ field.label }}</label>
+            {{ field }}
+            {% for error in field.errors %}
+              <div class="text-danger small">{{ error }}</div>
+            {% endfor %}
+          </div>
+        {% endfor %}
+        <div class="text-center mt-4">
+          <button type="submit" class="btn btn-warning text-dark fw-bold px-5 py-2 shadow-sm hover-grow">
+            Save Profile
+          </button>
         </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Skills Section -->
+  <div class="card shadow-lg skill-list-card animate__animated animate__fadeInUp animate__delay-1s mt-5">
+    <div class="card-header d-flex justify-content-between align-items-center fw-bold header-style">
+      <h5 class="mb-0">My Skills</h5>
+      <a href="{% url 'add_skill' %}" class="btn btn-dark btn-sm fw-bold shadow-sm hover-grow">+ Add Skill</a>
     </div>
 
-    <!-- Skills Section -->
-    <div class="card shadow-lg animate__animated animate__fadeInUp animate__delay-1s" 
-         style="border:2px solid #F0E68C; background:linear-gradient(135deg, #fff8dc, #fdf5e6); border-radius:15px;">
-        <div class="card-header d-flex justify-content-between align-items-center bg-warning text-dark fw-bold">
-            <h5 class="mb-0">My Skills</h5>
-            <a href="{% url 'add_skill' %}" class="btn btn-dark btn-sm fw-bold shadow-sm hover-grow">
-                + Add Skill
-            </a>
-        </div>
-        <div class="card-body">
-            {% if skills %}
-                <ul class="list-group list-group-flush">
-                    {% for skill in skills %}
-                        <li class="list-group-item d-flex justify-content-between align-items-center skill-item">
-                            <div>
-                                {% if skill.skill.skill_icon %}
-                                    <img src="{{ skill.skill.skill_icon.url }}" 
-                                         alt="{{ skill.skill.name }}" 
-                                         class="rounded me-2" 
-                                         style="width:32px; height:32px;">
-                                {% endif %}
-                                <strong>{{ skill.skill.name }}</strong>
-                                <span class="badge bg-info text-dark ms-2">{{ skill.get_experience_level_display }}</span>
-                                <p class="text-muted mb-0">{{ skill.personal_description|default:"No description" }}</p>
-                            </div>
-                            <div class="btn-group btn-group-sm">
-                                <a href="{% url 'edit_skill' skill.id %}" class="btn btn-outline-primary shadow-sm">Edit</a>
-                                <a href="{% url 'delete_skill' skill.id %}" 
-                                   class="btn btn-outline-danger shadow-sm"
-                                   onclick="return confirm('Are you sure?');">Delete</a>
-                            </div>
-                        </li>
-                    {% endfor %}
-                </ul>
-            {% else %}
-                <p class="text-muted text-center">No skills added yet. Click <strong>"Add Skill"</strong> to get started.</p>
-            {% endif %}
-        </div>
+    <div class="card-body">
+      {% if skills %}
+        <ul class="list-group list-group-flush">
+          {% for skill in skills %}
+            <li class="list-group-item d-flex justify-content-between align-items-center skill-item reveal">
+              <div>
+                {% if skill.skill.skill_icon %}
+                  <img src="{{ skill.skill.skill_icon.url }}" alt="{{ skill.skill.name }}" 
+                       class="rounded me-2" style="width:32px; height:32px;">
+                {% endif %}
+                <strong>{{ skill.skill.name }}</strong>
+                <span class="badge bg-info text-dark ms-2">{{ skill.get_experience_level_display }}</span>
+                <p class="text-muted mb-0">{{ skill.personal_description|default:"No description" }}</p>
+              </div>
+              <div class="btn-group btn-group-sm">
+                <a href="{% url 'edit_skill' skill.id %}" class="btn btn-outline-primary shadow-sm">Edit</a>
+                <a href="{% url 'delete_skill' skill.id %}" 
+                   class="btn btn-outline-danger shadow-sm"
+                   onclick="return confirm('Are you sure?');">Delete</a>
+              </div>
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p class="text-muted text-center mb-0">No skills added yet. Click <strong>"Add Skill"</strong> to get started.</p>
+      {% endif %}
     </div>
+  </div>
 </div>
 
+<!-- Animate.css -->
+<link rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+
 <style>
-/* Google Font */
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
-body { font-family: 'Poppins', sans-serif; }
+/* 🎨 Card Styles */
+.edit-profile-card, .skill-list-card {
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.85);
+  border: 1px solid rgba(255, 215, 0, 0.3);
+  backdrop-filter: blur(12px);
+  transition: all 0.4s ease;
+}
+.edit-profile-card:hover, .skill-list-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+}
 
-/* Card Hover */
-.profile-card { transition: transform 0.3s ease, box-shadow 0.3s ease; }
-.profile-card:hover { transform: translateY(-5px); box-shadow: 0 18px 36px rgba(0,0,0,0.15); }
+/* 🌙 Dark Mode */
+.dark-mode .edit-profile-card, 
+.dark-mode .skill-list-card {
+  background: rgba(25, 25, 25, 0.8);
+  color: #eaeaea;
+  border: 1px solid rgba(255, 215, 0, 0.2);
+  box-shadow: 0 10px 30px rgba(255,255,255,0.05);
+}
 
-/* Form Fields */
+/* 🧩 Header */
+.header-style {
+  background-color: #FFD700;
+  color: #222;
+  border-top-left-radius: 20px;
+  border-top-right-radius: 20px;
+}
+.dark-mode .header-style {
+  background-color: #333;
+  color: #FFD700;
+}
+
+/* 🧾 Inputs & Labels */
 input, textarea, select {
-    border-radius: 8px !important;
-    border: 1px solid #ddd !important;
-    padding: 10px !important;
-    transition: all 0.3s ease;
+  border-radius: 10px !important;
+  border: 1px solid #ccc !important;
+  padding: 10px !important;
+  transition: all 0.3s ease;
+  background-color: #fff;
 }
 input:focus, textarea:focus, select:focus {
-    border-color: #f1c40f !important;
-    box-shadow: 0 0 6px rgba(241, 196, 15, 0.6) !important;
+  border-color: #FFD700 !important;
+  box-shadow: 0 0 6px rgba(255, 215, 0, 0.5) !important;
+}
+.dark-mode input, 
+.dark-mode textarea, 
+.dark-mode select {
+  background-color: #222 !important;
+  border-color: #555 !important;
+  color: #eee !important;
+}
+.dark-mode input:focus, 
+.dark-mode textarea:focus, 
+.dark-mode select:focus {
+  border-color: #FFD700 !important;
 }
 
-/* Buttons */
+/* 🟡 Buttons */
 .hover-grow { transition: transform 0.3s ease, box-shadow 0.3s ease; }
 .hover-grow:hover {
-    transform: scale(1.05);
-    box-shadow: 0 8px 18px rgba(0,0,0,0.2);
+  transform: scale(1.05);
+  box-shadow: 0 8px 20px rgba(255, 215, 0, 0.3);
 }
 
-/* Skill Items */
-.skill-item { transition: background-color 0.3s ease, transform 0.2s ease; }
-.skill-item:hover { background-color: #fff3cd; transform: translateX(5px); }
+/* 🎯 Skill Items */
+.skill-item {
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  border-radius: 10px;
+}
+.skill-item:hover {
+  background-color: #fff3cd;
+  transform: translateX(5px);
+}
+.dark-mode .skill-item:hover {
+  background-color: #2c2c2c;
+}
+
+/* 🪶 Typography */
+.page-title {
+  color: #222;
+}
+.dark-mode .page-title {
+  color: #fff;
+}
+
+/* 📱 Responsive */
+@media (max-width: 768px) {
+  .edit-profile-card, .skill-list-card {
+    border-radius: 15px;
+    padding: 1.5rem;
+  }
+  .page-title { font-size: 1.6rem; }
+}
 </style>
 
-<!-- Animate.css -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+<!-- 🌟 Scroll Reveal Animation -->
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const reveals = document.querySelectorAll(".reveal");
+    const revealOnScroll = () => {
+      const trigger = window.innerHeight * 0.85;
+      reveals.forEach(el => {
+        const top = el.getBoundingClientRect().top;
+        if (top < trigger) el.classList.add("animate__animated", "animate__fadeInUp");
+      });
+    };
+    window.addEventListener("scroll", revealOnScroll);
+    revealOnScroll();
+  });
+</script>
 {% endblock %}

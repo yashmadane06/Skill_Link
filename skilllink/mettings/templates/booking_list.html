@@ -4,16 +4,16 @@
 {% block content %}
 <div class="container mt-5 max-w-4xl">
 
-  <h1 class="text-center mb-5 fw-bold text-dark animate__animated animate__fadeInDown">My Bookings</h1>
+  <h1 class="text-center mb-5 fw-bold animate__animated animate__fadeInDown text-theme">My Bookings</h1>
 
-  {# --- Incoming Bookings (Provider) --- #}
-  <h2 class="text-dark fw-semibold mb-3 animate__animated animate__fadeInLeft">Incoming Booking Requests</h2>
+  <h2 class="fw-semibold mb-3 animate__animated animate__fadeInLeft text-theme">Incoming Booking Requests</h2>
   {% for booking in bookings_received %}
-  <div class="card shadow mb-4 animate__animated animate__fadeInUp" 
-       style="border:2px solid #F0E68C; background-color:#FFF8DC; transition: transform 0.3s ease;">
+  <div class="card booking-card shadow mb-4 animate__animated animate__fadeInUp">
     <div class="card-body">
       <p><strong>Skill:</strong> {{ booking.skill.name }}</p>
-      <p><strong>Status:</strong> <span class="badge bg-info text-dark">{{ booking.status|capfirst }}</span></p>
+      <p><strong>Status:</strong> 
+        <span class="badge bg-info text-dark">{{ booking.status|capfirst }}</span>
+      </p>
       <p><strong>Requester:</strong> {{ booking.requester.user.get_full_name|default:booking.requester.user.username }}</p>
 
       <p><strong>Proposed Times:</strong></p>
@@ -34,7 +34,7 @@
             {% if booking.meeting_started %}
               <a href="{{ booking.meeting_link }}" target="_blank" class="btn btn-success fw-bold shadow-sm">Join Zoom</a>
             {% else %}
-              <p class="text-dark fw-semibold">Waiting for host to start the meeting...</p>
+              <p class="fw-semibold">Waiting for host to start the meeting...</p>
             {% endif %}
           {% endif %}
         {% endif %}
@@ -42,17 +42,17 @@
     </div>
   </div>
   {% empty %}
-  <p class="text-dark mb-4">No incoming bookings.</p>
+  <p class="text-theme">No incoming bookings.</p>
   {% endfor %}
 
-  {# --- My Bookings (Requester) --- #}
-  <h2 class="text-dark fw-semibold mb-3 mt-5 animate__animated animate__fadeInLeft">My Bookings (Requested)</h2>
+  <h2 class="fw-semibold mb-3 mt-5 animate__animated animate__fadeInLeft text-theme">My Bookings (Requested)</h2>
   {% for booking in bookings_made %}
-  <div class="card shadow mb-4 animate__animated animate__fadeInUp" 
-       style="border:2px solid #F0E68C; background-color:#FFF8DC; transition: transform 0.3s ease;">
+  <div class="card booking-card shadow mb-4 animate__animated animate__fadeInUp">
     <div class="card-body">
       <p><strong>Skill:</strong> {{ booking.skill.name }}</p>
-      <p><strong>Status:</strong> <span class="badge bg-info text-dark">{{ booking.status|capfirst }}</span></p>
+      <p><strong>Status:</strong> 
+        <span class="badge bg-info text-dark">{{ booking.status|capfirst }}</span>
+      </p>
       <p><strong>Provider:</strong> {{ booking.provider.user.get_full_name|default:booking.provider.user.username }}</p>
 
       <p><strong>Proposed Times:</strong></p>
@@ -70,7 +70,7 @@
             {% if booking.meeting_started %}
               <a href="{{ booking.meeting_link }}" target="_blank" class="btn btn-success fw-bold shadow-sm">Join Zoom</a>
             {% else %}
-              <p class="text-dark fw-semibold">Waiting for host to start the meeting...</p>
+              <p class="fw-semibold">Waiting for host to start the meeting...</p>
             {% endif %}
           {% endif %}
         {% endif %}
@@ -78,36 +78,48 @@
     </div>
   </div>
   {% empty %}
-  <p class="text-dark">No bookings made yet.</p>
+  <p class="text-theme">No bookings made yet.</p>
   {% endfor %}
-
 </div>
 
+<!-- Animate CSS -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+
+<!-- Dark Mode Styling -->
 <style>
-.card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 20px 40px rgba(0,0,0,0.2);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-.btn {
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-.btn:hover {
-    transform: scale(1.05);
-    box-shadow: 0 6px 12px rgba(0,0,0,0.15);
-}
-.badge {
-    font-size: 0.85rem;
-    border-radius: 12px;
-    padding: 0.35em 0.7em;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-.badge:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-}
-.animate__animated { --animate-duration: 0.8s; }
+  body.dark-mode {
+    background-color: #121212;
+    color: #eaeaea;
+  }
+
+  body.dark-mode .card.booking-card {
+    background-color: #1e1e1e;
+    border: 1px solid #333;
+    color: #eaeaea;
+  }
+
+  body.dark-mode .btn {
+    color: #fff !important;
+  }
+
+  .text-theme {
+    color: inherit;
+  }
 </style>
 
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+<!-- Optional Toggle Button -->
+<script>
+  function toggleDarkMode() {
+    document.body.classList.toggle('dark-mode');
+    localStorage.setItem('darkMode', document.body.classList.contains('dark-mode'));
+  }
+
+  // Remember mode
+  document.addEventListener('DOMContentLoaded', () => {
+    if (localStorage.getItem('darkMode') === 'true') {
+      document.body.classList.add('dark-mode');
+    }
+  });
+</script>
+
 {% endblock %}

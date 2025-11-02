@@ -1,11 +1,73 @@
 {% extends 'base.html' %}
+{% block title %}Booking Success - SkillLink{% endblock %}
 
 {% block content %}
-<div class="container mt-5">
-    <div class="alert alert-success text-center">
-        <h4>Booking Request Created Successfully!</h4>
-        <p>Your request has been sent to the provider.</p>
-        <a href="{% url 'dashboard' %}" class="btn btn-primary mt-2">Go to Dashboard</a>
+<div class="container d-flex justify-content-center align-items-center vh-100">
+    <div class="card shadow-lg text-center animate__animated animate__fadeInUp" 
+         style="max-width: 600px; width: 100%; border-radius: 20px; border: 2px solid var(--border-color); background: var(--card-bg);">
+        <div class="card-body p-5">
+
+            <!-- Success Icon -->
+            <div class="mb-3">
+                <i class="fas fa-check-circle text-success" style="font-size: 3rem;"></i>
+            </div>
+
+            <!-- Success Message -->
+            <h3 class="fw-bold mb-3" style="color: var(--text-color);">
+                Booking Request Created Successfully!
+            </h3>
+            <p class="mb-4" style="color: var(--muted-text);">
+                Your request has been sent to the provider. You can view its status in your dashboard.
+            </p>
+
+            <!-- Button -->
+            <a href="{% url 'dashboard' %}" class="btn btn-warning fw-semibold shadow-sm hover-grow px-4 py-2">
+                Go to Dashboard
+            </a>
+        </div>
     </div>
 </div>
+
+<!-- Animate.css -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+
+<style>
+:root {
+  --light-bg: #fff8dc;
+  --light-card: #fdf5e6;
+  --light-text: #333;
+  --light-muted: #555;
+  --light-border: #F0E68C;
+
+  --dark-bg: #121212;
+  --dark-card: #1e1e1e;
+  --dark-text: #f1f1f1;
+  --dark-muted: #b5b5b5;
+  --dark-border: #333;
+}
+
+body.light-mode {
+  --card-bg: var(--light-card);
+  --text-color: var(--light-text);
+  --muted-text: var(--light-muted);
+  --border-color: var(--light-border);
+}
+
+body.dark-mode {
+  --card-bg: var(--dark-card);
+  --text-color: var(--dark-text);
+  --muted-text: var(--dark-muted);
+  --border-color: var(--dark-border);
+}
+
+/* Smooth hover effect */
+.hover-grow {
+  transition: all 0.3s ease;
+}
+.hover-grow:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.2);
+}
+</style>
+
 {% endblock %}
