@@ -282,17 +282,14 @@
     </div> -->
 
     <!-- 🔹 Navbar -->
-<nav
-  class="navbar navbar-expand-lg navbar-light bg-white shadow-lg sticky-top"
-  id="mainNavbar"
->
+<<nav class="navbar navbar-expand-lg navbar-light bg-white shadow-lg sticky-top" id="mainNavbar">
   <div class="container">
-    <a
-      class="navbar-brand fw-bold fs-3 text-warning"
-      href="{% url 'index' %}"
-      >SkillLink</a
-    >
 
+    <a class="navbar-brand fw-bold fs-3 text-warning" href="{% url 'index' %}">
+      SkillLink
+    </a>
+
+    <!-- Toggler -->
     <button
       class="navbar-toggler"
       type="button"
@@ -302,73 +299,72 @@
       aria-expanded="false"
       aria-label="Toggle navigation"
     >
-      <span style="display: block; width: 25px; height: 3px; background-color: #ffc107; margin: 5px 0; border-radius: 2px;"></span>
-      <span style="display: block; width: 25px; height: 3px; background-color: #ffc107; margin: 5px 0; border-radius: 2px;"></span>
-      <span style="display: block; width: 25px; height: 3px; background-color: #ffc107; margin: 5px 0; border-radius: 2px;"></span>
+      <span style="display:block;width:25px;height:3px;background:#ffc107;margin:5px 0;border-radius:2px;"></span>
+      <span style="display:block;width:25px;height:3px;background:#ffc107;margin:5px 0;border-radius:2px;"></span>
+      <span style="display:block;width:25px;height:3px;background:#ffc107;margin:5px 0;border-radius:2px;"></span>
     </button>
 
     <div class="collapse navbar-collapse" id="navbarNav">
       <ul class="navbar-nav ms-auto align-items-center">
+
         {% if user.is_authenticated %}
-          <li class="nav-item mx-2">
-            <a class="nav-link position-relative" href="{% url 'profile' %}">
-              Profile <span class="nav-underline"></span>
-            </a>
-          </li>
 
-          <li class="nav-item mx-2">
-            <a class="nav-link position-relative" href="{% url 'dashboard' %}">
-              Dashboard <span class="nav-underline"></span>
-            </a>
-          </li>
+        <li class="nav-item mx-2">
+          <a class="nav-link position-relative" href="{% url 'profile' %}">
+            Profile <span class="nav-underline"></span>
+          </a>
+        </li>
 
-          <li class="nav-item mx-2">
-            <a class="nav-link position-relative" href="{% url 'token_balance' %}">
-              Tokens {{ user.profile.token_balance }}
-              <span class="nav-underline"></span>
-            </a>
-          </li>
+        <li class="nav-item mx-2">
+          <a class="nav-link position-relative" href="{% url 'dashboard' %}">
+            Dashboard <span class="nav-underline"></span>
+          </a>
+        </li>
 
-          <li class="nav-item mx-2">
-            <a class="nav-link" href="{% url 'logout' %}">Logout</a>
-          </li>
+        <li class="nav-item mx-2">
+          <a class="nav-link position-relative" href="{% url 'token_balance' %}">
+            Tokens {{ user.profile.token_balance }}
+            <span class="nav-underline"></span>
+          </a>
+        </li>
+
+        <li class="nav-item mx-2">
+          <a class="nav-link" href="{% url 'logout' %}">Logout</a>
+        </li>
 
         {% else %}
-          <li class="nav-item mx-2">
-            <a class="nav-link" href="{% url 'login' %}">Login</a>
-          </li>
-          <li class="nav-item mx-2">
-            <a class="nav-link" href="{% url 'register' %}">Register</a>
-          </li>
+
+        <li class="nav-item mx-2">
+          <a class="nav-link" href="{% url 'login' %}">Login</a>
+        </li>
+
+        <li class="nav-item mx-2">
+          <a class="nav-link" href="{% url 'register' %}">Register</a>
+        </li>
+
         {% endif %}
       </ul>
 
       <!-- ✅ Search Bar -->
-      <form
-        class="d-flex ms-lg-3 mt-3 mt-lg-0"
-        method="GET"
-        action="{% url 'skill_list' %}"
-      >
+      <form class="d-flex ms-lg-3 mt-3 mt-lg-0" method="GET" action="{% url 'skill_list' %}">
         <input
           class="form-control me-2 rounded-pill search-input"
           type="search"
           placeholder="Search skills..."
-          aria-label="Search"
           name="q"
           value="{{ query|default:'' }}"
         />
-        <button class="btn btn-warning rounded-pill px-3" type="submit">
-          Go
-        </button>
+        <button class="btn btn-warning rounded-pill px-3" type="submit">Go</button>
       </form>
 
       <!-- 🌗 Dark Mode Toggle -->
-      <button
-        id="dark-mode-toggle"
-        class="btn btn-warning btn-outline-warning rounded-circle ms-3"
-      >
+      <button id="dark-mode-toggle" class="btn btn-warning btn-outline-warning rounded-circle ms-3">
         <i class="bi bi-moon"></i>
       </button>
+
+    </div>
+  </div>
+</nav>
 
       <script>
         const toggleBtn = document.getElementById("dark-mode-toggle");
@@ -390,10 +386,7 @@
             toggleBtn.innerHTML = '<i class="bi bi-moon"></i>';
           }
         });
-      </script>
-    </div>
-  </div>
-</nav>
+
 
 <!-- 🟡 Mouse Follower Circle -->
 <div class="mouse-follower" id="mouseFollower"></div>
