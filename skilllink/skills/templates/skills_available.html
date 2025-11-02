@@ -1,28 +1,55 @@
 {% extends 'base.html' %}
 {% load static %}
 
+
 {% block title %}All Skills - SkillLink{% endblock %}
 
 {% block content %}
 <section class="container my-5">
-    <h2 class="mb-4 text-center fw-bold animate__animated animate__fadeInDown">All Available Skills</h2>
+
+    <!-- Search Heading -->
+    {% if query %}
+        <h3 class="mb-4 text-center fw-bold text-primary">
+            Search Results for: "{{ query }}"
+        </h3>
+    {% else %}
+        <h2 class="mb-4 text-center fw-bold animate__animated animate__fadeInDown">
+            All Available Skills
+        </h2>
+    {% endif %}
+
+    <!-- If no skills found -->
+    {% if skills|length == 0 %}
+        <div class="text-center my-5">
+            <h4 class="text-muted">No skills found matching your search.</h4>
+        </div>
+    {% endif %}
 
     <div class="skills-grid">
         {% for skill in skills %}
             {% for profile_skill in skill.profileskill_set.all %}
+
             <div class="skill-card shadow-sm animate__animated animate__fadeInUp">
+
                 <!-- Skill Image -->
                 <div class="skill-img-wrapper">
-                    <img src="{% if skill.skill_icon %}{{ skill.skill_icon.url }}{% else %}https://via.placeholder.com/250x150.png?text={{ skill.name|urlencode }}{% endif %}" 
-                         class="card-img-top" alt="{{ skill.name }}">
+                    <img 
+                        src="{% if skill.skill_icon %}{{ skill.skill_icon.url }}{% else %}https://via.placeholder.com/250x150.png?text={{ skill.name|urlencode }}{% endif %}" 
+                        class="card-img-top" 
+                        alt="{{ skill.name }}"
+                    >
                 </div>
-                
+
                 <div class="card-body text-center p-3">
+
                     <!-- Tutor photo + name -->
                     <div class="d-flex align-items-center justify-content-center mb-2">
                         {% if profile_skill.profile.profile_pic %}
-                            <img src="{{ profile_skill.profile.profile_pic.url }}" 
-                                 class="rounded-circle me-2 tutor-pic shadow-sm" alt="Tutor Pic">
+                            <img 
+                                src="{{ profile_skill.profile.profile_pic.url }}" 
+                                class="rounded-circle me-2 tutor-pic shadow-sm" 
+                                alt="Tutor Pic"
+                            >
                         {% else %}
                             <div class="rounded-circle bg-warning text-white fw-bold d-flex align-items-center justify-content-center me-2 tutor-pic shadow-sm">
                                 {{ profile_skill.profile.user.first_name|slice:":1" }}
@@ -36,18 +63,32 @@
 
                     <!-- Personal description -->
                     {% if profile_skill.personal_description %}
-                        <p class="text-muted mb-2" style="font-size:0.8rem;">{{ profile_skill.personal_description }}</p>
+                        <p class="text-muted mb-2" style="font-size:0.8rem;">
+                            {{ profile_skill.personal_description }}
+                        </p>
                     {% endif %}
 
                     <!-- Booking button -->
-                    <a href="{% url 'create_booking' skill.id profile_skill.profile.id %}" 
-                       class="btn btn-success btn-sm w-100 skill-btn shadow-sm">Send Request</a>
+                    <a 
+                        href="{% url 'create_booking' skill.id profile_skill.profile.id %}" 
+                        class="btn btn-success btn-sm w-100 skill-btn shadow-sm"
+                    >
+                        Send Request
+                    </a>
+
                 </div>
             </div>
+
             {% endfor %}
         {% endfor %}
     </div>
 </section>
+
+<style>
+/* You can keep your previous CSS here */
+</style>
+
+{% endblock %}
 
 <style>
 @import url('https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css');
