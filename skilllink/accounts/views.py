@@ -58,21 +58,36 @@ def login_page(request):
 # ---------------- REGISTER USER ----------------
 def register_page(request):
     if request.method == "POST":
-        username = request.POST.get("username").strip()
-        email = request.POST.get("email", "").strip()
-        password = request.POST.get("password")
+        username = request.POST.get("username")
+        email = request.POST.get("email")
+        password1 = request.POST.get("password1")
+        password2 = request.POST.get("password2")
 
-        if not username or not password:
-            messages.error(request, "Username and password required.")
+        # ✅ Validate passwords
+        if password1 != password2:
+            messages.error(request, "Passwords do not match")
             return redirect("register")
 
-        user = User.objects.create_user(username=username, email=email, password=password)
-        # defensive: create profile synchronously (signals may run, but this guarantees it)
-        from .models import Profile
-        Profile.objects.get_or_create(user=user)
+        # ✅ Check existing username & email
+        if User.objects.filter(username=username).exists():
+            messages.error(request, "Username already exists")
+            return redirect("register")
 
-        messages.success(request, "Registered — please log in.")
+        if User.objects.filter(email=email).exists():
+            messages.error(request, "Email already registered")
+            return redirect("register")
+
+        # ✅ Create user
+        user = User.objects.create_user(
+            username=username,
+            email=email,
+            password=password1
+        )
+
+        # ✅ Profile auto-created by signal
+        messages.success(request, "Registration successful! Please login.")
         return redirect("login")
+
     return render(request, "register.html")
 
 
