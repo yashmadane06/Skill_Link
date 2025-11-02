@@ -2,44 +2,70 @@
 {% block title %}Verify OTP - SkillLink{% endblock %}
 
 {% block content %}
+<div class="d-flex justify-content-center align-items-center vh-100">
+  <div class="card otp-card shadow-lg p-4 animate__animated animate__fadeIn" 
+       style="max-width: 420px; width: 100%; border: 2px solid #f6d365; background: linear-gradient(135deg, #fffdf5, #fef8e7);">
+    
+    <!-- Header -->
+    <div class="text-center mb-3">
+      <img src="{% static 'images/logo.png' %}" alt="SkillLink Logo" width="80" class="mb-2">
+      <h3 class="fw-bold text-dark">OTP Verification</h3>
+      <p class="text-muted small">Enter the OTP sent to <strong>{{ email }}</strong></p>
+    </div>
 
-   <div class="d-flex justify-content-center align-items-center vh-100">
-  <div class="card otp-card shadow-lg p-4 animate__animated animate__fadeIn">
-    <h3 class="text-center mb-3 fw-bold text-dark">OTP Verification</h3>
-    <p class="text-center text-muted mb-4">Enter the OTP sent to <strong>{{ email }}</strong></p>
-
+    <!-- OTP Form -->
     <form method="POST" id="otpForm" class="animate__animated animate__fadeInUp">
       {% csrf_token %}
       <div class="mb-3">
-        <input type="text" name="otp" class="form-control text-center fw-bold fs-5 otp-input" placeholder="Enter OTP" required>
+        <input type="text" name="otp" maxlength="6" 
+               class="form-control text-center fw-bold fs-5 otp-input" 
+               placeholder="Enter OTP" required>
       </div>
-      <button type="submit" class="btn btn-warning w-100 fw-bold shadow-sm hover-scale">Verify OTP</button>
+      <button type="submit" 
+              class="btn btn-warning w-100 fw-bold shadow-sm hover-scale">
+        Verify OTP
+      </button>
     </form>
 
-    <p class="text-center mt-3">
-      Didn’t receive OTP? <span id="resendOtp" class="fw-bold text-primary cursor-pointer hover-underline">Resend</span>
+    <!-- Resend -->
+    <p class="text-center mt-3 mb-1">
+      Didn’t receive OTP? 
+      <span id="resendOtp" class="fw-bold text-primary cursor-pointer hover-underline">Resend</span>
     </p>
-    <p class="text-center text-muted small">OTP expires in <span id="timer">02:00</span></p>
+
+    <!-- Timer -->
+    <p class="text-center text-muted small">
+      OTP expires in <span id="timer">02:00</span>
+    </p>
   </div>
 </div>
 
-<style>body {
+<!-- Styles -->
+<style>
+body {
   background: linear-gradient(135deg, #fdfbfb, #ebedee);
   font-family: 'Poppins', sans-serif;
 }
 
-.card {
+.otp-card {
   border-radius: 20px;
   transition: transform 0.3s ease;
 }
 
-.card:hover {
+.otp-card:hover {
   transform: translateY(-5px);
 }
 
 .otp-input {
-  letter-spacing: 0.3rem;
+  letter-spacing: 0.4rem;
   border: 2px solid #FFD700;
+  border-radius: 12px;
+  transition: all 0.3s ease;
+}
+
+.otp-input:focus {
+  box-shadow: 0 0 10px rgba(255, 215, 0, 0.4);
+  border-color: #f1c40f;
 }
 
 .hover-scale {
@@ -59,57 +85,60 @@
   animation-duration: 0.8s;
 }
 </style>
+
+<!-- Script -->
 <script>
-    // Countdown Timer
-    let time = 120; // 2 minutes in seconds
-    const timerEl = document.getElementById('timer');
+  // Timer
+  let time = 120;
+  const timerEl = document.getElementById('timer');
 
-    const countdown = setInterval(() => {
-        const minutes = String(Math.floor(time / 60)).padStart(2,'0');
-        const seconds = String(time % 60).padStart(2,'0');
-        timerEl.textContent = `${minutes}:${seconds}`;
-        time--;
+  const countdown = setInterval(() => {
+    const minutes = String(Math.floor(time / 60)).padStart(2, '0');
+    const seconds = String(time % 60).padStart(2, '0');
+    timerEl.textContent = `${minutes}:${seconds}`;
+    time--;
 
-        if(time < 0) {
-            clearInterval(countdown);
-            timerEl.textContent = "Expired!";
-            document.getElementById('otpForm').querySelector('button').disabled = true;
-        }
-    }, 1000);
-
-    // Get CSRF token from cookie
-    function getCookie(name) {
-        let cookieValue = null;
-        if (document.cookie && document.cookie !== '') {
-            const cookies = document.cookie.split(';');
-            for (let i = 0; i < cookies.length; i++) {
-                const cookie = cookies[i].trim();
-                if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                    break;
-                }
-            }
-        }
-        return cookieValue;
+    if (time < 0) {
+      clearInterval(countdown);
+      timerEl.textContent = "Expired!";
+      document.querySelector('#otpForm button').disabled = true;
     }
-    const csrftoken = getCookie('csrftoken');
+  }, 1000);
 
-    // Resend OTP
-    document.getElementById('resendOtp').addEventListener('click', function(){
-        fetch("{% url 'resend_otp' %}", {
-            method: 'POST',
-            headers: {'X-CSRFToken': csrftoken}
-        })
-        .then(response => response.json())
-        .then(data => {
-            if(data.success){
-                alert('✅ OTP resent! Check your email.');
-                time = 120; // reset timer
-                document.getElementById('otpForm').querySelector('button').disabled = false;
-            } else {
-                alert('❌ Error resending OTP.');
-            }
-        });
+  // Get CSRF token
+  function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+      const cookies = document.cookie.split(';');
+      for (let i = 0; i < cookies.length; i++) {
+        const cookie = cookies[i].trim();
+        if (cookie.startsWith(name + '=')) {
+          cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+          break;
+        }
+      }
+    }
+    return cookieValue;
+  }
+
+  const csrftoken = getCookie('csrftoken');
+
+  // Resend OTP
+  document.getElementById('resendOtp').addEventListener('click', function(){
+    fetch("{% url 'resend_otp' %}", {
+      method: 'POST',
+      headers: { 'X-CSRFToken': csrftoken }
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        alert('✅ OTP resent! Check your email.');
+        time = 120;
+        document.querySelector('#otpForm button').disabled = false;
+      } else {
+        alert('❌ Error resending OTP.');
+      }
     });
+  });
 </script>
 {% endblock %}
