@@ -46,7 +46,13 @@ SECRET_KEY = 'django-insecure-&7f1um-rj65ryxq666sl&8r-6z-1sckm$kjbvwm#$711dnyxbr
 # DEBUG = DEBUG = True
 # ALLOWED_HOSTS =[]
 DEBUG = DEBUG = False
-ALLOWED_HOSTS = ["https://skill-link-ptzd.onrender.com"]
+ALLOWED_HOSTS = [
+    "localhost",
+    "127.0.0.1",
+    "0.0.0.0",
+    "https://skill-link-ptzd.onrender.com",
+]
+
 
 
 
