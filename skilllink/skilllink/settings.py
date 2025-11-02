@@ -74,7 +74,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'accounts',
+    'accounts.apps.AccountsConfig',
     'home',
     'mettings',
     'payement',
@@ -206,19 +206,19 @@ EMAIL_HOST_PASSWORD = 'bckqhhyppwpyzagb'
 # Production settings (commented out for local development)
 # CSRF_TRUSTED_ORIGINS = ["https://skill-link-ptzd.onrender.com"]
 # SECURE_HSTS_SECONDS = 31536000
-# SECURE_SSL_REDIRECT = True
-# SESSION_COOKIE_SECURE = True
-# CSRF_COOKIE_SECURE = True
+SECURE_SSL_REDIRECT = True
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
 
 # Development settings
 CSRF_TRUSTED_ORIGINS = ["http://localhost:8003", "http://127.0.0.1:8003","https://skill-link-ptzd.onrender.com"]
 SECURE_HSTS_SECONDS = 0
-SECURE_SSL_REDIRECT = False
-SESSION_COOKIE_SECURE = False
-CSRF_COOKIE_SECURE = False
-SECURE_PROXY_SSL_HEADER = None
-USE_X_FORWARDED_HOST = False
-USE_X_FORWARDED_PORT = False
+# SECURE_SSL_REDIRECT = False
+# SESSION_COOKIE_SECURE = False
+# CSRF_COOKIE_SECURE = False
+# SECURE_PROXY_SSL_HEADER = None
+# USE_X_FORWARDED_HOST = False
+# USE_X_FORWARDED_PORT = False
 
 
 # Use Cloudinary for media storage
