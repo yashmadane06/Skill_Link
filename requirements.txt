@@ -1,23 +1,30 @@
 ﻿Django==5.2.5
-django-browser-reload==1.17.0
-django-cloudinary-storage==0.3.0
-cloudinary==1.44.1
+asgiref==3.9.1
+sqlparse==0.5.3
+tzdata==2025.2
 
-razorpay==1.4.2
-
-psycopg2-binary==2.9.10
-
+# ASGI + WebSockets
 channels==4.3.1
 channels_redis==4.3.0
 redis==6.4.0
 
-whitenoise==6.10.0
-
-python-decouple==3.5
-
+# Media Storage
+cloudinary==1.44.1
+django-cloudinary-storage==0.3.0
 pillow==11.3.0
+
+# Payments
+razorpay==1.4.2
+
+# Email / Env
+python-decouple==3.5
 requests==2.32.5
 
-asgiref==3.9.1
-sqlparse==0.5.3
-tzdata==2025.2
+# Static files
+whitenoise==6.10.0
+
+# Dev helper
+django-browser-reload==1.17.0
+
+# REQUIRED FOR RENDER DEPLOY
+gunicorn==23.0.0
