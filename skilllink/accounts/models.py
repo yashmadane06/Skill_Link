@@ -29,7 +29,12 @@ class EmailOTP(models.Model):
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     bio = models.CharField(max_length=100 ,blank=True, null=True)
-    profile_pic = CloudinaryField('image', folder='profile_skills', blank=True, null=True)   
+    profile_pic = CloudinaryField(
+    'image',
+    folder='profile_skills',
+    blank=True,
+    null=True
+)
     location = models.CharField(max_length=100, blank=True, null=True)
     languages_spoken = models.CharField(max_length=200, blank=True, null=True)
     experience_level = models.CharField(
