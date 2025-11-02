@@ -43,10 +43,11 @@ SECRET_KEY = 'django-insecure-&7f1um-rj65ryxq666sl&8r-6z-1sckm$kjbvwm#$711dnyxbr
 # SECURITY WARNING: don't run with debug turned on in production!
 
 
-DEBUG = DEBUG = True
-ALLOWED_HOSTS =[]
-# DEBUG = DEBUG = False
-# ALLOWED_HOSTS = ["skilllink-1-zeqc.onrender.com"]
+# DEBUG = DEBUG = True
+# ALLOWED_HOSTS =[]
+DEBUG = DEBUG = False
+ALLOWED_HOSTS = ["https://skill-link-ptzd.onrender.com"]
+
 
 
 
@@ -188,7 +189,8 @@ EMAIL_PORT = 587
 EMAIL_HOST_USER = 'skilllinproj@gmail.com'  # Replace with your email
 EMAIL_HOST_PASSWORD = 'bckqhhyppwpyzagb'
 
-CSRF_TRUSTED_ORIGINS = ["https://skilllink-1-zeqc.onrender.com/"]
+
+CSRF_TRUSTED_ORIGINS = ["https://skill-link-ptzd.onrender.com"]
 SECURE_HSTS_SECONDS = 31536000
 SECURE_SSL_REDIRECT = True
 SESSION_COOKIE_SECURE = True
