@@ -69,7 +69,6 @@ INSTALLED_APPS = [
     'django_crontab',
     "cloudinary",
     "cloudinary_storage",
-    'sslserver',
 ]
 
 MIDDLEWARE = [
