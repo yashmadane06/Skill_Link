@@ -5,129 +5,187 @@
 
 {% block content %}
 <section class="container my-5">
-    <h2 class="mb-4 text-center fw-bold animate__animated animate__fadeInDown">All Available Skills</h2>
 
-    <div class="skills-grid">
-        {% for skill in skills %}
-            {% for profile_skill in skill.profileskill_set.all %}
-            <div class="skill-card shadow-sm animate__animated animate__fadeInUp">
-                <!-- Skill Image -->
-                <div class="skill-img-wrapper">
-                    <img src="{% if skill.skill_icon %}{{ skill.skill_icon.url }}{% else %}https://via.placeholder.com/250x150.png?text={{ skill.name|urlencode }}{% endif %}" 
-                         class="card-img-top" alt="{{ skill.name }}">
-                </div>
-                
-                <div class="card-body text-center p-3">
-                    <!-- Tutor photo + name -->
-                    <div class="d-flex align-items-center justify-content-center mb-2">
-                        {% if profile_skill.profile.profile_pic %}
-                            <img src="{{ profile_skill.profile.profile_pic.url }}" 
-                                 class="rounded-circle me-2 tutor-pic shadow-sm" alt="Tutor Pic">
-                        {% else %}
-                            <div class="rounded-circle bg-warning text-white fw-bold d-flex align-items-center justify-content-center me-2 tutor-pic shadow-sm">
-                                {{ profile_skill.profile.user.first_name|slice:":1" }}
-                            </div>
-                        {% endif %}
-                        <h6 class="fw-bold mb-0">{{ profile_skill.profile.user.username }}</h6>
-                    </div>
+  <div class="d-flex justify-content-between align-items-center mb-4">
+      <h2 class="fw-bold animate__animated animate__fadeInDown text-gold">All Available Skills</h2>
+      <button id="theme-toggle" class="theme-toggle-btn shadow-sm">🌙</button>
+  </div>
 
-                    <!-- Skill name -->
-                    <p class="text-dark fw-semibold mb-1">{{ skill.name }}</p>
+  <div class="skills-grid">
+      {% for skill in skills %}
+          {% for profile_skill in skill.profileskill_set.all %}
+          <div class="skill-card animate__animated animate__fadeInUp">
+              <div class="skill-img-wrapper">
+                  <img src="{% if skill.skill_icon %}{{ skill.skill_icon.url }}{% else %}https://via.placeholder.com/250x150.png?text={{ skill.name|urlencode }}{% endif %}" 
+                       class="card-img-top" alt="{{ skill.name }}">
+              </div>
+              
+              <div class="card-body text-center p-3">
+                  <div class="d-flex align-items-center justify-content-center mb-2">
+                      {% if profile_skill.profile.profile_pic %}
+                          <img src="{{ profile_skill.profile.profile_pic.url }}" 
+                               class="rounded-circle me-2 tutor-pic shadow-sm" alt="Tutor Pic">
+                      {% else %}
+                          <div class="rounded-circle bg-gold text-dark fw-bold d-flex align-items-center justify-content-center me-2 tutor-pic shadow-sm">
+                              {{ profile_skill.profile.user.first_name|slice:":1" }}
+                          </div>
+                      {% endif %}
+                      <h6 class="fw-bold mb-0 username">{{ profile_skill.profile.user.username }}</h6>
+                  </div>
 
-                    <!-- Personal description -->
-                    {% if profile_skill.personal_description %}
-                        <p class="text-muted mb-2" style="font-size:0.8rem;">{{ profile_skill.personal_description }}</p>
-                    {% endif %}
+                  <p class="fw-semibold mb-1 skill-name">{{ skill.name }}</p>
 
-                    <!-- Booking button -->
-                    <a href="{% url 'create_booking' skill.id profile_skill.profile.id %}" 
-                       class="btn btn-success btn-sm w-100 skill-btn shadow-sm">Send Request</a>
-                </div>
-            </div>
-            {% endfor %}
-        {% endfor %}
-    </div>
+                  {% if profile_skill.personal_description %}
+                      <p class="text-muted mb-2" style="font-size:0.8rem;">{{ profile_skill.personal_description }}</p>
+                  {% endif %}
+
+                  <a href="{% url 'create_booking' skill.id profile_skill.profile.id %}" 
+                     class="btn btn-gold btn-sm w-100 skill-btn">Send Request</a>
+              </div>
+          </div>
+          {% endfor %}
+      {% endfor %}
+  </div>
 </section>
 
 <style>
 @import url('https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css');
 
-/* Skills Grid */
+/* === THEME COLORS === */
+:root {
+    --bg-light: #f9f7f3;
+    --bg-dark: #0b0b0b;
+    --card-light: #ffffff;
+    --card-dark: #1a1a1a;
+    --text-light: #1f1f1f;
+    --text-dark: #f1f1f1;
+    --gold: #d4af37;
+    --gold-hover: #b89624;
+    --shadow-light: rgba(0, 0, 0, 0.15);
+    --shadow-dark: rgba(255, 215, 0, 0.08);
+}
+
+/* === GLOBAL THEME LOGIC === */
+body {
+    background-color: var(--bg-light);
+    color: var(--text-light);
+    transition: all 0.4s ease;
+}
+
+body.dark-mode {
+    background-color: var(--bg-dark);
+    color: var(--text-dark);
+}
+
+.text-gold {
+    color: var(--gold);
+}
+
+/* === DARK MODE BUTTON === */
+.theme-toggle-btn {
+    background: transparent;
+    border: 2px solid var(--gold);
+    color: var(--gold);
+    border-radius: 50%;
+    font-size: 1.2rem;
+    width: 42px;
+    height: 42px;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: all 0.3s ease;
+}
+.theme-toggle-btn:hover {
+    background: var(--gold);
+    color: #000;
+    transform: rotate(20deg);
+}
+
+/* === GRID LAYOUT === */
 .skills-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 1rem;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 1.5rem;
     justify-items: center;
 }
 
-/* Skill Card */
+/* === CARD STYLING === */
 .skill-card {
     border-radius: 15px;
     overflow: hidden;
-    max-width: 220px;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    font-size: 0.85rem;
-    background: linear-gradient(180deg, #ffffff 0%, #fdf5e6 100%);
+    width: 100%;
+    max-width: 250px;
+    background: var(--card-light);
+    box-shadow: 0 4px 12px var(--shadow-light);
+    transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
     cursor: pointer;
 }
-
-/* Skill Image Wrapper */
-.skill-img-wrapper {
-    width: 100%;
-    height: 140px;
-    overflow: hidden;
+body.dark-mode .skill-card {
+    background: var(--card-dark);
+    box-shadow: 0 4px 20px var(--shadow-dark);
 }
 
+.skill-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 14px 28px var(--shadow-light);
+}
+body.dark-mode .skill-card:hover {
+    box-shadow: 0 14px 28px var(--shadow-dark);
+}
+
+/* === IMAGES === */
+.skill-img-wrapper {
+    width: 100%;
+    height: 150px;
+    overflow: hidden;
+}
 .skill-card img.card-img-top {
     width: 100%;
     height: 100%;
     object-fit: cover;
     transition: transform 0.3s ease;
 }
+.skill-card:hover img.card-img-top {
+    transform: scale(1.08);
+}
 
-/* Tutor photo */
+/* === TUTOR PIC === */
 .tutor-pic {
     width: 35px;
     height: 35px;
     object-fit: cover;
+    border: 2px solid var(--gold);
 }
 
-/* Card body */
-.skill-card .card-body {
-    padding: 0.5rem 0.6rem;
+/* === SKILL TEXT === */
+.skill-name {
+    color: var(--gold);
 }
-.skill-card h6 {
+.username {
+    color: inherit;
+}
+
+/* === BUTTONS === */
+.btn-gold {
+    background: var(--gold);
+    border: none;
+    color: #000;
+    font-weight: 600;
     font-size: 0.85rem;
-    margin-bottom: 0.2rem;
+    border-radius: 10px;
+    transition: all 0.3s ease;
 }
-.skill-card p {
-    margin-bottom: 0.2rem;
-}
-
-/* Button */
-.skill-card .skill-btn {
-    font-size: 0.75rem;
-    padding: 0.3rem 0.2rem;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-/* Hover Effects */
-.skill-card:hover {
-    transform: translateY(-6px);
-    box-shadow: 0 14px 28px rgba(0,0,0,0.25);
-}
-.skill-card:hover img.card-img-top {
-    transform: scale(1.08);
-}
-.skill-card:hover .skill-btn {
+.btn-gold:hover {
+    background: var(--gold-hover);
     transform: scale(1.05);
-    box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+    color: #000;
 }
 
-/* Responsive */
-@media (max-width: 992px) {
+/* === RESPONSIVE === */
+@media (max-width: 768px) {
     .skills-grid {
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
     }
 }
 @media (max-width: 576px) {
@@ -136,4 +194,23 @@
     }
 }
 </style>
+
+<script>
+// === Dark Mode Toggle ===
+const toggle = document.getElementById("theme-toggle");
+const body = document.body;
+
+// Load saved theme
+if (localStorage.getItem("theme") === "dark") {
+  body.classList.add("dark-mode");
+  toggle.textContent = "☀️";
+}
+
+toggle.addEventListener("click", () => {
+  body.classList.toggle("dark-mode");
+  const isDark = body.classList.contains("dark-mode");
+  toggle.textContent = isDark ? "☀️" : "🌙";
+  localStorage.setItem("theme", isDark ? "dark" : "light");
+});
+</script>
 {% endblock %}

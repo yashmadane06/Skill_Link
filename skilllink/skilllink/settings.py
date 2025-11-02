@@ -41,17 +41,24 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-&7f1um-rj65ryxq666sl&8r-6z-1sckm$kjbvwm#$711dnyxbr'
 
 # SECURITY WARNING: don't run with debug turned on in production!
+DEBUG = True
 
-
-# DEBUG = DEBUG = True
-# ALLOWED_HOSTS =[]
-DEBUG = DEBUG = False
+# Host/Domain names that this Django site can serve
 ALLOWED_HOSTS = [
     "localhost",
     "127.0.0.1",
     "0.0.0.0",
     "skill-link-ptzd.onrender.com",
 ]
+
+# Security settings - disabled for local development
+SECURE_SSL_REDIRECT = False
+SESSION_COOKIE_SECURE = False
+CSRF_COOKIE_SECURE = False
+SECURE_BROWSER_XSS_FILTER = False
+SECURE_CONTENT_TYPE_NOSNIFF = False
+SECURE_PROXY_SSL_HEADER = None
+
 
 
 
@@ -196,17 +203,22 @@ EMAIL_HOST_USER = 'skilllinproj@gmail.com'  # Replace with your email
 EMAIL_HOST_PASSWORD = 'bckqhhyppwpyzagb'
 
 
-CSRF_TRUSTED_ORIGINS = ["https://skill-link-ptzd.onrender.com"]
-SECURE_HSTS_SECONDS = 31536000
-SECURE_SSL_REDIRECT = True
-SESSION_COOKIE_SECURE = True
-CSRF_COOKIE_SECURE = True
+# Production settings (commented out for local development)
+# CSRF_TRUSTED_ORIGINS = ["https://skill-link-ptzd.onrender.com"]
+# SECURE_HSTS_SECONDS = 31536000
+# SECURE_SSL_REDIRECT = True
+# SESSION_COOKIE_SECURE = True
+# CSRF_COOKIE_SECURE = True
 
-# CSRF_TRUSTED_ORIGINS = []
-# SECURE_HSTS_SECONDS = 0
-# SECURE_SSL_REDIRECT = False
-# SESSION_COOKIE_SECURE = False
-# CSRF_COOKIE_SECURE = False
+# Development settings
+CSRF_TRUSTED_ORIGINS = ["http://localhost:8003", "http://127.0.0.1:8003","https://skill-link-ptzd.onrender.com"]
+SECURE_HSTS_SECONDS = 0
+SECURE_SSL_REDIRECT = False
+SESSION_COOKIE_SECURE = False
+CSRF_COOKIE_SECURE = False
+SECURE_PROXY_SSL_HEADER = None
+USE_X_FORWARDED_HOST = False
+USE_X_FORWARDED_PORT = False
 
 
 # Use Cloudinary for media storage
