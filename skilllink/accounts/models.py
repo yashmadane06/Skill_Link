@@ -33,8 +33,10 @@ class Profile(models.Model):
     'image',
     folder='profile_skills',
     blank=True,
-    null=True
+    null=True,
+    default="https://res.cloudinary.com/dctwxqpeo/image/upload/v1757868228/default_ehmhxs.png"
 )
+
     location = models.CharField(max_length=100, blank=True, null=True)
     languages_spoken = models.CharField(max_length=200, blank=True, null=True)
     experience_level = models.CharField(
