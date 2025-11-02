@@ -38,14 +38,17 @@ from django.conf import settings
 #     )
 
 # ---------------- LOGIN ----------------
+
 @csrf_protect
 def login_page(request):
     if request.method == "POST":
-        username = request.POST.get("username").strip()
+        username = request.POST.get("username", "").strip()
         password = request.POST.get("password")
         user = authenticate(request, username=username, password=password)
         if user:
             login(request, user)
+            # defensive: ensure profile exists immediately (avoids template errors)
+            from .models import Profile
             Profile.objects.get_or_create(user=user)
             return redirect("dashboard")
         messages.error(request, "Invalid credentials")
@@ -55,20 +58,21 @@ def login_page(request):
 # ---------------- REGISTER USER ----------------
 def register_page(request):
     if request.method == "POST":
-        username = request.POST.get("username")
-        email = request.POST.get("email")
+        username = request.POST.get("username").strip()
+        email = request.POST.get("email", "").strip()
         password = request.POST.get("password")
 
-        user = User.objects.create_user(
-            username=username,
-            email=email,
-            password=password
-        )
+        if not username or not password:
+            messages.error(request, "Username and password required.")
+            return redirect("register")
 
-        # ✅ Profile will be automatically created by signal
+        user = User.objects.create_user(username=username, email=email, password=password)
+        # defensive: create profile synchronously (signals may run, but this guarantees it)
+        from .models import Profile
+        Profile.objects.get_or_create(user=user)
 
+        messages.success(request, "Registered — please log in.")
         return redirect("login")
-
     return render(request, "register.html")
 
 

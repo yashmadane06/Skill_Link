@@ -6,4 +6,5 @@ class AccountsConfig(AppConfig):
     name = 'accounts'
 
     def ready(self):
-        import accounts.signals
+        # import signals so they are registered when Django starts
+        import accounts.signals  # noqa: F401
