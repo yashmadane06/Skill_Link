@@ -16,7 +16,7 @@
           class="rounded-circle bg-theme text-dark fw-bold d-flex align-items-center justify-content-center profile-pic shadow-lg"
           style="font-size: 2rem"
         >
-          {{ user.first_name|slice:":1" }}
+          {{ profile.user.first_name|slice:":1" }}
         </div>
         {% endif %}
       </div>
@@ -24,7 +24,8 @@
       <!-- Profile Info -->
       <div class="col-md-9 text-center text-md-start">
         <h2 class="fw-bold mb-1 user-name">
-          {{ user.first_name }} {{ user.last_name }}
+          {{ profile.user.first_name }} {{ profile.user.last_name }}
+
         </h2>
         <p class="user-role mb-2">SkillLink User</p>
         <p class="user-email mb-2">{{ user.email }}</p>

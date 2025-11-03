@@ -142,7 +142,7 @@
             <!-- Skill Image -->
             <div class="skill-img-wrapper d-flex align-items-center justify-content-center">
               {% if card.skill.skill_icon %}
-                <img src="{{ card.skill.skill_icon }}" alt="{{ card.skill.name }}">
+                <img src="{{ card.skill.skill_icon.url  }}" alt="{{ card.skill.name }}">
               {% else %}
                 <img src="https://via.placeholder.com/120.png?text={{ card.skill.name|urlencode }}" alt="{{ card.skill.name }}">
               {% endif %}

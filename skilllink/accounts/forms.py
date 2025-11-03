@@ -10,7 +10,6 @@ class ProfileForm(forms.ModelForm):
         model = Profile
         fields = ['bio', 'profile_pic', 'location']
         widgets = {
-            "username" :forms.CharField(max_length=150,required=True,widget=forms.TextInput(attrs={'class': 'form-control'})),
             'bio': forms.Textarea(attrs={'rows': 3, 'class': 'form-control'}),
             'location': forms.TextInput(attrs={'class': 'form-control'}),
             'profile_pic': forms.FileInput(attrs={'class': 'form-control'}),

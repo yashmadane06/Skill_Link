@@ -51,7 +51,7 @@ class Profile(models.Model):
     tokens_balance = models.PositiveIntegerField(default=0)
     rating = models.FloatField(default=0.0)
     joined_on = models.DateTimeField(auto_now_add=True)
-    verified = models.BooleanField(default=False)
+    verified = models.BooleanField(default=True)
     
     def __str__(self):
         return self.user.username
