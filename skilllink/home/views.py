@@ -4,15 +4,17 @@ from skills.models import Skill, ProfileSkill
 def index(request):
 
     # Trending skills with top 3 providers
-    skills = []
+    trending_cards = [] 
     all_skills = Skill.objects.all()
 
     for skill in all_skills:
         providers = ProfileSkill.objects.filter(skill=skill).order_by('-average_rating')[:3]
-        skills.append({
-            'skill': skill,
-            'providers': providers
-        })
+
+        for provider in providers:
+            trending_cards.append({
+                'skill': skill,
+                'provider': provider
+            })
 
     # Top tutors overall
     top_tutors = ProfileSkill.objects.all().order_by('-average_rating')[:7]
@@ -74,7 +76,7 @@ def index(request):
     ]
 
     context = {
-        'skills': skills,
+        'trending_cards': trending_cards,   # ✅ ADD THIS
         'top_tutors': top_tutors,
         'reviews': reviews,
         'team': team,
