@@ -1,21 +1,16 @@
-{% extends 'base.html' %} {% load static %} {% block title %}{{ user.first_name
-}}'s Profile - SkillLink{% endblock %} {% block content %}
+{% extends 'base.html' %} {% load static %} {% block title %}{{ profile.user.username }}'s Profile - SkillLink{%endblock %} {% block content %}
 <div class="container my-5">
   <div class="profile-card shadow-lg p-4 mx-auto">
     <div class="row g-4 align-items-center">
       <!-- Profile Picture -->
       <div class="col-md-3 text-center">
         {% if user.profile.profile_pic %}
-        <img
-          src="{{ user.profile.profile_pic.url }}"
-          class="rounded-circle profile-pic shadow-lg border border-theme"
-          alt="Profile Picture"
-        />
+        <img src="{{ user.profile.profile_pic.url }}" class="rounded-circle profile-pic shadow-lg border border-theme"
+          alt="Profile Picture" />
         {% else %}
         <div
           class="rounded-circle bg-theme text-dark fw-bold d-flex align-items-center justify-content-center profile-pic shadow-lg"
-          style="font-size: 2rem"
-        >
+          style="font-size: 2rem">
           {{ profile.user.first_name|slice:":1" }}
         </div>
         {% endif %}
@@ -24,16 +19,14 @@
       <!-- Profile Info -->
       <div class="col-md-9 text-center text-md-start">
         <h2 class="fw-bold mb-1 user-name">
-          {{ profile.user.first_name }} {{ profile.user.last_name }}
-
+          {{ profile.user.username }}
         </h2>
         <p class="user-role mb-2">SkillLink User</p>
         <p class="user-email mb-2">{{ user.email }}</p>
 
         {% if user.profile.location %}
         <p class="user-location mb-2">
-          <i class="fas fa-map-marker-alt me-2 text-theme"></i> {{
-          user.profile.location }}
+          <i class="fas fa-map-marker-alt me-2 text-theme"></i> {{ user.profile.location }}
         </p>
         {% endif %} {% if user.profile.bio %}
         <p class="user-bio mt-3 mb-3">“{{ user.profile.bio }}”</p>
@@ -92,50 +85,51 @@
     object-fit: cover;
     transition: all 0.3s ease;
   }
+
   .profile-pic:hover {
     transform: scale(1.08);
     box-shadow: 0 10px 25px rgba(255, 215, 0, 0.4);
   }
 
   /* ✏️ Elegant Edit Button */
-.edit-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 600;
-  border: none;
-  outline: none;
-  border-radius: 50px;
-  background: linear-gradient(135deg, var(--theme-color), #ffcf40);
-  color: #000;
-  letter-spacing: 0.5px;
-  transition: all 0.3s ease-in-out;
-  box-shadow: 0 4px 15px rgba(255, 215, 0, 0.35);
-}
+  .edit-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    border: none;
+    outline: none;
+    border-radius: 50px;
+    background: linear-gradient(135deg, var(--theme-color), #ffcf40);
+    color: #000;
+    letter-spacing: 0.5px;
+    transition: all 0.3s ease-in-out;
+    box-shadow: 0 4px 15px rgba(255, 215, 0, 0.35);
+  }
 
-.edit-btn:hover {
-  transform: translateY(-2px) scale(1.05);
-  box-shadow: 0 6px 25px rgba(255, 215, 0, 0.5);
-  background: linear-gradient(135deg, #ffdf40, var(--theme-color));
-  color: #111;
-}
+  .edit-btn:hover {
+    transform: translateY(-2px) scale(1.05);
+    box-shadow: 0 6px 25px rgba(255, 215, 0, 0.5);
+    background: linear-gradient(135deg, #ffdf40, var(--theme-color));
+    color: #111;
+  }
 
-.edit-btn:active {
-  transform: scale(0.98);
-  box-shadow: 0 2px 10px rgba(255, 215, 0, 0.4);
-}
+  .edit-btn:active {
+    transform: scale(0.98);
+    box-shadow: 0 2px 10px rgba(255, 215, 0, 0.4);
+  }
 
-/* 🌙 Dark Mode Glow */
-body.dark-mode .edit-btn {
-  background: linear-gradient(135deg, #ffc107, #ffb300);
-  color: #111;
-  box-shadow: 0 3px 12px rgba(255, 193, 7, 0.4);
-}
+  /* 🌙 Dark Mode Glow */
+  body.dark-mode .edit-btn {
+    background: linear-gradient(135deg, #ffc107, #ffb300);
+    color: #111;
+    box-shadow: 0 3px 12px rgba(255, 193, 7, 0.4);
+  }
 
-body.dark-mode .edit-btn:hover {
-  background: linear-gradient(135deg, #ffda3b, #ffb300);
-  box-shadow: 0 5px 25px rgba(255, 193, 7, 0.6);
-}
+  body.dark-mode .edit-btn:hover {
+    background: linear-gradient(135deg, #ffda3b, #ffb300);
+    box-shadow: 0 5px 25px rgba(255, 193, 7, 0.6);
+  }
 
 
   /* 🪶 Text Styling */
@@ -143,16 +137,19 @@ body.dark-mode .edit-btn:hover {
     font-size: 1.8rem;
     color: var(--heading-color);
   }
+
   .user-role {
     font-size: 0.95rem;
     color: var(--muted-text);
     letter-spacing: 0.5px;
   }
+
   .user-email,
   .user-location,
   .user-bio {
     color: var(--secondary-text);
   }
+
   .user-bio {
     font-style: italic;
     line-height: 1.6;
@@ -174,13 +171,16 @@ body.dark-mode .edit-btn:hover {
       text-align: center;
       padding: 2rem 1rem;
     }
+
     .profile-pic {
       width: 110px;
       height: 110px;
     }
+
     .user-name {
       font-size: 1.5rem;
     }
+
     .edit-btn {
       width: 100%;
     }

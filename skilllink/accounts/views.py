@@ -1,4 +1,5 @@
-# ---------------- DJANGO CORE IMPORTS ----------------
+from django.utils import timezone
+from datetime import timedelta
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import JsonResponse
 from django.contrib import messages
@@ -336,6 +337,7 @@ def payment_success(request):
 def dashboard(request):
     profile, _ = Profile.objects.get_or_create(user=request.user)
 
+    # --- Existing Booking Logic ---
     provider_bookings = Booking.objects.filter(provider=profile).order_by("-requested_at")
     incoming_requests = provider_bookings.filter(status="pending")
     accepted_bookings_provider = provider_bookings.filter(status__in=["accepted", "scheduled"])
@@ -348,6 +350,43 @@ def dashboard(request):
 
     user_skills = ProfileSkill.objects.filter(profile=profile)
 
+    # --- Analytics Logic ---
+    from django.db.models.functions import TruncDate
+    from django.db.models import Sum
+    import json
+    from django.core.serializers.json import DjangoJSONEncoder
+
+    # Token Trends (Last 30 days)
+    thirty_days_ago = timezone.now() - timedelta(days=30)
+    transactions = Transaction.objects.filter(user=profile, timestamp__gte=thirty_days_ago)
+    
+    daily_stats = transactions.annotate(date=TruncDate('timestamp')).values('date', 'transaction_type').annotate(total=Sum('amount')).order_by('date')
+    
+    dates = []
+    earned_data = []
+    spent_data = []
+    
+    # Process data for Chart.js
+    # (Simplified for Hackathon: just listing transactions might be easier, but let's try aggregation)
+    # A dictionary to hold date -> {earned: 0, spent: 0}
+    stats_dict = {}
+    for stat in daily_stats:
+        date_str = stat['date'].strftime("%Y-%m-%d")
+        if date_str not in stats_dict:
+            stats_dict[date_str] = {'earned': 0, 'spent': 0}
+        
+        if stat['transaction_type'] == 'earned':
+            stats_dict[date_str]['earned'] = stat['total']
+        elif stat['transaction_type'] == 'spent':
+            stats_dict[date_str]['spent'] = stat['total']
+
+    # Fill lists
+    sorted_dates = sorted(stats_dict.keys())
+    for d in sorted_dates:
+        dates.append(d)
+        earned_data.append(stats_dict[d]['earned'])
+        spent_data.append(stats_dict[d]['spent'])
+
     context = {
         "profile": profile,
         "user_skills": user_skills,
@@ -357,5 +396,11 @@ def dashboard(request):
         "pending_bookings_requester": pending_bookings_requester,
         "accepted_bookings_requester": accepted_bookings_requester,
         "past_bookings_requester": past_bookings_requester,
+        # Analytics
+        "analytics_dates": json.dumps(dates, cls=DjangoJSONEncoder),
+        "analytics_earned": json.dumps(earned_data, cls=DjangoJSONEncoder),
+        "analytics_spent": json.dumps(spent_data, cls=DjangoJSONEncoder),
+        "total_meetings_hosted": provider_bookings.filter(status="completed").count(),
+        "total_meetings_attended": requester_bookings.filter(status="completed").count(),
     }
     return render(request, "dashboard.html", context)

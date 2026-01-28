@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.utils import timezone
 import random
 from datetime import datetime, timedelta
 from cloudinary.models import CloudinaryField
@@ -50,7 +51,7 @@ class Profile(models.Model):
     )
     tokens_balance = models.PositiveIntegerField(default=0)
     rating = models.FloatField(default=0.0)
-    joined_on = models.DateTimeField(auto_now_add=True)
+    joined_on = models.DateTimeField(default=timezone.now)
     verified = models.BooleanField(default=True)
     
     def __str__(self):
@@ -134,3 +135,18 @@ class Transaction(models.Model):
 
     def __str__(self):
         return f"{self.user.user.username} - {self.transaction_type} {self.amount} tokens"
+
+# ---------------- NOTIFICATION ----------------
+class Notification(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='notifications')
+    title = models.CharField(max_length=100)
+    body = models.TextField()
+    link = models.CharField(max_length=255, blank=True, null=True)
+    is_read = models.BooleanField(default=False)
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-timestamp']
+
+    def __str__(self):
+        return f"{self.user.username} - {self.title}"

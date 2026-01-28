@@ -1,35 +1,532 @@
-{% extends 'base/base.html' %}
+{% extends 'base.html' %}
 
 {% block content %}
-<div class="d-flex gap-2">
+<div class="container mt-4">
+    <div class="row">
+        <!-- Booking Details Column -->
+        <div class="col-md-5">
+            <div class="card booking-details-card shadow-sm mb-4">
+                <div class="card-header booking-header">
+                    <h5 class="mb-0">📅 Booking Details</h5>
+                </div>
 
-    {% if booking.status == 'pending' %}
-        {% if booking.provider.user == user %}
-            <a href="{% url 'booking_update_status' booking.id 'accept' %}" 
-               class="btn btn-success btn-sm fw-bold shadow-sm">
-               Accept
-            </a>
-            <a href="{% url 'booking_update_status' booking.id 'reject' %}" 
-               class="btn btn-danger btn-sm fw-bold shadow-sm">
-               Reject
-            </a>
-        {% elif booking.requester.user == user %}
-            <a href="{% url 'booking_update_status' booking.id 'cancel' %}" 
-               class="btn btn-warning btn-sm fw-bold shadow-sm">
-               Cancel
-            </a>
-        {% endif %}
-    {% endif %}
+                <div class="card-body">
+                    <p><strong>Skill:</strong> {{ booking.skill.name }}</p>
 
+                    <p>
+                        <strong>Status:</strong>
+                        <span class="badge status-badge
+          {% if booking.status == 'completed' %}completed
+          {% elif booking.status == 'pending' %}pending
+          {% else %}other{% endif %}">
+                            {{ booking.status|title }}
+                        </span>
+                    </p>
+
+                    <p><strong>Requester:</strong> {{ booking.requester.user.username }}</p>
+                    <p><strong>Provider:</strong> {{ booking.provider.user.username }}</p>
+                    <p><strong>Cost:</strong> {{ booking.tokens_spent }} Tokens</p>
+
+                    {% if booking.status == 'scheduled' or booking.status == 'completed' %}
+                    <p><strong>Meeting Time:</strong> {{ booking.proposed_time }}</p>
+
+                    {% if booking.meeting_link %}
+                    <a href="{{ booking.meeting_link }}" target="_blank" class="btn btn-warning  w-100 mb-2">
+                        Join Meeting
+                    </a>
+                    {% endif %}
+                    {% endif %}
+
+                    <div class="d-flex gap-2 mt-3">
+                        {% if booking.status == 'pending' %}
+                        {% if booking.provider.user == user %}
+                        <a href="{% url 'booking_update_status' booking.id 'accept' %}"
+                            class="btn btn-accept flex-fill">Accept</a>
+                        <a href="{% url 'booking_update_status' booking.id 'reject' %}"
+                            class="btn btn-reject flex-fill">Reject</a>
+                        {% elif booking.requester.user == user %}
+                        <a href="{% url 'booking_update_status' booking.id 'cancel' %}"
+                            class="btn btn-cancel flex-fill">Cancel</a>
+                        {% endif %}
+                        {% elif booking.status == 'accepted' and booking.provider.user == user %}
+                        <a href="{% url 'schedule_meeting' booking.id %}" class="btn btn-schedule w-100">Schedule
+                            Meeting</a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <style>
+            .booking-details-card {
+                border-radius: 18px;
+                overflow: hidden;
+                background: linear-gradient(145deg, #ffffff, #fffdf5);
+                border: 1px solid #facc15;
+                box-shadow: 0 16px 40px rgba(0, 0, 0, 0.12);
+            }
+
+            .booking-header {
+                background: linear-gradient(135deg, #facc15, #eab308);
+                color: #111827;
+                font-weight: 700;
+                border-bottom: 1px solid #facc15;
+            }
+
+            /* Text */
+            .booking-details-card p {
+                color: #1f2937;
+                margin-bottom: 0.6rem;
+            }
+
+            /* ===== Status Badges ===== */
+            .status-badge {
+                padding: 5px 10px;
+                border-radius: 10px;
+                font-weight: 700;
+            }
+
+            .status-badge.completed {
+                background: #22c55e;
+                color: #022c22;
+            }
+
+            .status-badge.pending {
+                background: #facc15;
+                color: #111827;
+            }
+
+            .status-badge.other {
+                background: #64748b;
+                color: #ffffff;
+            }
+
+            /* ===== Buttons ===== */
+            .btn-join,
+            .btn-schedule {
+                background: linear-gradient(135deg, #facc15, #eab308);
+                color: #111827;
+                font-weight: 700;
+                border-radius: 14px;
+                border: none;
+            }
+
+            .btn-accept {
+                background: linear-gradient(135deg, #22c55e, #16a34a);
+                color: #022c22;
+                border-radius: 14px;
+                border: none;
+            }
+
+            .btn-reject {
+                background: linear-gradient(135deg, #ef4444, #dc2626);
+                color: #ffffff;
+                border-radius: 14px;
+                border: none;
+            }
+
+            .btn-cancel {
+                background: linear-gradient(135deg, #facc15, #eab308);
+                color: #111827;
+                border-radius: 14px;
+                border: none;
+            }
+
+            .booking-details-card .btn:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+            }
+
+
+            body.dark-mode .booking-details-card {
+                background: linear-gradient(145deg, #020617, #0f172a);
+                border: 1px solid rgba(250, 204, 21, 0.25);
+                box-shadow: 0 20px 50px rgba(0, 0, 0, 0.75);
+            }
+
+            body.dark-mode .booking-header {
+                background: linear-gradient(135deg, #020617, #1f2937);
+                color: #facc15;
+                border-bottom: 1px solid rgba(250, 204, 21, 0.3);
+            }
+
+            body.dark-mode .booking-details-card p {
+                color: #e5e7eb;
+            }
+
+            /* Status badges (dark) */
+            body.dark-mode .status-badge.completed {
+                background: #22c55e;
+                color: #022c22;
+            }
+
+            body.dark-mode .status-badge.pending {
+                background: #facc15;
+                color: #111827;
+            }
+
+            body.dark-mode .status-badge.other {
+                background: #64748b;
+                color: #020617;
+            }
+
+            /* Buttons (dark) */
+            body.dark-mode .btn-join,
+            body.dark-mode .btn-schedule {
+                /* box-shadow:
+                    0 0 0 1px rgba(250, 204, 21, 0.35),
+                    0 14px 35px rgba(250, 204, 21, 0.35); */
+            }
+
+            body.dark-mode .booking-details-card .btn:hover {
+                box-shadow: 0 12px 30px rgba(0, 0, 0, 0.6);
+            }
+
+
+            .booking-details-card,
+            .booking-header,
+            .status-badge,
+            .booking-details-card .btn {
+                transition: all 0.25s ease-in-out;
+            }
+        </style>
+
+
+        <!-- Chat Column -->
+        <div class="col-md-7">
+            <div class="card chat-card shadow-sm h-100">
+
+                <!-- Header -->
+                <div class="card-header chat-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">💬 Chat</h5>
+                    <!-- <small class="text-muted">Live conversation</small> -->
+                </div>
+
+                <!-- Body -->
+                <div class="card-body d-flex flex-column chat-body">
+
+                    <!-- Messages -->
+                    <div id="chat-messages" class="chat-messages flex-grow-1">
+
+                        {% for msg in chat_messages %}
+                        <div class="message-row {% if msg.sender.user == user %}sent{% else %}received{% endif %}">
+
+                            <div class="message-bubble">
+                                <div class="message-user">
+                                    {{ msg.sender.user.username }}
+                                </div>
+
+                                <div class="message-text">
+                                    {{ msg.content }}
+                                </div>
+
+                                <div class="message-time">
+                                    {{ msg.timestamp|date:"H:i" }}
+                                </div>
+                            </div>
+
+                        </div>
+                        {% endfor %}
+
+                    </div>
+
+                    <!-- Input -->
+                    <div class="chat-input mt-3">
+                        {% csrf_token %}
+                        <input type="text" id="chat-input" class="form-control" placeholder="Type a message..." />
+                        <button id="chat-send" class="btn btn-warning btn-send">Send</button>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+        <style>
+
+            .chat-card {
+                border-radius: 18px;
+                overflow: hidden;
+                background: linear-gradient(145deg, #ffffff, #fffdf5);
+                border: 1px solid #facc15;
+                box-shadow: 0 16px 40px rgba(0, 0, 0, 0.12);
+            }
+
+            /* Header */
+            .chat-header {
+                padding: 14px 18px;
+                background: linear-gradient(135deg, #facc15, #eab308);
+                color: #111827;
+                font-weight: 800;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+            }
+
+            /* Body */
+            .chat-body {
+                height: 500px;
+                background: linear-gradient(180deg, #f8fafc, #eef2f7);
+                display: flex;
+                flex-direction: column;
+            }
+
+            /* Messages area */
+            .chat-messages {
+                flex: 1;
+                overflow-y: auto;
+                padding: 18px 20px;
+            }
+
+            /* Message rows */
+            .message-row {
+                display: flex;
+                margin-bottom: 14px;
+            }
+
+            .message-row.sent {
+                justify-content: flex-end;
+            }
+
+            .message-row.received {
+                justify-content: flex-start;
+            }
+
+
+            .message-bubble {
+                max-width: 72%;
+                padding: 12px 14px;
+                border-radius: 16px;
+                box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
+                animation: fadeInUp 0.25s ease;
+            }
+
+            /* Sent (YOU) */
+            .message-row.sent .message-bubble {
+                background: linear-gradient(135deg, #2563eb, #1d4ed8);
+                color: #ffffff;
+                border-bottom-right-radius: 6px;
+            }
+
+            /* Received */
+            .message-row.received .message-bubble {
+                background: #ffffff;
+                color: #111827;
+                border: 1px solid #e5e7eb;
+                border-bottom-left-radius: 6px;
+            }
+
+            /* Username */
+            .message-user {
+                font-size: 0.72rem;
+                font-weight: 700;
+                opacity: 0.75;
+                margin-bottom: 4px;
+            }
+
+            /* Message text */
+            .message-text {
+                font-size: 0.95rem;
+                line-height: 1.45;
+            }
+
+            /* Time */
+            .message-time {
+                font-size: 0.65rem;
+                text-align: right;
+                margin-top: 6px;
+                opacity: 0.55;
+            }
+
+            .chat-input {
+                display: flex;
+                gap: 10px;
+                padding: 14px;
+                border-top: 1px solid #e5e7eb;
+                background: #ffffff;
+            }
+
+            .chat-input input {
+                flex: 1;
+                border-radius: 14px;
+                padding: 10px 14px;
+                border: 1px solid #d1d5db;
+            }
+
+            .chat-input input:focus {
+                outline: none;
+                border-color: #facc15;
+                box-shadow: 0 0 0 2px rgba(250, 204, 21, 0.3);
+            }
+
+            .btn-send {
+                background: linear-gradient(135deg, #facc15, #eab308);
+                color: #111827;
+                font-weight: 700;
+                border-radius: 14px;
+                padding: 0 20px;
+                border: none;
+            }
+
+            
+
+
+
+            body.dark-mode .chat-card {
+                background: linear-gradient(145deg, #020617, #0b1225);
+                border: 1px solid rgba(250, 204, 21, 0.3);
+                box-shadow: 0 25px 70px rgba(0, 0, 0, 0.85);
+            }
+
+            /* Header */
+            body.dark-mode .chat-header {
+                background: linear-gradient(135deg, #020617, #1f2937);
+                color: #facc15;
+                border-bottom: 1px solid rgba(250, 204, 21, 0.25);
+            }
+
+            /* Body */
+            body.dark-mode .chat-body {
+                background:
+                    radial-gradient(circle at top, rgba(250, 204, 21, 0.06), transparent 60%),
+                    #020617;
+            }
+
+            /* Messages */
+            body.dark-mode .chat-messages {
+                background: transparent;
+            }
+
+            /* Sent */
+            body.dark-mode .message-row.sent .message-bubble {
+                background: linear-gradient(135deg, #2563eb, #1e40af);
+                color: #f9fafb;
+            }
+
+            /* Received */
+            body.dark-mode .message-row.received .message-bubble {
+                background: linear-gradient(145deg, #0f172a, #020617);
+                color: #e5e7eb;
+                border: 1px solid rgba(250, 204, 21, 0.25);
+            }
+
+            /* Username */
+            body.dark-mode .message-user {
+                color: #facc15;
+            }
+
+            /* Time */
+            body.dark-mode .message-time {
+                color: #9ca3af;
+            }
+
+            /* Input */
+            body.dark-mode .chat-input {
+                background: #020617;
+                border-top: 1px solid rgba(250, 204, 21, 0.25);
+            }
+
+            body.dark-mode .chat-input input {
+                background: #020617;
+                border: 1px solid #374151;
+                color: #f9fafb;
+            }
+
+            body.dark-mode .chat-input input::placeholder {
+                color: #9ca3af;
+            }
+
+            /* Button glow */
+            body.dark-mode .btn-send {
+                box-shadow:
+                    0 0 0 1px rgba(250, 204, 21, 0.35),
+                    0 14px 35px rgba(250, 204, 21, 0.35);
+            }
+
+
+            @keyframes fadeInUp {
+                from {
+                    opacity: 0;
+                    transform: translateY(6px);
+                }
+
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+        </style>
+    </div>
 </div>
 
-<style>
-.btn {
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-.btn:hover {
-    transform: scale(1.05);
-    box-shadow: 0 6px 12px rgba(0,0,0,0.15);
-}
-</style>
+<script>
+    const bookingId = "{{ booking.id }}";
+    const currentUser = "{{ user.username }}";
+
+    const chatMessages = document.getElementById('chat-messages');
+    const chatInput = document.getElementById('chat-input');
+    const chatSend = document.getElementById('chat-send');
+
+    // WebSocket connection for this specific booking chat
+    const wsProtocol = window.location.protocol === 'https:' ? 'wss://' : 'ws://';
+    const chatSocket = new WebSocket(`${wsProtocol}${window.location.host}/ws/meet/${bookingId}/`);
+
+    function appendMessage(sender, content, timestamp) {
+        const messageDiv = document.createElement('div');
+        const isMe = sender === currentUser;
+
+        messageDiv.className = `d-flex mb-2 ${isMe ? 'justify-content-end' : 'justify-content-start'}`;
+
+        const timeString = new Date(timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true });
+        messageDiv.innerHTML = `
+            <div class="card ${isMe ? 'bg-primary text-white' : 'bg-white'} shadow-sm" style="max-width: 75%;">
+                <div class="card-body p-2">
+                    <small class="fw-bold d-block ${isMe ? 'text-light' : 'text-muted'}">${sender}</small>
+                    <span>${content}</span>
+                    <small class="d-block text-end mt-1 ${isMe ? 'text-light' : 'text-muted'}" style="font-size: 0.7em;">${timeString}</small>
+                </div>
+            </div>
+        `;
+        chatMessages.appendChild(messageDiv);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    chatSocket.onmessage = function (e) {
+        const data = JSON.parse(e.data);
+        if (data.type === 'history') {
+            chatMessages.innerHTML = ''; // Clear initial render and use history from WS
+            data.messages.forEach(msg => {
+                appendMessage(msg.sender, msg.content, msg.timestamp);
+            });
+        } else if (data.type === 'chat_message') {
+            appendMessage(data.message.sender, data.message.content, data.message.timestamp);
+        }
+    };
+
+    chatSocket.onclose = function (e) {
+        console.error('Chat socket closed unexpectedly');
+    };
+
+    chatSend.onclick = function (e) {
+        const content = chatInput.value.trim();
+        if (content) {
+            if (chatSocket.readyState === WebSocket.OPEN) {
+                chatSocket.send(JSON.stringify({
+                    'message': content
+                }));
+                chatInput.value = '';
+            } else {
+                console.error("WebSocket is not open. Current state: " + chatSocket.readyState);
+                alert("Connection lost. Please refresh the page.");
+            }
+        }
+    };
+
+    chatInput.onkeyup = function (e) {
+        if (e.key === 'Enter') {
+            chatSend.click();
+        }
+    };
+
+    // Initial scroll to bottom
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+</script>
 {% endblock %}

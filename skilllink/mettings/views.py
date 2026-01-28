@@ -4,7 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from accounts.models import Profile, Transaction
 from skills.models import Skill, ProfileSkill
-from .models import Booking, BookingHistory
+from .models import Booking, BookingHistory, Message
 from skilllink.zoom_utils import create_zoom_meeting
 import uuid
 from datetime import datetime
@@ -246,8 +246,53 @@ def booking_details(request, booking_id):
 
     # Fetch all proposed times
     history = BookingHistory.objects.filter(booking=booking).order_by('proposed_time')
+    chat_messages = Message.objects.filter(booking=booking).order_by('timestamp')
 
     return render(request, 'booking_details.html', {
         'booking': booking,
         'history': history,
+        'chat_messages': chat_messages,
     })
+
+from django.http import JsonResponse
+
+@login_required
+def send_message(request, booking_id):
+    booking = get_object_or_404(Booking, id=booking_id)
+    if request.user.profile not in [booking.requester, booking.provider]:
+        return JsonResponse({'status': 'error', 'message': 'Unauthorized'}, status=403)
+
+    if request.method == 'POST':
+        content = request.POST.get('content')
+        if content:
+            message = Message.objects.create(
+                booking=booking,
+                sender=request.user.profile,
+                content=content
+            )
+            return JsonResponse({
+                'status': 'success',
+                'message': {
+                    'sender': message.sender.user.username,
+                    'content': message.content,
+                    'timestamp': message.timestamp.strftime('%Y-%m-%d %H:%M:%S'),
+                }
+            })
+    return JsonResponse({'status': 'error', 'message': 'Invalid request'}, status=400)
+
+@login_required
+def get_messages(request, booking_id):
+    booking = get_object_or_404(Booking, id=booking_id)
+    if request.user.profile not in [booking.requester, booking.provider]:
+        return JsonResponse({'status': 'error', 'message': 'Unauthorized'}, status=403)
+
+    messages_list = Message.objects.filter(booking=booking).order_by('timestamp')
+    data = []
+    for msg in messages_list:
+        data.append({
+            'sender': msg.sender.user.username,
+            'content': msg.content,
+            'timestamp': msg.timestamp.strftime('%Y-%m-%d %H:%M:%S'),
+            'is_me': msg.sender == request.user.profile
+        })
+    return JsonResponse({'status': 'success', 'messages': data})

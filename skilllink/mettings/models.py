@@ -46,3 +46,15 @@ class BookingHistory(models.Model):
 
     def __str__(self):
         return f"Booking {self.booking.id} proposed {self.proposed_time} by {self.proposer.user.username}"
+
+
+# ---------------- CHAT MESSAGES ----------------
+class Message(models.Model):
+    booking = models.ForeignKey(Booking, related_name='messages', on_delete=models.CASCADE)
+    sender = models.ForeignKey(Profile, on_delete=models.CASCADE)
+    content = models.TextField()
+    timestamp = models.DateTimeField(auto_now_add=True)
+    is_read = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"Message from {self.sender.user.username} in Booking {self.booking.id}"

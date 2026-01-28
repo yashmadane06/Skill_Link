@@ -68,6 +68,7 @@ SECURE_PROXY_SSL_HEADER = None
 # Application definition
 
 INSTALLED_APPS = [
+    'daphne',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -88,6 +89,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'skilllink.middleware.TimezoneMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -108,6 +110,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'django.template.context_processors.tz',
             ],
         },
     },
@@ -115,6 +118,15 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'skilllink.wsgi.application'
 ASGI_APPLICATION = "skilllink.asgi.application"
+
+# Channels Configuration
+# Default to InMemory in dev if no REDIS_HOST is set, but keeping flexibility
+# For strict local dev without Redis:
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels.layers.InMemoryChannelLayer"
+    }
+}
 
 
 # Database
@@ -204,14 +216,15 @@ EMAIL_HOST_PASSWORD = 'bckqhhyppwpyzagb'
 
 
 # Production settings (commented out for local development)
+# Production settings (commented out for local development)
 # CSRF_TRUSTED_ORIGINS = ["https://skill-link-ptzd.onrender.com"]
 # SECURE_HSTS_SECONDS = 31536000
-SECURE_SSL_REDIRECT = True
-SESSION_COOKIE_SECURE = True
-CSRF_COOKIE_SECURE = True
+SECURE_SSL_REDIRECT = False
+SESSION_COOKIE_SECURE = False
+CSRF_COOKIE_SECURE = False
 
 # Development settings
-CSRF_TRUSTED_ORIGINS = ["http://localhost:8003", "http://127.0.0.1:8003","https://skill-link-ptzd.onrender.com"]
+CSRF_TRUSTED_ORIGINS = ["http://localhost:8000", "http://127.0.0.1:8000", "http://0.0.0.0:8000", "https://skill-link-ptzd.onrender.com"]
 SECURE_HSTS_SECONDS = 0
 # SECURE_SSL_REDIRECT = False
 # SESSION_COOKIE_SECURE = False

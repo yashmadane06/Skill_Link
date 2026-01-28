@@ -1,279 +1,305 @@
+{% load tz %}
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <title>{% block title %}SkillLink{% endblock %}</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-      rel="stylesheet"
-    />
 
-    <!-- <style>
-      /* 🚀 Loading Overlay */
-      #loadingOverlay {
-        position: fixed;
-        inset: 0;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background: #071129;
-        color: #fff;
-        z-index: 9999;
-        transition: opacity 0.6s ease, visibility 0.6s ease;
-      }
-      #loadingOverlay.hidden {
-        opacity: 0;
-        visibility: hidden;
-        pointer-events: none;
-      }
-      .rocket {
-        position: absolute;
-        font-size: 40px;
-        opacity: 0;
-      }
-      .rocket.r1 {
-        left: 10%;
-        bottom: 0;
-        animation: fly 2.5s linear infinite;
-      }
-      .rocket.r2 {
-        left: 40%;
-        bottom: -10%;
-        animation: fly 3s linear 1s infinite;
-      }
-      .rocket.r3 {
-        left: 70%;
-        bottom: -5%;
-        animation: fly 2.8s linear 0.5s infinite;
-      }
+<head>
+  <meta charset="UTF-8" />
+  <script>
+    (function () {
+      const userTz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+      const cookieMatch = document.cookie.split('; ').find(row => row.startsWith('django_timezone='));
+      const currentTz = cookieMatch ? cookieMatch.split('=')[1].replace(/"/g, '') : null;
 
-      @keyframes fly {
-        0% {
-          transform: translateY(0);
-          opacity: 0;
-        }
-        10% {
-          opacity: 1;
-        }
-        90% {
-          transform: translateY(-110vh);
-          opacity: 1;
-        }
-        100% {
-          opacity: 0;
-        }
+      if (userTz !== currentTz) {
+        document.cookie = `django_timezone=${userTz}; path=/; max-age=31536000; SameSite=Lax`;
+        window.location.reload();
       }
-    </style> -->
-    <style>
-      /* 🎨 Color Theme - Midnight Gold */
+    })();
+  </script>
+  <title>{% block title %}SkillLink{% endblock %}</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet" />
 
-      /* Root Color Variables */
-      :root {
-        --primary-color: #f9b934; /* Warm Gold */
-        --primary-dark: #c68a14; /* Deep Gold */
-        --secondary-color: #0a1931; /* Midnight Blue */
-        --accent-color: #1e3a8a; /* Deep Indigo Accent */
-        --background-color: #f8fafc; /* Soft White */
-        --text-color: #111827; /* Almost Black Text */
-        --muted-text: #6b7280; /* Muted Grey */
-        --light-bg: #e2e8f0; /* Light Gray Section */
-      }
+  <style>
+    /* 🎨 Global Theme & Design System */
+    :root {
+      --primary-color: #f9b934;
+      /* Warm Gold */
+      --primary-dark: #c68a14;
+      /* Deep Gold */
+      --secondary-color: #0a1931;
+      /* Midnight Blue */
+      --accent-color: #1e3a8a;
+      /* Deep Indigo Accent */
+      --background-color: #f8fafc;
+      /* Soft White */
+      --text-color: #111827;
+      /* Almost Black Text */
+      --muted-text: #6b7280;
+      /* Muted Grey */
+      --light-bg: #e2e8f0;
+      /* Light Gray Section */
+    }
 
-      /* 🌆 General Body */
-      body {
-        background-color: var(--background-color);
-        color: var(--text-color);
-        font-family: "Poppins", sans-serif;
-        transition: all 0.3s ease;
-        padding-bottom: 70px; /* same height as footer */
-      }
+    /* 🌆 General Body */
+    body {
+      background-color: var(--background-color);
+      color: var(--text-color);
+      font-family: "Poppins", sans-serif;
+      transition: all 0.3s ease;
+      padding-bottom: 70px;
+      /* same height as footer */
+    }
 
-      /* 🦸 Hero Section */
-      #hero {
-        background: linear-gradient(180deg, var(--secondary-color), #111);
-        color: white;
-        position: relative;
-      }
+    /* 🦸 Hero Section */
+    #hero {
+      background: linear-gradient(180deg, var(--secondary-color), #111);
+      color: white;
+      position: relative;
+    }
 
-      .hero-title {
-        color: var(--primary-color);
-        text-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
-      }
+    .hero-title {
+      color: var(--primary-color);
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
+    }
 
-      .hero-subtitle {
-        color: #e5e7eb;
-      }
+    .hero-subtitle {
+      color: #e5e7eb;
+    }
 
-      .btn-warning {
-        background-color: var(--primary-color);
-        border: none;
-        color: var(--secondary-color);
-        transition: 0.3s;
-      }
+    .btn-warning {
+      background-color: var(--primary-color);
+      border: none;
+      color: var(--secondary-color);
+      transition: 0.3s;
+    }
 
-      .btn-warning:hover {
-        background-color: var(--primary-dark);
-        transform: scale(1.05);
-      }
+    .btn-warning:hover {
+      background-color: var(--primary-dark);
+      transform: scale(1.05);
+    }
 
-      .btn-outline-light {
-        border-color: var(--primary-color);
-        color: var(--primary-color);
-      }
+    .btn-outline-light {
+      border-color: var(--primary-color);
+      color: var(--primary-color);
+    }
 
-      .btn-outline-light:hover {
-        background-color: var(--primary-color);
-        color: var(--secondary-color);
-      }
+    .btn-outline-light:hover {
+      background-color: var(--primary-color);
+      color: var(--secondary-color);
+    }
 
-      /* 💫 Section Backgrounds */
-      section {
-        padding: 5rem 0;
-      }
+    /* 💫 Section Backgrounds */
+    section {
+      padding: 5rem 0;
+    }
 
-      .light-section {
-        background-color: var(--light-bg);
-      }
+    .light-section {
+      background-color: var(--light-bg);
+    }
 
-      .dark-section {
-        background-color: var(--secondary-color);
-        color: white;
-      }
+    .dark-section {
+      background-color: var(--secondary-color);
+      color: white;
+    }
 
-      /* 🌐 Links & Hover Effects */
-      a {
-        color: var(--accent-color);
-        text-decoration: none;
-        transition: 0.2s;
-      }
+    /* 🌐 Links & Hover Effects */
+    a {
+      color: var(--accent-color);
+      text-decoration: none;
+      transition: 0.2s;
+    }
 
-      a:hover {
-        color: var(--primary-color);
-      }
+    a:hover {
+      color: var(--primary-color);
+    }
 
-      /* 🌙 Mouse Follower Circle (Matches Theme) */
-      .mouse-follower {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 25px;
-        height: 25px;
-        background-color: var(--primary-color);
-        border-radius: 50%;
-        pointer-events: none;
-        transform: translate(-50%, -50%);
-        transition: transform 0.1s ease, opacity 0.2s ease;
-        opacity: 0.8;
-        z-index: 9999;
-      }
+    /* 🌙 Mouse Follower Circle (Matches Theme) */
+    .mouse-follower {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 25px;
+      height: 25px;
+      background-color: var(--primary-color);
+      border-radius: 50%;
+      pointer-events: none;
+      transform: translate(-50%, -50%);
+      transition: transform 0.1s ease, opacity 0.2s ease;
+      opacity: 0.8;
+      z-index: 9999;
+    }
 
-      /* === Global Dark Mode === */
-      body.dark-mode {
-        background-color: #0d0d0d;
-        color: #f5f5f5;
-      }
+    /* === Global Dark Mode === */
+    body.dark-mode {
+      background-color: #0d0d0d;
+      color: #f5f5f5;
+    }
 
-      /* Navbar */
-      body.dark-mode .navbar {
-        background-color: #111 !important;
-        box-shadow: 0 0 10px rgba(255, 255, 255, 0.05);
-      }
-      body.dark-mode .navbar a {
-        color: #f5f5f5 !important;
-      }
-      body.dark-mode .navbar .nav-link:hover {
-        color: #ffcc33 !important;
-      }
+    /* Navbar */
+    body.dark-mode .navbar {
+      background-color: #111 !important;
+      box-shadow: 0 0 10px rgba(255, 255, 255, 0.05);
+    }
 
-      /* Hero Section */
-      body.dark-mode #hero {
-        background: linear-gradient(180deg, #121212 0%, #0d0d0d 100%);
-      }
-      body.dark-mode .hero-card {
-        background: #1a1a1a;
-      }
-      body.dark-mode .hero-content p.lead {
-        color: #ddd;
-      }
-      body.dark-mode .btn-light {
-        background: #222;
-        color: #f1f1f1;
-      }
-      body.dark-mode .btn-light:hover {
-        background: #333;
-      }
+    body.dark-mode .navbar a {
+      color: #f5f5f5 !important;
+    }
 
-      /* Skills Section */
-      body.dark-mode .skills-section {
-        background: #121212;
-        color: #f5f5f5;
-      }
-      body.dark-mode .skill-card {
-        background: #1a1a1a;
-        border: 1px solid #333;
-      }
-      body.dark-mode .skill-card:hover {
-        box-shadow: 0 10px 25px rgba(255, 255, 255, 0.1);
-      }
-      body.dark-mode .skill-hover-overlay {
-        background: rgba(255, 255, 255, 0.05);
-      }
+    body.dark-mode .navbar .nav-link:hover {
+      color: #ffcc33 !important;
+    }
 
-      /* Explore Card */
-      body.dark-mode .explore-card {
-        background: linear-gradient(135deg, #ffcc33, #ffaa00);
-        color: #000;
-      }
+    /* Hero Section */
+    body.dark-mode #hero {
+      background: linear-gradient(180deg, #121212 0%, #0d0d0d 100%);
+    }
 
-      /* Reviews */
-      body.dark-mode .review-card {
-        background: #1a1a1a;
-        color: #ddd;
-        border: 1px solid #333;
-      }
+    body.dark-mode .hero-card {
+      background: #1a1a1a;
+    }
 
-      /* Team Section */
-      body.dark-mode .team-section {
-        background: #111;
-        color: #f5f5f5;
-      }
-      body.dark-mode .team-card .front {
-        background: #1a1a1a;
-        color: #f5f5f5;
-      }
-      body.dark-mode .team-card .back {
-        background: #222;
-      }
-      body.dark-mode .group-photo .overlay {
-        background: rgba(0, 0, 0, 0.7);
-      }
+    body.dark-mode .hero-content p.lead {
+      color: #ddd;
+    }
 
-      /* Mouse Follower */
-      body.dark-mode #cursor-circle {
-        border: 2px solid #ffcc33;
-        background: rgba(255, 204, 51, 0.1);
-      }
+    body.dark-mode .btn-light {
+      background: #222;
+      color: #f1f1f1;
+    }
 
-      #dark-mode-toggle {
-        color: black;
-        background: #f9b934;
-      }
-      #dark-mode-toggle:hover {
-        background: #c68a14;
-        color: black;
-      }
-    </style>
+    body.dark-mode .btn-light:hover {
+      background: #333;
+    }
 
-    <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css"
-      rel="stylesheet"
-    />
+    /* Skills Section */
+    body.dark-mode .skills-section {
+      background: #121212;
+      color: #f5f5f5;
+    }
 
-    {% block extra_head %}{% endblock %}
-  </head>
-  <body>
-    <!-- 🚀 Rockets Loading
+    body.dark-mode .skill-card {
+      background: #1a1a1a;
+      border: 1px solid #333;
+    }
+
+    body.dark-mode .skill-card:hover {
+      box-shadow: 0 10px 25px rgba(255, 255, 255, 0.1);
+    }
+
+    body.dark-mode .skill-hover-overlay {
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    /* Explore Card */
+    body.dark-mode .explore-card {
+      background: linear-gradient(135deg, #ffcc33, #ffaa00);
+      color: #000;
+    }
+
+    /* Reviews */
+    body.dark-mode .review-card {
+      background: #1a1a1a;
+      color: #ddd;
+      border: 1px solid #333;
+    }
+
+    /* Team Section */
+    body.dark-mode .team-section {
+      background: #111;
+      color: #f5f5f5;
+    }
+
+    body.dark-mode .team-card .front {
+      background: #1a1a1a;
+      color: #f5f5f5;
+    }
+
+    body.dark-mode .team-card .back {
+      background: #222;
+    }
+
+    body.dark-mode .group-photo .overlay {
+      background: rgba(0, 0, 0, 0.7);
+    }
+
+    /* Mouse Follower */
+    body.dark-mode #cursor-circle {
+      border: 2px solid #ffcc33;
+      background: rgba(255, 204, 51, 0.1);
+    }
+
+    #dark-mode-toggle {
+      color: black;
+      background: #f9b934;
+    }
+
+    #dark-mode-toggle:hover {
+      background: #c68a14;
+      color: black;
+    }
+
+    /* 🔔 Notification Panel */
+    .bg-light-yellow {
+      background-color: #fff9c4 !important;
+    }
+
+    body.dark-mode .bg-light-yellow {
+      background-color: #332b00 !important;
+    }
+
+    body.dark-mode .notification-item strong {
+      color: #ffcc33 !important;
+    }
+
+    body.dark-mode .notification-item p,
+    body.dark-mode .notification-item span {
+      color: #ccc !important;
+    }
+
+    body.dark-mode .dropdown-menu {
+      background-color: #1a1a1a !important;
+      border: 1px solid #333 !important;
+    }
+
+    body.dark-mode .notification-item {
+      border-bottom: 1px solid #333 !important;
+    }
+
+    body.dark-mode .notification-item:hover {
+      background-color: #222 !important;
+    }
+
+    body.dark-mode #notification-list {
+      background-color: #1a1a1a !important;
+    }
+
+    /* 📱 Responsive Notification Panel */
+    .notification-dropdown {
+      width: 320px;
+    }
+
+    @media (max-width: 480px) {
+      .notification-dropdown {
+        width: 90vw;
+        position: fixed !important;
+        left: 5vw !important;
+        right: 5vw !important;
+        top: 70px !important;
+        margin: 0 auto;
+      }
+    }
+  </style>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet" />
+
+  {% block extra_head %}{% endblock %}
+</head>
+
+<body>
+  <!-- 🚀 Rockets Loading
     <div id="loadingOverlay">
       <h1 class="fw-bold">SkillLink</h1>
       <div class="rocket r1">🚀</div>
@@ -281,524 +307,673 @@
       <div class="rocket r3">🚀</div>
     </div> -->
 
-    <!-- 🔹 Navbar -->
-    <nav
-      class="navbar navbar-expand-lg navbar-light bg-white shadow-lg sticky-top"
-      id="mainNavbar"
-    >
-      <div class="container">
-        <a
-          class="navbar-brand fw-bold fs-3 text-warning"
-          href="{% url 'index' %}"
-          >SkillLink</a
-        >
+  <!-- 🔹 Navbar -->
+  <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-lg sticky-top" id="mainNavbar">
+    <div class="container">
+      <a class="navbar-brand fw-bold fs-3 text-warning" href="{% url 'index' %}">SkillLink</a>
 
-        <button
-          class="navbar-toggler"
-          type="button"
-          data-bs-toggle="collapse"
-          data-bs-target="#navbarNav"
-          aria-controls="navbarNav"
-          aria-expanded="false"
-          aria-label="Toggle navigation"
-        >
-          <span
-            style="
-              display: block;
-              width: 25px;
-              height: 3px;
-              background-color: #ffc107;
-              margin: 5px 0;
-              border-radius: 2px;
-            "
-          ></span>
-          <span
-            style="
-              display: block;
-              width: 25px;
-              height: 3px;
-              background-color: #ffc107;
-              margin: 5px 0;
-              border-radius: 2px;
-            "
-          ></span>
-          <span
-            style="
-              display: block;
-              width: 25px;
-              height: 3px;
-              background-color: #ffc107;
-              margin: 5px 0;
-              border-radius: 2px;
-            "
-          ></span>
+      <div class="d-flex align-items-center order-lg-3 gap-2">
+        <!-- Notification Bell -->
+        <div class="dropdown">
+          <button class="btn btn-warning rounded-circle position-relative" type="button" id="notificationBell"
+            data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="bi bi-bell"></i>
+            <span id="notification-badge"
+              class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none">
+              0
+            </span>
+          </button>
+          <ul class="dropdown-menu dropdown-menu-end p-0 shadow-lg notification-dropdown"
+            aria-labelledby="notificationBell" id="notification-panel"
+            style="max-height: 480px; overflow-y: auto; border: none; border-radius: 12px;">
+            <li class="p-3 border-bottom d-flex justify-content-between align-items-center bg-light">
+              <h6 class="mb-0 fw-bold">Notifications</h6>
+              <button class="btn btn-sm text-primary p-0 fw-semibold" id="mark-all-read">Mark all as read</button>
+            </li>
+            <div id="notification-list">
+              <!-- Dynamically populated -->
+              <li class="p-4 text-center text-muted">
+                <i class="bi bi-bell-slash d-block fs-2 mb-2"></i>
+                No notifications yet
+              </li>
+            </div>
+          </ul>
+        </div>
+
+        <!-- 🌗 Dark Mode Toggle -->
+        <button id="dark-mode-toggle" class="btn btn-warning btn-outline-warning rounded-circle">
+          <i class="bi bi-moon"></i>
         </button>
 
-        <div class="collapse navbar-collapse" id="navbarNav">
-          <ul class="navbar-nav ms-auto align-items-center">
-            {% if user.is_authenticated %}
-              <li class="nav-item mx-2">
-                <a class="nav-link position-relative" href="{% url 'profile' %}"
-                  >Profile<span class="nav-underline"></span
-                ></a>
-              </li>
+        <!-- Navbar Toggler -->
+        <button class="navbar-toggler border-0 ms-1 p-0" type="button" data-bs-toggle="collapse"
+          data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+          <span style="
+                display: block;
+                width: 25px;
+                height: 3px;
+                background-color: #ffc107;
+                margin: 5px 0;
+                border-radius: 2px;
+              "></span>
+          <span style="
+                display: block;
+                width: 25px;
+                height: 3px;
+                background-color: #ffc107;
+                margin: 5px 0;
+                border-radius: 2px;
+              "></span>
+          <span style="
+                display: block;
+                width: 25px;
+                height: 3px;
+                background-color: #ffc107;
+                margin: 5px 0;
+                border-radius: 2px;
+              "></span>
+        </button>
+      </div>
 
-              <li class="nav-item mx-2">
-                <a class="nav-link position-relative" href="{% url 'dashboard' %}"
-                  >Dashboard<span class="nav-underline"></span
-                ></a>
-              </li>
+      <div class="collapse navbar-collapse order-lg-2" id="navbarNav">
+        <ul class="navbar-nav ms-auto align-items-center">
+          {% if user.is_authenticated %}
+          <li class="nav-item mx-2">
+            <a class="nav-link position-relative" href="{% url 'profile' %}">Profile<span
+                class="nav-underline"></span></a>
+          </li>
 
-              <li class="nav-item mx-2">
-                <a
-                  class="nav-link position-relative"
-                  href="{% url 'token_balance' %}"
-                >
-                  Tokens {{ user.profile.token_balance }}
-                  <span class="nav-underline"></span>
-                </a>
-              </li>
+          <li class="nav-item mx-2">
+            <a class="nav-link position-relative" href="{% url 'dashboard' %}">Dashboard<span
+                class="nav-underline"></span></a>
+          </li>
 
-              <li class="nav-item mx-2">
-                <a class="nav-link" href="{% url 'logout' %}">Logout</a>
-              </li>
-              {% else %}
-              <li class="nav-item mx-2">
-                <a class="nav-link" href="{% url 'login' %}">Login</a>
-              </li>
-              <li class="nav-item mx-2">
-                <a class="nav-link" href="{% url 'register' %}">Register</a>
-              </li>
-            {% endif %}
-          </ul>
+          <li class="nav-item mx-2">
+            <a class="nav-link position-relative" href="{% url 'token_balance' %}">
+              Tokens {{ user.profile.token_balance }}
+              <span class="nav-underline"></span>
+            </a>
+          </li>
 
-          <!-- Search Bar -->
-          <form
-            class="d-flex ms-lg-3 mt-3 mt-lg-0"
-            method="GET"
-            action="{% url 'skill_list' %}"
-          >
-            <input
-              class="form-control me-2 rounded-pill search-input"
-              type="search"
-              placeholder="Search skills..."
-              aria-label="Search"
-              name="q"
-            />
-            <button class="btn btn-warning rounded-pill px-3" type="submit">
-              Go
-            </button>
-          </form>
-
-          <!-- 🌗 Dark Mode Toggle -->
-          <button
-            id="dark-mode-toggle"
-            class="btn btn-warning btn-outline-warning rounded-circle ms-3"
-          >
-            <i class="bi bi-moon"></i>
-          </button>
-
-          <script>
-            const toggleBtn = document.getElementById("dark-mode-toggle");
-            const body = document.body;
-
-            // Apply saved mode from localStorage
-            if (localStorage.getItem("theme") === "dark") {
-              body.classList.add("dark-mode");
-              toggleBtn.innerHTML = '<i class="bi bi-sun"></i>';
-            }
-
-            // Toggle on click
-            toggleBtn.addEventListener("click", () => {
-              body.classList.toggle("dark-mode");
-
-              if (body.classList.contains("dark-mode")) {
-                localStorage.setItem("theme", "dark");
-                toggleBtn.innerHTML = '<i class="bi bi-sun"></i>';
-              } else {
-                localStorage.setItem("theme", "light");
-                toggleBtn.innerHTML = '<i class="bi bi-moon"></i>';
-              }
-            });
-          </script>
-        </div>
+          <li class="nav-item mx-2">
+            <a class="nav-link" href="{% url 'logout' %}">Logout</a>
+          </li>
+          {% else %}
+          <li class="nav-item mx-2">
+            <a class="nav-link" href="{% url 'login' %}">Login</a>
+          </li>
+          <li class="nav-item mx-2">
+            <a class="nav-link" href="{% url 'register' %}">Register</a>
+          </li>
+          {% endif %}
         </ul>
 
+        <!-- Search Bar -->
+        <form class="d-flex ms-lg-3 me-lg-2 mt-3 mt-lg-0" method="GET" action="{% url 'skill_list' %}">
+          <input class="form-control me-2 rounded-pill search-input" type="search" placeholder="Search skills..."
+            aria-label="Search" name="q" />
+          <button class="btn btn-warning rounded-pill px-3" type="submit">
+            Go
+          </button>
+        </form>
       </div>
-    </nav>
 
-    <!-- 🟡 Mouse Follower Circle -->
-    <div class="mouse-follower" id="mouseFollower"></div>
+      <script>
+        const toggleBtn = document.getElementById("dark-mode-toggle");
+        const body = document.body;
 
-    <style>
-      /* 🎨 Theme Colors */
-      :root {
-        --primary-color: #f9b934;
-        --primary-dark: #c68a14;
-        --background-color: #ffffff;
-        --text-color: #111827;
-        --navbar-bg: #ffffff;
-        --nav-text: #111827;
-        --follower-color: rgba(249, 185, 52, 0.3);
-      }
-
-      [data-theme="dark"] {
-        --background-color: #0a1931;
-        --text-color: #f8fafc;
-        --navbar-bg: #111827;
-        --nav-text: #f9b934;
-        --follower-color: rgba(249, 185, 52, 0.5);
-      }
-
-      body {
-        background-color: var(--background-color);
-        color: var(--text-color);
-        transition: background-color 0.3s ease, color 0.3s ease;
-        overflow-x: hidden;
-      }
-
-      /* 🧭 Navbar */
-      .navbar {
-        background-color: var(--navbar-bg) !important;
-        transition: background-color 0.3s ease;
-      }
-
-      .navbar .nav-link,
-      .navbar .navbar-brand {
-        color: var(--nav-text) !important;
-        transition: color 0.3s ease;
-      }
-
-      .nav-link:hover {
-        color: var(--primary-color) !important;
-      }
-
-      /* 🌙 Theme Toggle Button */
-      .theme-toggle-btn {
-        width: 40px;
-        height: 40px;
-        background-color: var(--primary-color);
-        color: var(--navbar-bg);
-        border: none;
-        cursor: pointer;
-        font-size: 1.2rem;
-        transition: all 0.3s ease;
-        z-index: 1001;
-      }
-
-      .theme-toggle-btn:hover {
-        background-color: var(--primary-dark);
-        transform: rotate(15deg) scale(1.1);
-      }
-
-      /* 🟡 Mouse Follower */
-      .mouse-follower {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 25px;
-        height: 25px;
-        background: var(--follower-color);
-        border: 2px solid var(--primary-color);
-        border-radius: 50%;
-        pointer-events: none;
-        transform: translate(-50%, -50%);
-        transition: width 0.3s ease, height 0.3s ease, opacity 0.3s ease;
-        mix-blend-mode: difference;
-        z-index: 1000;
-      }
-    </style>
-
-    <script>
-      // 🟡 Mouse Follower Logic
-
-      window.addEventListener("mousemove", (e) => {
-        follower.style.opacity = 1;
-        mouseX = e.clientX;
-        mouseY = e.clientY;
-      });
-
-      window.addEventListener("mouseleave", () => {
-        follower.style.opacity = 0;
-      });
-
-      function animate() {
-        posX += (mouseX - posX) * speed;
-        posY += (mouseY - posY) * speed;
-        follower.style.transform = `translate(${posX}px, ${posY}px) translate(-50%, -50%)`;
-        requestAnimationFrame(animate);
-      }
-
-      animate();
-
-      // ✨ Change size/speed when hovering toggle button
-      toggleBtn.addEventListener("mouseenter", () => {
-        follower.style.width = "40px";
-        follower.style.height = "40px";
-      });
-
-      toggleBtn.addEventListener("mouseleave", () => {
-        follower.style.width = "25px";
-        follower.style.height = "25px";
-      });
-
-      const isMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(
-        navigator.userAgent
-      );
-
-      if (!isMobile) {
-        const follower = document.createElement("div");
-        follower.style.position = "fixed";
-        follower.style.top = "0";
-        follower.style.left = "0";
-        follower.style.width = "20px";
-        follower.style.height = "20px";
-        follower.style.borderRadius = "50%";
-        follower.style.pointerEvents = "none";
-        follower.style.zIndex = "9999";
-        follower.style.background = "var(--accent)";
-        follower.style.boxShadow = "0 0 20px var(--accent)";
-        follower.style.transition = "transform 0.1s ease, opacity 0.4s ease";
-        document.body.appendChild(follower);
-
-        let mouseX = 0,
-          mouseY = 0;
-
-        document.addEventListener("mousemove", (e) => {
-          mouseX = e.clientX;
-          mouseY = e.clientY;
-          follower.style.transform = `translate(${mouseX - 10}px, ${
-            mouseY - 10
-          }px) scale(1)`;
-          follower.style.opacity = "1";
-        });
-
-        document.addEventListener("mouseleave", () => {
-          follower.style.transform = `scale(0.6)`;
-          follower.style.opacity = "0";
-        });
-      }
-    </script>
-
-    <style>
-            /* Gradient Navbar */
-            .navbar.bg-gradient {
-              background: linear-gradient(90deg, #071129 0%, #1c1f3a 100%);
-              transition: all 0.3s ease;
-            }
-
-            /* Links visible by default */
-            .nav-link {
-              position: relative;
-              font-weight: 500;
-              color: #000000ff !important; /* ✅ Always visible */
-              transition: color 0.3s ease;
-            }
-
-            /* Active & focus also visible */
-            .nav-link:active,
-            .nav-link:focus,
-            .nav-link.show {
-              color: #e20505ff !important;
-            }
-
-            /* Hover effect */
-            .nav-link:hover {
-              color: #ffc107 !important; /* Yellow on hover */
-            }
-
-            /* Underline animation */
-            .nav-link .nav-underline {
-              position: absolute;
-              bottom: -3px;
-              left: 0;
-              width: 0;
-              height: 2px;
-              background: #ffc107;
-              transition: width 0.3s ease;
-            }
-
-            .nav-link:hover .nav-underline {
-              width: 100%;
-            }
-
-            /* Search input style */
-            .search-input {
-              border-radius: 50px;
-              padding-left: 15px;
-              transition: all 0.3s ease;
-            }
-
-            .search-input:focus {
-              box-shadow: 0 0 10px rgba(255, 193, 7, 0.5);
-              border-color: #ffc107;
-              outline: none;
-            }
-
-            body.dark-mode input {
-        background: #2a2a2a !important;
-        border: 1px solid #444 !important;
-        color: #fff !important;
-      }
-      body.dark-mode input::placeholder {
-        color: #bbb !important;
-      }
-    </style>
-    {% if messages %}
-    <div class="container mt-3">
-      {% for message in messages %}
-      <div
-        class="alert alert-{{ message.tags }} alert-dismissible fade show"
-        role="alert"
-      >
-        {{ message }}
-        <button
-          type="button"
-          class="btn-close"
-          data-bs-dismiss="alert"
-          aria-label="Close"
-        ></button>
-      </div>
-      {% endfor %}
-    </div>
-    {% endif %}
-
-    <!-- 🔹 Main Page Content -->
-
-    <main>{% block content %}{% endblock %}</main>
-
-    <!-- ✅ Single Clean Footer -->
-    <footer class="footer mt-auto py-3 text-center">
-      <div class="container">
-        <p class="mb-0 fw-semibold">
-          © {{ current_year|default:2025 }}
-          <span class="brand">SkillLink</span> — Connecting Skills, Empowering
-          Students
-        </p>
-      </div>
-    </footer>
-
-    <style>
-      /* Footer Base */
-      .footer {
-        background: rgba(255, 255, 255, 0.85);
-        backdrop-filter: blur(10px);
-        border-top: 1px solid rgba(255, 215, 0, 0.3);
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        width: 100%;
-        color: #222;
-        font-family: "Poppins", sans-serif;
-        z-index: 1000;
-        transition: all 0.4s ease;
-      }
-
-      /* Footer Text */
-      .footer p {
-        margin: 0;
-        font-size: 0.95rem;
-        letter-spacing: 0.3px;
-      }
-      .footer .brand {
-        color: #e6b800;
-        font-weight: 700;
-        transition: color 0.3s ease;
-      }
-
-      /* Footer Hover */
-      .footer:hover .brand {
-        color: #ffcf33;
-      }
-
-      /* Dark Mode Footer */
-      .dark-mode .footer {
-        background: rgba(25, 25, 25, 0.9);
-        border-top: 1px solid rgba(255, 215, 0, 0.15);
-        color: #ccc;
-      }
-      .dark-mode .footer .brand {
-        color: #ffcf33;
-      }
-
-      /* For Small Screens */
-      @media (max-width: 768px) {
-        .footer p {
-          font-size: 0.85rem;
+        // Apply saved mode from localStorage
+        if (localStorage.getItem("theme") === "dark") {
+          body.classList.add("dark-mode");
+          toggleBtn.innerHTML = '<i class="bi bi-sun"></i>';
         }
-      }
-    </style>
 
-    <script>
-      window.addEventListener("load", () => {
-        document.getElementById("loadingOverlay").classList.add("hidden");
-      });
-    </script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    {% block extra_scripts %}{% endblock %}
+        // Toggle on click
+        toggleBtn.addEventListener("click", () => {
+          body.classList.toggle("dark-mode");
 
-    <!-- Mouse Follower -->
-    <div class="mouse-follower"></div>
+          if (body.classList.contains("dark-mode")) {
+            localStorage.setItem("theme", "dark");
+            toggleBtn.innerHTML = '<i class="bi bi-sun"></i>';
+          } else {
+            localStorage.setItem("theme", "light");
+            toggleBtn.innerHTML = '<i class="bi bi-moon"></i>';
+          }
+        });
+      </script>
+      </ul>
 
-    <style>
-      /* Mouse follower circle */
-      .mouse-follower {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 15px; /* smaller circle */
-        height: 15px;
-        background: rgba(255, 204, 51, 0.9); /* golden yellow */
-        border-radius: 50%;
-        pointer-events: none;
-        transform: translate(-50%, -50%);
-        transition: opacity 0.3s ease, transform 0.1s ease;
-        z-index: 9999;
-        box-shadow: 0 0 10px rgba(255, 204, 51, 0.6);
-        opacity: 0; /* hidden until mouse moves */
-        mix-blend-mode: difference; /* gives glowing contrast effect */
-      }
+    </div>
+  </nav>
 
-      /* Slightly enlarge when hovering over links or buttons */
-      a:hover ~ .mouse-follower,
-      button:hover ~ .mouse-follower {
-        transform: scale(1.3) translate(-50%, -50%);
-      }
-    </style>
-    <script>
-      const follower = document.querySelector(".mouse-follower");
+  <!-- 🟡 Mouse Follower Circle -->
+  <!-- <div class="mouse-follower" id="mouseFollower"></div> -->
+
+  <style>
+    /* 🎨 Theme Colors */
+    :root {
+      --primary-color: #f9b934;
+      --primary-dark: #c68a14;
+      --background-color: #ffffff;
+      --text-color: #111827;
+      --navbar-bg: #ffffff;
+      --nav-text: #111827;
+      --follower-color: rgba(249, 185, 52, 0.3);
+    }
+
+    [data-theme="dark"] {
+      --background-color: #0a1931;
+      --text-color: #f8fafc;
+      --navbar-bg: #111827;
+      --nav-text: #f9b934;
+      --follower-color: rgba(249, 185, 52, 0.5);
+    }
+
+    body {
+      background-color: var(--background-color);
+      color: var(--text-color);
+      transition: background-color 0.3s ease, color 0.3s ease;
+      overflow-x: hidden;
+    }
+
+    /* 🧭 Navbar */
+    .navbar {
+      background-color: var(--navbar-bg) !important;
+      transition: background-color 0.3s ease;
+    }
+
+    .navbar .nav-link,
+    .navbar .navbar-brand {
+      color: var(--nav-text) !important;
+      transition: color 0.3s ease;
+    }
+
+    .nav-link:hover {
+      color: var(--primary-color) !important;
+    }
+
+    /* 🌙 Theme Toggle Button */
+    .theme-toggle-btn {
+      width: 40px;
+      height: 40px;
+      background-color: var(--primary-color);
+      color: var(--navbar-bg);
+      border: none;
+      cursor: pointer;
+      font-size: 1.2rem;
+      transition: all 0.3s ease;
+      z-index: 1001;
+    }
+
+    .theme-toggle-btn:hover {
+      background-color: var(--primary-dark);
+      transform: rotate(15deg) scale(1.1);
+    }
+
+
+    /* 🟡 Mouse Follower */
+    .mouse-follower {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 25px;
+      height: 25px;
+      background: var(--follower-color);
+      border: 2px solid var(--primary-color);
+      border-radius: 50%;
+      pointer-events: none;
+      transform: translate(-50%, -50%);
+      transition: width 0.3s ease, height 0.3s ease, opacity 0.3s ease;
+      mix-blend-mode: difference;
+      z-index: 1000;
+    }
+  </style>
+
+  <!-- <script>
+    // 🟡 Mouse Follower Logic
+
+    window.addEventListener("mousemove", (e) => {
+      follower.style.opacity = 1;
+      mouseX = e.clientX;
+      mouseY = e.clientY;
+    });
+
+    window.addEventListener("mouseleave", () => {
+      follower.style.opacity = 0;
+    });
+
+    function animate() {
+      posX += (mouseX - posX) * speed;
+      posY += (mouseY - posY) * speed;
+      follower.style.transform = `translate(${posX}px, ${posY}px) translate(-50%, -50%)`;
+      requestAnimationFrame(animate);
+    }
+
+    animate();
+
+    // ✨ Change size/speed when hovering toggle button
+    toggleBtn.addEventListener("mouseenter", () => {
+      follower.style.width = "40px";
+      follower.style.height = "40px";
+    });
+
+    toggleBtn.addEventListener("mouseleave", () => {
+      follower.style.width = "25px";
+      follower.style.height = "25px";
+    });
+
+    const isMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(
+      navigator.userAgent
+    );
+
+    if (!isMobile) {
+      const follower = document.createElement("div");
+      follower.style.position = "fixed";
+      follower.style.top = "0";
+      follower.style.left = "0";
+      follower.style.width = "20px";
+      follower.style.height = "20px";
+      follower.style.borderRadius = "50%";
+      follower.style.pointerEvents = "none";
+      follower.style.zIndex = "9999";
+      follower.style.background = "var(--accent)";
+      follower.style.boxShadow = "0 0 20px var(--accent)";
+      follower.style.transition = "transform 0.1s ease, opacity 0.4s ease";
+      document.body.appendChild(follower);
+
       let mouseX = 0,
         mouseY = 0;
-      let currentX = 0,
-        currentY = 0;
-      const speed = 0.25; // faster follow
 
-      // Mouse movement
       document.addEventListener("mousemove", (e) => {
         mouseX = e.clientX;
         mouseY = e.clientY;
-        follower.style.opacity = 1; // show when mouse moves
+        follower.style.transform = `translate(${mouseX - 10}px, ${mouseY - 10
+          }px) scale(1)`;
+        follower.style.opacity = "1";
       });
 
-      // Hide when mouse leaves window
       document.addEventListener("mouseleave", () => {
-        follower.style.opacity = 0;
+        follower.style.transform = `scale(0.6)`;
+        follower.style.opacity = "0";
+      });
+    }
+  </script> -->
+
+  <style>
+    /* Gradient Navbar */
+    .navbar.bg-gradient {
+      background: linear-gradient(90deg, #071129 0%, #1c1f3a 100%);
+      transition: all 0.3s ease;
+    }
+
+    /* Links visible by default */
+    .nav-link {
+      position: relative;
+      font-weight: 500;
+      color: #000000ff !important;
+      /* ✅ Always visible */
+      transition: color 0.3s ease;
+    }
+
+    /* Active & focus also visible */
+    .nav-link:active,
+    .nav-link:focus,
+    .nav-link.show {
+      color: #e20505ff !important;
+    }
+
+    /* Hover effect */
+    .nav-link:hover {
+      color: #ffc107 !important;
+      /* Yellow on hover */
+    }
+
+    /* Underline animation */
+    .nav-link .nav-underline {
+      position: absolute;
+      bottom: -3px;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background: #ffc107;
+      transition: width 0.3s ease;
+    }
+
+    .nav-link:hover .nav-underline {
+      width: 100%;
+    }
+
+    /* Search input style */
+    .search-input {
+      border-radius: 50px;
+      padding-left: 15px;
+      transition: all 0.3s ease;
+    }
+
+    .search-input:focus {
+      box-shadow: 0 0 10px rgba(255, 193, 7, 0.5);
+      border-color: #ffc107;
+      outline: none;
+    }
+
+    body.dark-mode input {
+      background: #2a2a2a !important;
+      border: 1px solid #444 !important;
+      color: #fff !important;
+    }
+
+    body.dark-mode input::placeholder {
+      color: #bbb !important;
+    }
+  </style>
+  {% if messages %}
+  <div class="container mt-3">
+    {% for message in messages %}
+    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+      {{ message }}
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <!-- 🔹 Main Page Content -->
+
+  <main>{% block content %}{% endblock %}</main>
+
+  <!-- ✅ Single Clean Footer -->
+  <footer class="footer mt-auto py-3 text-center">
+    <div class="container">
+      <p class="mb-0 fw-semibold">
+        © {{ current_year|default:2025 }}
+        <span class="brand">SkillLink</span> — Connecting Skills, Empowering
+        Students
+        <!-- <span class="ms-2 badge bg-warning text-dark opacity-75" style="font-size: 0.7rem;">Timezone: {{ TIME_ZONE }}</span> -->
+      </p>
+    </div>
+  </footer>
+
+  <style>
+    /* Footer Base */
+    .footer {
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(10px);
+      border-top: 1px solid rgba(255, 215, 0, 0.3);
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      color: #222;
+      font-family: "Poppins", sans-serif;
+      z-index: 1000;
+      transition: all 0.4s ease;
+    }
+
+    /* Footer Text */
+    .footer p {
+      margin: 0;
+      font-size: 0.95rem;
+      letter-spacing: 0.3px;
+    }
+
+    .footer .brand {
+      color: #e6b800;
+      font-weight: 700;
+      transition: color 0.3s ease;
+    }
+
+    /* Footer Hover */
+    .footer:hover .brand {
+      color: #ffcf33;
+    }
+
+    /* Dark Mode Footer */
+    .dark-mode .footer {
+      background: rgba(25, 25, 25, 0.9);
+      border-top: 1px solid rgba(255, 215, 0, 0.15);
+      color: #ccc;
+    }
+
+    .dark-mode .footer .brand {
+      color: #ffcf33;
+    }
+
+    /* For Small Screens */
+    @media (max-width: 768px) {
+      .footer p {
+        font-size: 0.85rem;
+      }
+    }
+  </style>
+
+  <script>
+    window.addEventListener("load", () => {
+      document.getElementById("loadingOverlay").classList.add("hidden");
+    });
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  {% block extra_scripts %}{% endblock %}
+
+  {% if user.is_authenticated %}
+  <script>
+    (function () {
+      const wsProtocol = window.location.protocol === 'https:' ? 'wss://' : 'ws://';
+      const userSocket = new WebSocket(wsProtocol + window.location.host + '/ws/user/');
+      const badge = document.getElementById('notification-badge');
+      const list = document.getElementById('notification-list');
+      const markReadBtn = document.getElementById('mark-all-read');
+
+      userSocket.onmessage = function (e) {
+        const data = JSON.parse(e.data);
+
+        if (data.type === 'notification_history') {
+          updateHistory(data.notifications);
+          updateBadge(data.unread_count);
+        }
+        else if (data.type === 'notification') {
+          showGlobalToast(data.notification);
+          addNotificationToList(data.notification, true);
+          updateBadge(data.unread_count);
+        }
+        else if (data.type === 'status_update') {
+          showGlobalToast({ title: "Booking Update", body: data.message, link: "/meetings/" });
+          window.dispatchEvent(new CustomEvent('bookingStatusChanged', { detail: data }));
+          updateBadge(data.unread_count);
+        }
+        else if (data.type === 'unread_count_update') {
+          updateBadge(data.count);
+          // Visually mark all in list as read
+          document.querySelectorAll('.notification-item').forEach(i => i.classList.remove('bg-light-yellow'));
+        }
+        else if (data.type === 'token_update') {
+          document.querySelectorAll('a[href*="token_balance"]').forEach(link => {
+            link.innerHTML = `Tokens ${data.balance}`;
+          });
+        }
+      };
+
+      markReadBtn.onclick = () => {
+        userSocket.send(JSON.stringify({ 'type': 'mark_read' }));
+      };
+
+      function updateBadge(count) {
+        if (count > 0) {
+          badge.innerText = count;
+          badge.classList.remove('d-none');
+        } else {
+          badge.classList.add('d-none');
+        }
+      }
+
+      function updateHistory(notifications) {
+        if (notifications.length === 0) return;
+        list.innerHTML = '';
+        notifications.forEach(n => addNotificationToList(n));
+      }
+
+      function addNotificationToList(n, isNew = false) {
+        const item = document.createElement('li');
+        item.className = `notification-item p-3 border-bottom ${n.is_read ? '' : 'bg-light-yellow'}`;
+        item.style.transition = 'background 0.3s ease';
+
+        // Localize timestamp
+        let timeDisplay = 'Just now';
+        if (n.timestamp) {
+          const date = new Date(n.timestamp);
+          timeDisplay = date.toLocaleString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true });
+        }
+
+        item.innerHTML = `
+            <a href="${n.link || '#'}" class="text-decoration-none text-dark d-block notification-link">
+                <div class="d-flex justify-content-between">
+                    <strong class="small">${n.title}</strong>
+                    <span class="text-muted" style="font-size: 0.75rem;">${timeDisplay}</span>
+                </div>
+                <p class="mb-0 small text-truncate-2">${n.body}</p>
+            </a>
+          `;
+
+        const link = item.querySelector('.notification-link');
+        link.onclick = (e) => {
+          if (!n.is_read) {
+            userSocket.send(JSON.stringify({
+              'type': 'mark_single_read',
+              'notification_id': n.id
+            }));
+            // Optimistic UI update
+            item.classList.remove('bg-light-yellow');
+            n.is_read = true;
+          }
+        };
+
+        if (isNew) list.prepend(item);
+        else list.appendChild(item);
+
+        if (list.querySelector('.bi-bell-slash')) list.innerHTML = ''; // Clear empty state
+      }
+
+      userSocket.onclose = () => console.warn('User socket closed. Static fallback active.');
+
+      function showGlobalToast(notif) {
+        const container = document.getElementById('toast-container') || (function () {
+          const c = document.createElement('div');
+          c.id = 'toast-container';
+          c.style.cssText = 'position:fixed; top:80px; right:20px; z-index:10500;';
+          document.body.appendChild(c);
+          return c;
+        })();
+        const id = 'toast-' + Date.now();
+        const html = `
+            <div id="${id}" class="toast show animate__animated animate__fadeInRight" style="background: white; border-left: 5px solid #f9b934; margin-bottom: 10px; width: 300px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
+                <div class="toast-header border-0 bg-transparent">
+                    <strong class="me-auto text-dark">${notif.title}</strong>
+                    <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
+                </div>
+                <div class="toast-body text-dark pt-0">${notif.body}<hr class="my-2"><a href="${notif.link}" class="btn btn-sm btn-warning w-100 fw-bold">View Details</a></div>
+            </div>`;
+        container.insertAdjacentHTML('beforeend', html);
+        setTimeout(() => {
+          const t = document.getElementById(id);
+          if (t) {
+            t.classList.replace('animate__fadeInRight', 'animate__fadeOutRight');
+            setTimeout(() => t.remove(), 1000);
+          }
+        }, 8000);
+      }
+    })();
+  </script>
+  {% endif %}
+
+  <!-- Mouse Follower -->
+  <div class="mouse-follower" id="mouseFollower"></div>
+
+  <style>
+    /* Mouse follower circle */
+    .mouse-follower {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 14px;
+      height: 14px;
+      background: rgba(255, 204, 51, 0.9);
+      border-radius: 50%;
+      pointer-events: none;
+      transform: translate(-50%, -50%);
+      opacity: 0;
+      z-index: 9999;
+      box-shadow: 0 0 12px rgba(255, 204, 51, 0.6);
+      transition: opacity 0.3s ease;
+      mix-blend-mode: difference;
+    }
+
+
+    /* Slightly enlarge when hovering over links or buttons */
+    a:hover~.mouse-follower,
+    button:hover~.mouse-follower {
+      transform: scale(1.3) translate(-50%, -50%);
+    }
+  </style>
+  <script>
+    (function () {
+      const follower = document.getElementById("mouseFollower");
+      if (!follower) return;
+
+      // Disable on mobile
+      const isMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+      if (isMobile) {
+        follower.style.display = "none";
+        return;
+      }
+
+      let mouseX = 0, mouseY = 0;
+      let currentX = 0, currentY = 0;
+      const speed = 0.18;
+
+      document.addEventListener("mousemove", (e) => {
+        mouseX = e.clientX;
+        mouseY = e.clientY;
+        follower.style.opacity = "1";
       });
 
-      // Animation loop for smooth movement
+      document.addEventListener("mouseleave", () => {
+        follower.style.opacity = "0";
+      });
+
       function animate() {
         currentX += (mouseX - currentX) * speed;
         currentY += (mouseY - currentY) * speed;
-        follower.style.transform = `translate(${currentX}px, ${currentY}px) translate(-50%, -50%)`;
+        follower.style.transform =
+          `translate(${currentX}px, ${currentY}px) translate(-50%, -50%)`;
         requestAnimationFrame(animate);
       }
 
       animate();
 
-      window.addEventListener("load", function () {
-        const footerHeight = document.querySelector(".footer").offsetHeight;
-        document.body.style.paddingBottom = footerHeight + "px";
+      // Enlarge on interactive elements
+      document.addEventListener("mouseover", (e) => {
+        if (
+          e.target.closest("a") ||
+          e.target.closest("button") ||
+          e.target.closest("input")
+        ) {
+          follower.style.width = "20px";
+          follower.style.height = "20px";
+        }
       });
-    </script>
-  </body>
+
+      document.addEventListener("mouseout", (e) => {
+        if (
+          e.target.closest("a") ||
+          e.target.closest("button") ||
+          e.target.closest("input")
+        ) {
+          follower.style.width = "14px";
+          follower.style.height = "14px";
+        }
+      });
+    })();
+  </script>
+
+</body>
+
 </html>

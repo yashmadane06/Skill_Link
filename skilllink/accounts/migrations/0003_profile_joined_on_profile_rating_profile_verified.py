@@ -1,11 +1,11 @@
-# accounts/migrations/0003_profile_fields.py
 from django.db import migrations, models
+from django.utils import timezone
 import datetime
 
 class Migration(migrations.Migration):
 
     dependencies = [
-    ('accounts', '0002_initial'),  # <-- put the actual last migration name here
+    ('accounts', '0002_initial'), 
 ]
 
     operations = [
@@ -18,8 +18,7 @@ class Migration(migrations.Migration):
             model_name='profile',
             name='joined_on',
             field=models.DateTimeField(
-                auto_now_add=True,
-                default=datetime.datetime(2025, 12, 11, 0, 0, tzinfo=datetime.timezone.utc)
+                default=timezone.now
             ),
             preserve_default=False,
         ),
