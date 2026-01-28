@@ -32,8 +32,8 @@ def create_zoom_meeting(topic="Skill Session"):
     "type": 2,  # scheduled meeting
     "start_time": "2025-09-14T14:00:00Z",  # ISO format
     "settings": {
-        "join_before_host": False,
-        "waiting_room": True
+        "join_before_host": True,
+        "waiting_room": False
     }
     }
     response = requests.post(url, json=payload, headers=headers)
