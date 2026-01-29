@@ -135,14 +135,15 @@ CHANNEL_LAYERS = {
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
 
-if DEBUG:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': BASE_DIR / "db.sqlite3",
-        }
-    }
-else:  DATABASES = {
+# if DEBUG:
+#     DATABASES = {
+#         'default': {
+#             'ENGINE': 'django.db.backends.sqlite3',
+#             'NAME': BASE_DIR / "db.sqlite3",
+#         }
+#     }
+# else:
+DATABASES = {
     'default': dj_database_url.parse(
         'postgres://postgres:Yash@26012006M@db.dkwfssshgeuohlsjhsmy.supabase.co:5432/postgres?sslmode=require'
     )
