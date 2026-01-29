@@ -16,6 +16,8 @@ from decouple import config
 import cloudinary
 import cloudinary.uploader
 import cloudinary.api
+import dj_database_url
+import os
 
 
 
@@ -132,12 +134,20 @@ CHANNEL_LAYERS = {
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+
+if DEBUG:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / "db.sqlite3",
+        }
     }
+else:  DATABASES = {
+    'default': dj_database_url.parse(
+        'postgres://postgres:Yash@26012006M@db.dkwfssshgeuohlsjhsmy.supabase.co:5432/postgres?sslmode=require'
+    )
 }
+
 
 
 # Password validation
@@ -215,23 +225,30 @@ EMAIL_HOST_USER = 'skilllinproj@gmail.com'  # Replace with your email
 EMAIL_HOST_PASSWORD = 'bckqhhyppwpyzagb'
 
 
-# Production settings (commented out for local development)
+
 # Production settings (commented out for local development)
 # CSRF_TRUSTED_ORIGINS = ["https://skill-link-ptzd.onrender.com"]
 # SECURE_HSTS_SECONDS = 31536000
-SECURE_SSL_REDIRECT = False
-SESSION_COOKIE_SECURE = False
-CSRF_COOKIE_SECURE = False
+if not DEBUG:
+    SECURE_SSL_REDIRECT = True
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SECURE_HSTS_SECONDS = 31536000
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+    CSRF_TRUSTED_ORIGINS = ["https://skill-link-ptzd.onrender.com"]
+
 
 # Development settings
-CSRF_TRUSTED_ORIGINS = ["http://localhost:8000", "http://127.0.0.1:8000", "http://0.0.0.0:8000", "https://skill-link-ptzd.onrender.com"]
-SECURE_HSTS_SECONDS = 0
+# CSRF_TRUSTED_ORIGINS = ["http://localhost:8000", "http://127.0.0.1:8000", "http://0.0.0.0:8000", "https://skill-link-ptzd.onrender.com"]
+# SECURE_HSTS_SECONDS = 0
+
+
 # SECURE_SSL_REDIRECT = False
 # SESSION_COOKIE_SECURE = False
 # CSRF_COOKIE_SECURE = False
 # SECURE_PROXY_SSL_HEADER = None
 # USE_X_FORWARDED_HOST = False
-# USE_X_FORWARDED_PORT = False
+
 
 
 # Use Cloudinary for media storage

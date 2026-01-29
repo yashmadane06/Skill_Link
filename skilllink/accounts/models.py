@@ -40,19 +40,19 @@ class Profile(models.Model):
 
     location = models.CharField(max_length=100, blank=True, null=True)
     languages_spoken = models.CharField(max_length=200, blank=True, null=True)
-    experience_level = models.CharField(
-        max_length=20,
-        choices=[
-            ("beginner", "Beginner"),
-            ("intermediate", "Intermediate"),
-            ("expert", "Expert"),
-        ],
-        default="beginner"
-    )
+    # experience_level = models.CharField(
+    #     max_length=20,
+    #     choices=[
+    #         ("beginner", "Beginner"),
+    #         ("intermediate", "Intermediate"),                         #future plan
+    #         ("expert", "Expert"),
+    #     ],
+    #     default="beginner"
+    # )
     tokens_balance = models.PositiveIntegerField(default=0)
     rating = models.FloatField(default=0.0)
     joined_on = models.DateTimeField(default=timezone.now)
-    verified = models.BooleanField(default=True)
+    # verified = models.BooleanField(default=True)                     #future plan
     
     def __str__(self):
         return self.user.username
